@@ -21,7 +21,7 @@
 ## Notes-zhTW: WoW Forever 地城路線疊加層：地圖、首領順序、自動勾選、入口箭頭。
 ## Author: qqhrqqhr2
 ## Version: 2.0.0
-## Category: Dungeons
+## Category: EzWoW
 ## IconTexture: Interface\AddOns\EzWoW-DungeonRouteGuide\Media\icon
 ## X-License: GPL-2.0
 ## X-Website: https://github.com/qqhrqqhr2/EzWoW-DungeonRouteGuide
