@@ -337,6 +337,9 @@ function SettingsDialog.buildConfigWindow()
     createStyledCheckbox(18, -224, 180, function() return SettingsDialog.cleanColonVal(L.OPT_EDIT) end,
         function() return state.edit end, function(v) ns.SetEditMode(v) end,
         function() return L.TIP_OPT_EDIT end)
+    createStyledCheckbox(232, -224, 180, function() return L.WORLD_HIDE_STOCK end,
+        function() return ns.db.hideStockEntrances ~= false end, function(v) ns.db.hideStockEntrances = v end,
+        function() return L.TIP_WORLD_HIDE_STOCK end)
 
     local alphaLbl = windowFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     alphaLbl:SetPoint("TOPLEFT", 20, -262)
