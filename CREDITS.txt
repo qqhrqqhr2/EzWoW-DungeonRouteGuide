@@ -1,0 +1,14 @@
+EzWoW - Dungeon Route Guide - Credits / 크레딧
+
+Dungeon maps / 던전 지도
+  The maps use the game client's minimap tile art (Blizzard Entertainment),
+  bundled in MinimapTiles_v12/.
+  World of Warcraft art is © Blizzard Entertainment, Inc.
+
+Game data / 공략 데이터
+  3D boss previews use the client's creature models and bundled display IDs.
+  Step order, boss / NPC / rare / quest-spot positions, alternate spawn spots,
+  quest lists, boss loot (item IDs) and entrance coordinates for WoW Forever
+  were compiled and structured for this addon.
+
+This addon is distributed under the GNU General Public License v2 (LICENSE.txt).

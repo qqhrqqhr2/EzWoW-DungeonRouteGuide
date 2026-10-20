@@ -1,0 +1,11 @@
+<Bindings>
+  <Binding name="EZWOWDUNGEONROUTEGUIDE_TOGGLE" header="EZWOWDUNGEONROUTEGUIDE" category="ADDONS">
+    EzWoW_DungeonRouteGuide_Toggle()
+  </Binding>
+  <Binding name="EZWOWDUNGEONROUTEGUIDE_NEXT" category="ADDONS">
+    EzWoW_DungeonRouteGuide_MarkNext()
+  </Binding>
+  <Binding name="EZWOWDUNGEONROUTEGUIDE_ANNOUNCE" category="ADDONS">
+    EzWoW_DungeonRouteGuide_Announce()
+  </Binding>
+</Bindings>

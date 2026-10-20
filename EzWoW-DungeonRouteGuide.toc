@@ -1,0 +1,48 @@
+## Interface: 16001
+## Title: EzWoW - Dungeon Route Guide
+## Title-enUS: EzWoW - Dungeon Route Guide
+## Title-koKR: EzWoW - Dungeon Route Guide
+## Title-deDE: EzWoW - Dungeon Route Guide
+## Title-frFR: EzWoW - Dungeon Route Guide
+## Title-esES: EzWoW - Dungeon Route Guide
+## Title-esMX: EzWoW - Dungeon Route Guide
+## Title-ruRU: EzWoW - Dungeon Route Guide
+## Title-zhCN: EzWoW - Dungeon Route Guide
+## Title-zhTW: EzWoW - Dungeon Route Guide
+## Notes: Dungeon route overlay for WoW Forever: map, boss order, auto check, entrance arrow.
+## Notes-enUS: Dungeon route overlay for WoW Forever: map, boss order, auto check, entrance arrow.
+## Notes-koKR: 와우 포에버 던전 공략 길잡이 - 지도 위 진행 경로, 보스 순서, 자동 체크, 입구 화살표
+## Notes-deDE: Dungeon-Routen-Overlay für WoW Forever: Karte, Boss-Reihenfolge, Auto-Check, Eingangspfeil.
+## Notes-frFR: Superposition de route de donjon pour WoW Forever : carte, ordre des boss, vérification auto, flèche d'entrée.
+## Notes-esES: Superposición de ruta de mazmorra para WoW Forever: mapa, orden de jefes, verificación automática, flecha de entrada.
+## Notes-esMX: Superposición de ruta de mazmorra para WoW Forever: mapa, orden de jefes, verificación automática, flecha de entrada.
+## Notes-ruRU: Путеводитель по подземельям для WoW Forever: карта, порядок боссов, авто-отметка, стрелка ко входу.
+## Notes-zhCN: WoW Forever 地下城路线叠加层：地图、首领顺序、自动勾选、入口箭头。
+## Notes-zhTW: WoW Forever 地城路線疊加層：地圖、首領順序、自動勾選、入口箭頭。
+## Author: qqhrqqhr2
+## Version: 1.0.16
+## Category: Dungeons
+## IconTexture: Interface\AddOns\EzWoW-DungeonRouteGuide\Media\icon
+## X-License: GPL-2.0
+## X-Website: https://github.com/qqhrqqhr2/EzWoW-DungeonRouteGuide
+## X-Curse-Project-ID: 1728502
+## X-Credits: WoW Forever client minimap geometry
+## SavedVariables: EzWoW_DungeonRouteGuideDB
+## SavedVariablesPerCharacter: EzWoW_DungeonRouteGuideCharDB
+
+Core\Locales.lua
+Core\UIKit.lua
+Core\Init.lua
+Core\WorldMapDock.lua
+Data\DungeonData.lua
+Data\MinimapData.lua
+Data\FloorAreas.lua
+Modules\ProgressTracker.lua
+Modules\EntranceArrow.lua
+UI\DungeonMapWindow.lua
+UI\OptionsWindow.lua
+UI\HUD.lua
+UI\WorldMapPins.lua
+UI\WorldMapDockSearch.lua
+UI\WorldMap.xml
+UI\LauncherIcon.lua
