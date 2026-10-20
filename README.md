@@ -1,5 +1,10 @@
 # EzWoW - Dungeon Route Guide (`EzWoW-DungeonRouteGuide`)
 
+## CurseForge
+
+- **Project ID / 프로젝트 ID:** `1728502`
+- **Project page / 프로젝트 페이지:** [EzWoW-DungeonRouteGuide](https://www.curseforge.com/wow/addons/dungeonrouteguide)
+
 **[한국어](#한국어) · [English](#english)**
 
 WoW Forever (`Interface: 16001`) · `v1.0.16` · `/ezdg`
