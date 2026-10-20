@@ -357,7 +357,7 @@ ns.Dungeons = {
     },
     trash = { 2264, 4438, 1978, 2039, 1976, 2549, 1488, 1727, 776, 1975 },
     trashGroups = {
-      { name = { ko = "일반 몹", en = "Trash mobs" }, trash = true, loot = { 2264, 4438, 1978, 2039, 1976, 2549, 1488, 1727, 776, 1975 }, from = { [2264] = "world", [4438] = "world", [1978] = "world", [2039] = "world", [1976] = "world", [2549] = "world", [1488] = "world", [1727] = "world", [776] = "world", [1975] = "world" } },
+      { name = { ko = "일반 몹", en = "Trash mobs" }, trash = true, loot = { 2264, 4438, 1978, 2039, 1976, 2549, 1488, 1727, 776, 1975 }, from = { [2264] = "도둑의 어깨보호대", [4438] = "싸움꾼의 팔보호구", [1978] = "늑대발톱 장갑", [2039] = "평원의 반지", [1976] = "가시덩굴 마울", [2549] = "망령의 지팡이", [1488] = "복수의 갑옷", [1727] = "쇠퇴의 검", [776] = "복수의 단검", [1975] = "피잔의 낡은 그레이트소드" } },
     },
     notes = { { ko = "아겜과 차를가는 스스로 치유합니다. 차단을 준비하세요.", en = "Aggem and Charlga heal themselves; have interrupts." }, { ko = "청엽수 줄기 퀘스트는 들어오기 전에 톱니항에서 상자·지휘봉·설명서를 챙기세요.", en = "Blueleaf Tubers: grab crate, stick and manual in Ratchet first." } },
   },
