@@ -26,7 +26,7 @@ local DEFAULTS = {
     alpha = 0.9, combatFade = true, combatAlpha = 0.35,
     mapSize = 380, showList = true, listTab = "route",
     locked = false, autoOpen = true, hud = true, rareAlert = true, showIcon = true, lang = "auto",
-    worldMapPins = true, hideStockEntrances = true,
+    worldMapPins = true,
     worldMapLabels = true, worldMapLevels = true, worldMapAutoAlign = true,
     mapStyle = "blizzard",
     routes = {}, entrances = {}, frames = {}, names = {}, floorAreas = {},

@@ -209,30 +209,11 @@ function MapDataProvider:OnHide()
     if ns.WorldMapControls then ns.WorldMapControls.panel:Hide() end
 end
 
--- While our entrance pins are on, drop the game's own entrance pins so each entrance shows once
-function WorldMapPinProvider.shouldHideStockEntrances()
-    return ns.db and ns.db.worldMapPins and ns.db.hideStockEntrances ~= false
-end
-
-function WorldMapPinProvider.bindStockEntranceProvider(_, provider)
-    if not (DungeonEntranceDataProviderMixin and provider ~= WorldMapDataProvider
-        and provider.RefreshAllData == DungeonEntranceDataProviderMixin.RefreshAllData)
-        or provider.ezWoWRouteGuideHooked then return end
-    provider.ezWoWRouteGuideHooked = true
-    hooksecurefunc(provider, "RefreshAllData", function(p)
-        if WorldMapPinProvider.shouldHideStockEntrances() and p:GetMap() == WorldMapFrame then
-            WorldMapFrame:RemoveAllPinsByTemplate("DungeonEntrancePinTemplate")
-        end
-    end)
-end
-
 function ns.InitWorldMap()
     if WorldMapDataProvider or not ns.db or not WorldMapFrame or not MapCanvasDataProviderMixin or not MapCanvasPinMixin then return end
     for lookupKey, value in pairs(MapCanvasPinMixin) do if PinMixin[lookupKey] == nil then PinMixin[lookupKey] = value end end
     WorldMapDataProvider = CreateFromMixins(MapCanvasDataProviderMixin, MapDataProvider)
     WorldMapFrame:AddDataProvider(WorldMapDataProvider)
-    for provider in pairs(WorldMapFrame.dataProviders or {}) do WorldMapPinProvider.bindStockEntranceProvider(WorldMapFrame, provider) end
-    hooksecurefunc(WorldMapFrame, "AddDataProvider", WorldMapPinProvider.bindStockEntranceProvider)
     if ns.CreateWorldMapControls then ns.CreateWorldMapControls() end
     if ns.IsTruthySafeValue(ns.UnwrapSafeValue(WorldMapFrame.IsShown, WorldMapFrame)) then WorldMapDataProvider:RefreshAllData() end
 end
@@ -240,16 +221,7 @@ end
 function ns.RefreshWorldMap()
     ns.InitWorldMap()
     if ns.RefreshWorldMapControls then ns.RefreshWorldMapControls() end
-    if WorldMapDataProvider and ns.IsTruthySafeValue(ns.UnwrapSafeValue(WorldMapFrame.IsShown, WorldMapFrame)) then
-        -- Refresh every provider only when the stock-icon state flips, so the game's icons follow the option right away
-        local hideStock = WorldMapPinProvider.shouldHideStockEntrances() and true or false
-        if hideStock ~= WorldMapPinProvider.lastStockHidden and WorldMapFrame.RefreshAllDataProviders then
-            WorldMapPinProvider.lastStockHidden = hideStock
-            pcall(WorldMapFrame.RefreshAllDataProviders, WorldMapFrame)
-        else
-            WorldMapDataProvider:RefreshAllData()
-        end
-    end
+    if WorldMapDataProvider and ns.IsTruthySafeValue(ns.UnwrapSafeValue(WorldMapFrame.IsShown, WorldMapFrame)) then WorldMapDataProvider:RefreshAllData() end
 end
 
 _G.EzWoWRouteGuideWorldPinMixin = EzWoWRouteGuideWorldPinMixin

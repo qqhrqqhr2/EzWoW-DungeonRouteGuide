@@ -70,7 +70,6 @@ WoW Forever (`Interface: 16001`) · `v1.0.16` · `/ezdg`
 | ② | 화면 바로가기 아이콘 표시 | 런처 아이콘 | 켬 |
 | ③ | 세계지도에 던전 입구 / 이름 / 권장 레벨 표시 | 세계지도 표식 | 켬 |
 | ③ | 지도 버튼 좌하단 자동 정렬 | 세계지도 도킹 버튼 정렬 | 켬 |
-| ③ | 게임 기본 던전 아이콘 숨기기 | 던전 입구 표시를 켠 동안 게임 기본 던전 입구 아이콘을 숨겨 한 번만 보이게 합니다. | 켬 |
 | ③ | 지도 표식 위치 수동 편집 모드 | 단계를 고른 뒤 지도를 좌클릭해 표식을 옮기고, 우클릭으로 원래 자리로 되돌립니다. | 끔 |
 | ④ | 창 투명도 · 던전 지도 크기 | 배경 20~100%, 지도 240~800px | 90% · 380px |
 | ⑤ | 도구 | 공략 창 열기, 입구 방향 화살표 안내 시작, 현재 던전 진행도 초기화, 편집한 표식 위치 내보내기 | - |
@@ -165,7 +164,6 @@ A dungeon route guide. **18 dungeons and 29 floor maps** use real minimap-tile a
 | ② | Show floating launcher icon | Launcher icon | On |
 | ③ | Show dungeon entrances / names / recommended levels on World Map | World Map pins | On |
 | ③ | Auto-align map button (bottom-left) | World Map dock alignment | On |
-| ③ | Hide default dungeon icons | While dungeon entrances are shown, hides the game's own entrance icons so each entrance appears once | On |
 | ③ | Marker position edit mode | Pick a step, left-click the map to move its marker, right-click to restore it | Off |
 | ④ | Window opacity · Dungeon map size | Background 20–100%, map 240–800 px | 90% · 380 px |
 | ⑤ | Tools | Open the guide, start the entrance arrow, reset current dungeon progress, export marker edits | - |
