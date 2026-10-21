@@ -73,8 +73,13 @@ function DungeonRouteWindow.createStyledButton(parent, text, w, tip, onClick)
     labelRegion:SetPoint("CENTER")
     labelRegion:SetTextColor(0.929, 0.957, 0.969, 1.00)
     labelRegion:SetText(text or "")
+    ns.UIKit:FitFontString(labelRegion, w - 8, 1)
     buttonWidget.label = labelRegion
-    function buttonWidget:SetText(txt) labelRegion:SetText(txt or "") end
+    function buttonWidget:SetText(txt)
+        labelRegion:SetText(txt or "")
+        -- auto-sized buttons (minW) are fitted by fitButtonWidthToLabel instead
+        if not buttonWidget.minW then ns.UIKit:FitFontString(labelRegion, buttonWidget:GetWidth() - 8, 1) end
+    end
     function buttonWidget:GetText() return labelRegion:GetText() end
     function buttonWidget:GetFontString() return labelRegion end
     buttonWidget:SetScript("OnClick", onClick)
@@ -107,13 +112,19 @@ function DungeonRouteWindow.getSafeStringWidth(labelRegion, def) return ns.Coerc
 function DungeonRouteWindow.getSafeStringHeight(labelRegion, def) return ns.CoerceSafeNumber(ns.UnwrapSafeValue(labelRegion and labelRegion.GetStringHeight, labelRegion)) or def or 0 end
 
 local fitBtns = {}
+-- Grows with the label up to maxW (long German / Russian texts); beyond that the text shrinks.
 function DungeonRouteWindow.fitButtonWidthToLabel(buttonWidget)
     local labelRegion = buttonWidget:GetFontString()
+    if buttonWidget.maxW then
+        ns.UIKit:SizeButtonToText(buttonWidget, labelRegion, buttonWidget.minW or 20, buttonWidget.maxW, 14)
+        return
+    end
     local swVal = DungeonRouteWindow.getSafeStringWidth(labelRegion, 0)
     buttonWidget:SetWidth(math.max(buttonWidget.minW or 20, math.floor(swVal + 14)))
 end
-function DungeonRouteWindow.shrinkFontStringToFit(buttonWidget, minW)
+function DungeonRouteWindow.shrinkFontStringToFit(buttonWidget, minW, maxW)
     buttonWidget.minW = minW
+    buttonWidget.maxW = maxW
     fitBtns[#fitBtns + 1] = buttonWidget
     DungeonRouteWindow.fitButtonWidthToLabel(buttonWidget)
     return buttonWidget
@@ -998,7 +1009,7 @@ function DungeonRouteWindow.createPrimaryWidget()
     end)
     currentBtn:SetPoint("RIGHT", listBtn, "LEFT", -6, 0)
     ns.GetLocalizedEntryField(menuBtn, "BTN_MENU"); ns.GetLocalizedEntryField(listBtn, "BTN_LIST"); ns.GetLocalizedEntryField(currentBtn, "BTN_CURRENT")
-    DungeonRouteWindow.shrinkFontStringToFit(menuBtn, 40); DungeonRouteWindow.shrinkFontStringToFit(listBtn, 36); DungeonRouteWindow.shrinkFontStringToFit(currentBtn, 52)
+    DungeonRouteWindow.shrinkFontStringToFit(menuBtn, 40, 72); DungeonRouteWindow.shrinkFontStringToFit(listBtn, 36, 64); DungeonRouteWindow.shrinkFontStringToFit(currentBtn, 52, 96)
     
     local titleBtn = CreateFrame("Button", nil, containerFrame, "BackdropTemplate")
     dropdown = titleBtn
@@ -1117,7 +1128,7 @@ function DungeonRouteWindow.createPrimaryWidget()
     tabNotes = DungeonRouteWindow.createStyledButton(itemList, L.TAB_NOTES, 50, nil, function() DungeonRouteWindow.assignTab("notes") end)
     tabNotes:SetPoint("LEFT", tabQuest, "RIGHT", 2, 0)
     ns.GetLocalizedEntryField(tabRoute, "TAB_ROUTE"); ns.GetLocalizedEntryField(tabQuest, "TAB_QUEST"); ns.GetLocalizedEntryField(tabNotes, "TAB_NOTES")
-    DungeonRouteWindow.shrinkFontStringToFit(tabRoute, 40); DungeonRouteWindow.shrinkFontStringToFit(tabQuest, 40); DungeonRouteWindow.shrinkFontStringToFit(tabNotes, 36)
+    DungeonRouteWindow.shrinkFontStringToFit(tabRoute, 40, 62); DungeonRouteWindow.shrinkFontStringToFit(tabQuest, 40, 62); DungeonRouteWindow.shrinkFontStringToFit(tabNotes, 36, 62)
     progressText = itemList:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
     progressText:SetPoint("TOPRIGHT", -4, -4)
     listScroll = CreateFrame("ScrollFrame", "EzWoW_DungeonRouteGuideListScroll", itemList, "UIPanelScrollFrameTemplate")

@@ -247,6 +247,7 @@ function SettingsDialog.buildConfigWindow()
         formatLocalizedLabel:SetPoint("CENTER")
         formatLocalizedLabel:SetTextColor(unpack(isAccent and ROUTE_THEME.accent or ROUTE_THEME.text))
         buttonWidget.label = formatLocalizedLabel
+        buttonWidget.fitWidth = w - 8
         buttonWidget:SetScript("OnEnter", function()
             buttonWidget:SetBackdropColor(0.20, 0.24, 0.30, 1)
             buttonWidget:SetBackdropBorderColor(unpack(ROUTE_THEME.accent))
@@ -273,6 +274,7 @@ function SettingsDialog.buildConfigWindow()
         displayText:SetJustifyH("LEFT")
         displayText:SetTextColor(unpack(ROUTE_THEME.text))
         themeColor.txt = displayText
+        themeColor.txtWidth = w or 180
         themeColor.resolveLabel = resolveLabel
         themeColor.readValue = readOptionValue
         themeColor:SetScript("OnClick", function(self)
@@ -430,26 +432,35 @@ function SettingsDialog.buildConfigWindow()
     footerRegion:SetText("EzWoW - Dungeon Route Guide · /ezdg")
     footerRegion:SetTextColor(unpack(ROUTE_THEME.muted))
 
+    -- Long translations (German, French, ...) shrink to fit their button
+    local function setButtonLabel(buttonWidget, displayText)
+        buttonWidget.label:SetText(displayText)
+        ns.UIKit:FitFontString(buttonWidget.label, buttonWidget.fitWidth, 1)
+    end
+
     syncCfg = function()
         if not ns.db then return end
         subtitleRegion:SetText(L.TAB_ROUTE .. " · " .. L.TAB_QUEST .. " · " .. L.TAB_NOTES)
         sec1:SetText(L.BTN_MENU)
         sec2:SetText(L.SEC_TOOLS or L.TAB_ROUTE)
-        langBtn.label:SetText(L.OPT_LANG:format(L["LANG_" .. (ns.db.lang or "auto")]) .. " ▼")
+        setButtonLabel(langBtn, L.OPT_LANG:format(L["LANG_" .. (ns.db.lang or "auto")]) .. " ▼")
         for _, themeColor in ipairs(cfgChecks) do
             themeColor.txt:SetText(themeColor.resolveLabel())
+            ns.UIKit:FitFontString(themeColor.txt, themeColor.txtWidth, 2)
             themeColor:SetChecked(themeColor.readValue() and true or false)
         end
         alphaLbl:SetText(SettingsDialog.cleanColonVal(L.OPT_ALPHA))
+        ns.UIKit:FitFontString(alphaLbl, 100, 1)
         alphaVal:SetText(math.floor(ns.db.alpha * 100 + 0.5) .. "%")
         sizeLbl:SetText(SettingsDialog.cleanColonVal(L.OPT_SIZE))
+        ns.UIKit:FitFontString(sizeLbl, 100, 1)
         sizeVal:SetText((ns.db.mapSize or 380) .. "px")
-        launchMapBtn.label:SetText("EzWoW - Dungeon Route Guide (/ezdg)")
-        goBtn.label:SetText(L.OPT_GO)
-        resetProgBtn.label:SetText(L.OPT_RESET)
-        exportBtn.label:SetText(L.OPT_EXPORT)
-        bottomResetBtn.label:SetText(L.OPT_RESET_POS or RESET or "Reset")
-        donateBtn.label:SetText(L.OPT_DONATE)
+        setButtonLabel(launchMapBtn, "EzWoW - Dungeon Route Guide (/ezdg)")
+        setButtonLabel(goBtn, L.OPT_GO)
+        setButtonLabel(resetProgBtn, L.OPT_RESET)
+        setButtonLabel(exportBtn, L.OPT_EXPORT)
+        setButtonLabel(bottomResetBtn, L.OPT_RESET_POS or RESET or "Reset")
+        setButtonLabel(donateBtn, L.OPT_DONATE)
         if BlizzardOptionsCanvas and BlizzardOptionsCanvas.RefreshTexts then
             BlizzardOptionsCanvas:RefreshTexts()
         end
@@ -507,7 +518,10 @@ function ns.RegisterOptionsPanel()
     local launchLabel = launchBtn:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
     launchLabel:SetPoint("CENTER")
     launchLabel:SetTextColor(unpack(ROUTE_THEME.accent))
-    function launchBtn:SetText(displayText) launchLabel:SetText(displayText or "") end
+    function launchBtn:SetText(displayText)
+        launchLabel:SetText(displayText or "")
+        ns.UIKit:FitFontString(launchLabel, 212, 1)
+    end
     launchBtn:SetScript("OnEnter", function(self)
         if self.SetBackdropColor then
             self:SetBackdropColor(0.20, 0.24, 0.30, 1)

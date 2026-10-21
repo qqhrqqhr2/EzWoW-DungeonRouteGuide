@@ -30,7 +30,11 @@ function StepTrackerHUD.createStepDeltaBtn(parent, text, w, onClick)
     labelRegion:SetTextColor(0.929, 0.957, 0.969, 1.00)
     labelRegion:SetText(text or "")
     buttonWidget.label = labelRegion
-    function buttonWidget:SetText(txt) labelRegion:SetText(txt or "") end
+    -- Grows with long translations up to maxW, then shrinks the text
+    function buttonWidget:SetText(txt)
+        labelRegion:SetText(txt or "")
+        ns.UIKit:SizeButtonToText(buttonWidget, labelRegion, w, buttonWidget.maxW or w, 10)
+    end
     function buttonWidget:GetText() return labelRegion:GetText() end
     function buttonWidget:GetFontString() return labelRegion end
     buttonWidget:SetScript("OnEnter", function(self)
@@ -77,6 +81,7 @@ function StepTrackerHUD.createPrimaryWidget()
     hud.mapBtn:SetPoint("TOPRIGHT", -4, -4)
     hud.tellBtn = StepTrackerHUD.createStepDeltaBtn(hud, L.BTN_ANNOUNCE, 62, function() ns.BroadcastCurrentStepToChat() end)
     hud.tellBtn:SetPoint("RIGHT", hud.mapBtn, "LEFT", -2, 0)
+    hud.mapBtn.maxW, hud.tellBtn.maxW = 70, 96
     ns.GetLocalizedEntryField(hud.mapBtn, "BTN_MAP"); ns.GetLocalizedEntryField(hud.tellBtn, "BTN_ANNOUNCE")
 
     hud.head = hud:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")

@@ -120,7 +120,11 @@ function WorldMapDungeonSearch.createActionButton(parent, extractSafeTooltipText
     labelRegion:SetTextColor(0.929, 0.957, 0.969, 1.00)
     labelRegion:SetText(extractSafeTooltipText or "")
     buttonWidget.label = labelRegion
-    function buttonWidget:SetText(txt) labelRegion:SetText(txt or "") end
+    -- Grows with long translations up to maxW, then shrinks the text
+    function buttonWidget:SetText(txt)
+        labelRegion:SetText(txt or "")
+        ns.UIKit:SizeButtonToText(buttonWidget, labelRegion, width, buttonWidget.maxW or width, 10)
+    end
     function buttonWidget:GetText() return labelRegion:GetText() end
     buttonWidget:SetScript("OnEnter", function(self)
         if self.SetBackdropColor then
@@ -329,11 +333,13 @@ function ns.CreateWorldMapControls()
         if ns.ToggleConfig then ns.ToggleConfig() end
     end)
     c.cfgBtn:SetPoint("RIGHT", c.closeBtn, "LEFT", -3, 0)
+    c.cfgBtn.maxW = 70
 
     c.mapBtn = WorldMapDungeonSearch.createActionButton(c.panel, L.BTN_MAP, 44, function()
         if ns.ToggleMap then ns.ToggleMap() end
     end)
     c.mapBtn:SetPoint("RIGHT", c.cfgBtn, "LEFT", -3, 0)
+    c.mapBtn.maxW = 70
 
     c.title = c.panel:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     c.title:SetPoint("TOPLEFT", 10, -9)
