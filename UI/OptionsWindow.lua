@@ -3,6 +3,13 @@
 -- UI/OptionsWindow.lua : EzWoW Style Settings Dialog, Route Export & Blizzard Panel
 --===========================================================================
 local _, ns = ...
+-- Text for the game's AddOns panel in the six languages without their own line: { deDE, frFR, esES, ruRU, zhCN, zhTW }
+local PANEL_LANG_INDEX = { deDE = 1, frFR = 2, esES = 3, esMX = 3, ruRU = 4, zhCN = 5, zhTW = 6, de = 1, fr = 2, es = 3, ru = 4 }
+local function panelText(code, ko, en, others)
+    if code == "koKR" or code == "ko" then return ko end
+    local index = PANEL_LANG_INDEX[code or ""]
+    return (index and others and others[index]) or en
+end
 local type, pairs, ipairs, tonumber, tostring, select, pcall = type, pairs, ipairs, tonumber, tostring, select, pcall
 
 local SettingsDialog = ns.SettingsDialog or {}
@@ -556,10 +563,10 @@ function ns.RegisterOptionsPanel()
     hint:SetTextColor(unpack(ROUTE_THEME.muted))
 
     function panelFrameEntry:RefreshTexts()
-        local hasKo = (ns.locale == "ko")
-        desc:SetText(hasKo and "던전 공략 경로, 우두머리·희귀 몹 위치, 던전 퀘스트 및 세계지도 던전 입구를 안내합니다." or "Displays dungeon routes, boss & rare locations, dungeon quests, and world map dungeon entrances.")
-        launchBtn:SetText((hasKo and "설정" or (L.BTN_MENU or "Settings")) .. " (/ezdg)")
-        hint:SetText(hasKo and "채팅창에 /ezdg 또는 /ezdg config를 입력해도 열립니다." or "Type /ezdg or /ezdg config in chat to open settings.")
+        local code = ns.locale
+        desc:SetText(panelText(code, "던전 공략 경로, 우두머리·희귀 몹 위치, 던전 퀘스트 및 세계지도 던전 입구를 안내합니다.", "Displays dungeon routes, boss & rare locations, dungeon quests, and world map dungeon entrances.", { "Zeigt Dungeon-Routen, Bosse und seltene Gegner, Dungeon-Quests und Dungeon-Eingänge auf der Weltkarte.", "Affiche les itinéraires de donjon, les boss et monstres rares, les quêtes de donjon et les entrées sur la carte du monde.", "Muestra rutas de mazmorra, jefes y monstruos raros, misiones de mazmorra y entradas en el mapa del mundo.", "Показывает маршруты подземелий, боссов и редких монстров, задания подземелий и входы на карте мира.", "显示地下城路线、首领与稀有怪位置、地下城任务以及世界地图上的地下城入口。", "顯示地城路線、首領與稀有怪位置、地城任務以及世界地圖上的地城入口。" }))
+        launchBtn:SetText(((code == "ko") and "설정" or (L.BTN_MENU or "Settings")) .. " (/ezdg)")
+        hint:SetText(panelText(code, "채팅창에 /ezdg 또는 /ezdg config를 입력해도 열립니다.", "Type /ezdg or /ezdg config in chat to open settings.", { "Du kannst die Einstellungen auch mit /ezdg oder /ezdg config im Chat öffnen.", "Vous pouvez aussi ouvrir les options en tapant /ezdg ou /ezdg config dans le chat.", "También puedes abrir las opciones escribiendo /ezdg o /ezdg config en el chat.", "Настройки также открываются командой /ezdg или /ezdg config в чате.", "也可以在聊天框输入 /ezdg 或 /ezdg config 打开设置。", "也可以在聊天框輸入 /ezdg 或 /ezdg config 開啟設定。" }))
     end
     panelFrameEntry:SetScript("OnShow", function(self) self:RefreshTexts() end)
     panelFrameEntry:RefreshTexts()

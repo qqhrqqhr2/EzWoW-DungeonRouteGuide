@@ -3,6 +3,13 @@
 -- Core/Locales.lua : Multilingual Localization Table & Entry Field Resolver
 --===========================================================================
 local _, ns = ...
+-- Text for the game's AddOns panel in the six languages without their own line: { deDE, frFR, esES, ruRU, zhCN, zhTW }
+local PANEL_LANG_INDEX = { deDE = 1, frFR = 2, esES = 3, esMX = 3, ruRU = 4, zhCN = 5, zhTW = 6, de = 1, fr = 2, es = 3, ru = 4 }
+local function panelText(code, ko, en, others)
+    if code == "koKR" or code == "ko" then return ko end
+    local index = PANEL_LANG_INDEX[code or ""]
+    return (index and others and others[index]) or en
+end
 local type, pairs, ipairs, tonumber, tostring, select, pcall = type, pairs, ipairs, tonumber, tostring, select, pcall
 
 local LocaleRegistry = ns.LocaleRegistry or {}
@@ -1211,9 +1218,9 @@ function ns.SetLanguage(setting)
     end
     
     BINDING_HEADER_EZWOWDUNGEONROUTEGUIDE = "EzWoW - Dungeon Route Guide"
-    BINDING_NAME_EZWOWDUNGEONROUTEGUIDE_TOGGLE = koVal and "EzWoW - Dungeon Route Guide 지도 열기/닫기" or "Toggle route map"
-    BINDING_NAME_EZWOWDUNGEONROUTEGUIDE_NEXT = koVal and "다음 단계 완료 표시" or "Mark next step done"
-    BINDING_NAME_EZWOWDUNGEONROUTEGUIDE_ANNOUNCE = koVal and "다음 목표 파티에 알리기" or "Tell party the next objective"
+    BINDING_NAME_EZWOWDUNGEONROUTEGUIDE_TOGGLE = panelText(ns.locale, "EzWoW - Dungeon Route Guide 지도 열기/닫기", "Toggle route map", { "Routenkarte ein/aus", "Afficher/masquer la carte d'itinéraire", "Mostrar/ocultar mapa de ruta", "Показать/скрыть карту маршрута", "打开/关闭路线地图", "開啟/關閉路線地圖" })
+    BINDING_NAME_EZWOWDUNGEONROUTEGUIDE_NEXT = panelText(ns.locale, "다음 단계 완료 표시", "Mark next step done", { "Nächsten Schritt abhaken", "Marquer l'étape suivante comme faite", "Marcar el siguiente paso como hecho", "Отметить следующий шаг выполненным", "标记下一步已完成", "標記下一步已完成" })
+    BINDING_NAME_EZWOWDUNGEONROUTEGUIDE_ANNOUNCE = panelText(ns.locale, "다음 목표 파티에 알리기", "Tell party the next objective", { "Nächstes Ziel an die Gruppe senden", "Annoncer le prochain objectif au groupe", "Anunciar el siguiente objetivo al grupo", "Сообщить группе следующую цель", "向队伍通报下一个目标", "向隊伍通報下一個目標" })
     for _, recordEntry in ipairs(ns.locWidgets) do pcall(recordEntry.w.SetText, recordEntry.w, ns.L[recordEntry.key]) end
     if ns.OnLanguageChanged then ns.OnLanguageChanged() end
 end
