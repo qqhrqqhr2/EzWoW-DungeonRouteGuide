@@ -6,8 +6,8 @@ local _, ns = ...
 ns.Dungeons = {
   {
     key = "rfc", slug = "ragefire-chasm", levels = "13-18",
-    name = { ko = "성난불길 협곡", en = "Ragefire Chasm" },
-    instanceIDs = { 389 }, nameMatch = { "성난불길", "Ragefire" },
+    name = { ko = "성난불길 협곡", en = "Ragefire Chasm", de = "Ragefireabgrund", fr = "Gouffre de Ragefeu", es = "Sima Ígnea", ru = "Огненная пропасть", zhCN = "怒焰裂谷", zhTW = "怒焰裂谷" },
+    instanceIDs = { 389 }, nameMatch = { "성난불길", "Ragefire", "Ragefireabgrund", "Gouffre de Ragefeu", "Sima Ígnea", "Огненная пропасть", "怒焰裂谷" },
     entrance = { map = 1454, x = 53.0, y = 48.9, zone = { ko = "오그리마 어둠의 틈 안쪽 동굴", en = "Inside the Cleft of Shadow in Orgrimmar" } },
     steps = {
       { id = "s1", n = "1", kind = "fork", unconfirmed = true, name = { ko = "갈림길", en = "Junction" }, tip = { ko = "입구 복도 끝 갈림길입니다. 서쪽으로 가서 오글플린트부터 잡고, 나중에 이 자리로 돌아옵니다.", en = "Junction at the end of the entrance corridor. Go west for Oggleflint first; you return here later." } },
@@ -29,8 +29,8 @@ ns.Dungeons = {
   },
   {
     key = "thanes", slug = "hall-of-thanes", levels = "13-18",
-    name = { ko = "영주의 전당", en = "The Hall of Thanes" },
-    instanceIDs = { 3065 }, nameMatch = { "영주의 전당", "Hall of Thanes" },
+    name = { ko = "영주의 전당", en = "The Hall of Thanes", de = "Die Halle der Thanen", fr = "La salle des Thanes", es = "El Salón de los Feudales", ru = "Чертоги танов", zhCN = "领主大厅", zhTW = "族長之廳" },
+    instanceIDs = { 3065 }, nameMatch = { "영주의 전당", "Hall of Thanes", "Die Halle der Thanen", "La salle des Thanes", "El Salón de los Feudales", "Чертоги танов", "领主大厅", "族長之廳" },
     entrance = { map = 1455, x = 43.6, y = 51.7, zone = { ko = "아이언포지 왕좌의 방(마그니 왕)에서 왼쪽 길로 내려가 옛 아이언포지로", en = "Take the left path from King Magni's throne room down into Old Ironforge" } },
     steps = {
       { id = "s1", n = "1", kind = "boss", name = { ko = "팔드림 앤빌마", en = "Faldrim Anvilmar" }, loot = { 270227, 271096, 271097 }, tip = { ko = "입구 다음 큰 방(앤빌마의 휴식처). 망령이 가득하니 앞만 비우든 방을 다 치우든 편한 대로. 정신 분열은 차단, 탱커 공속을 늦추는 저주를 겁니다.", en = "Big hall past the entrance, full of ghosts; clear in front or the whole room. Interrupt Mind Blast; curse slows the tank's attacks." } },
@@ -49,8 +49,8 @@ ns.Dungeons = {
   },
   {
     key = "wc", slug = "wailing-caverns", levels = "15-24",
-    name = { ko = "통곡의 동굴", en = "Wailing Caverns" },
-    instanceIDs = { 43 }, nameMatch = { "통곡의 동굴", "Wailing Caverns" },
+    name = { ko = "통곡의 동굴", en = "Wailing Caverns", de = "Höhlen des Wehklagens", fr = "Cavernes des Lamentations", es = "Cuevas de los Lamentos", ru = "Пещеры Стенаний", zhCN = "哀嚎洞穴", zhTW = "哀嚎洞穴" },
+    instanceIDs = { 43 }, nameMatch = { "통곡의 동굴", "Wailing Caverns", "Höhlen des Wehklagens", "Cavernes des Lamentations", "Cuevas de los Lamentos", "Пещеры Стенаний", "哀嚎洞穴" },
     entrance = { map = 1413, x = 47.7, y = 35.0, zone = { ko = "불모의 땅 오아시스 남쪽 협곡의 동굴", en = "Cave in the ravine south of the oasis, The Barrens" } },
     steps = {
       { id = "s1", n = "1", kind = "rare", optional = true, outside = { ko = "던전 밖 · 불모의 땅 46.1, 35.8", en = "Outside the dungeon · The Barrens 46.1, 35.8" }, npc = { 3655 }, model = 7221, name = { ko = "광기의 매글리시", en = "Mad Magglish" }, quests = { 959 }, tip = { ko = "던전 입구 앞 바깥 동굴(날팍 근처)에 숨은 정예입니다. '99년 묵은 와인'의 포트 와인을 떨구니 들어가기 전에 잡으세요.", en = "Elite hiding in the outer cave by Nalpak. Drops the port for Trouble at the Docks; kill him before zoning in." } },
@@ -82,8 +82,8 @@ ns.Dungeons = {
   },
   {
     key = "dm", slug = "deadmines", levels = "17-26",
-    name = { ko = "죽음의 폐광", en = "The Deadmines" },
-    instanceIDs = { 36 }, nameMatch = { "죽음의 폐광", "Deadmines" },
+    name = { ko = "죽음의 폐광", en = "The Deadmines", de = "Todesminen", fr = "Mortemines", es = "Minas de la Muerte", ru = "Мертвые копи", zhCN = "死亡矿井", zhTW = "死亡礦坑" },
+    instanceIDs = { 36 }, nameMatch = { "죽음의 폐광", "Deadmines", "Todesminen", "Mortemines", "Minas de la Muerte", "Мертвые копи", "死亡矿井", "死亡礦坑" },
     entrance = { map = 1436, x = 38.2, y = 77.5, zone = { ko = "서부 몰락지대 달빛시내 마을 광산 안쪽", en = "Inside the mine at Moonbrook, Westfall" } },
     steps = {
       { id = "s1", n = "1", kind = "boss", npc = { 644 }, model = 14403, name = { ko = "라크조르", en = "Rhahk'Zor" }, loot = { 273289, 872, 5187 }, tip = { ko = "격돌로 탱커를 기절시킵니다. 기절한 동안 힐러가 체력을 채워 주세요.", en = "Slam stuns the tank; healer tops them up meanwhile." } },
@@ -113,8 +113,8 @@ ns.Dungeons = {
   },
   {
     key = "rol", slug = "ruins-of-lordaeron", levels = "15-20",
-    name = { ko = "로데론의 폐허", en = "Ruins of Lordaeron" },
-    instanceIDs = { 2999 }, nameMatch = { "로데론의 폐허", "Ruins of Lordaeron" },
+    name = { ko = "로데론의 폐허", en = "Ruins of Lordaeron", de = "Ruinen von Lordaeron", fr = "Ruines de Lordaeron", es = "Ruinas de Lordaeron", ru = "Руины Лордерона", zhCN = "洛丹伦废墟", zhTW = "羅德隆廢墟" },
+    instanceIDs = { 2999 }, nameMatch = { "로데론의 폐허", "Ruins of Lordaeron", "Ruinen von Lordaeron", "Ruines de Lordaeron", "Ruinas de Lordaeron", "Руины Лордерона", "洛丹伦废墟", "羅德隆廢墟" },
     entrance = { map = 1420, x = 63.3, y = 67.5, zone = { ko = "티리스팔 숲 로데론 폐허 안뜰 동쪽", en = "Eastern courtyard of the Lordaeron ruins, Tirisfal Glades" } },
     steps = {
       { id = "s1", n = "1", kind = "npc", optional = true, name = { ko = "트루먼 대위", en = "Captain Truman" }, quest = true, quests = { 95250 }, tip = { ko = "입구를 나와 바로 왼쪽(북쪽) 벽돌 길의 NPC. 얼라이언스 '흉측한 괴물들'을 주고받습니다(남작의 머리).", en = "Just left (north) of the entrance on the brick path. Alliance quest Abominable Creatures (the Baron's head)." } },
@@ -141,8 +141,8 @@ ns.Dungeons = {
   },
   {
     key = "sfk", slug = "shadowfang-keep", levels = "20-30",
-    name = { ko = "그림자송곳니 성채", en = "Shadowfang Keep" },
-    instanceIDs = { 33 }, nameMatch = { "그림자송곳니", "Shadowfang" },
+    name = { ko = "그림자송곳니 성채", en = "Shadowfang Keep", de = "Burg Shadowfang", fr = "Donjon d'Ombrecroc", es = "Castillo de Colmillo Oscuro", ru = "Крепость Темного Клыка", zhCN = "影牙城堡", zhTW = "影牙城堡" },
+    instanceIDs = { 33 }, nameMatch = { "그림자송곳니", "Shadowfang", "Burg Shadowfang", "Donjon d'Ombrecroc", "Castillo de Colmillo Oscuro", "Крепость Темного Клыка", "影牙城堡" },
     entrance = { map = 1421, x = 44.7, y = 67.8, zone = { ko = "은빛소나무 숲 그림자송곳니 성채", en = "Shadowfang Keep, Silverpine Forest" } },
     steps = {
       { id = "s1", n = "1", kind = "boss", npc = { 3914 }, model = 524, name = { ko = "레실고어", en = "Rethilgore" }, quest = true, loot = { 273457, 273456, 5254 }, quests = { 1098 }, tip = { ko = "첫 우두머리, 영혼 흡수. 잡은 뒤 옆 감옥에서 진영 NPC(호드 아다만트, 얼라이언스 애쉬크롬)를 풀어 주면 안뜰 문이 열립니다.", en = "First boss, Soul Drain. Then free your faction's prisoner next door (Horde Adamant, Alliance Ashcrombe) to open the courtyard." } },
@@ -175,8 +175,8 @@ ns.Dungeons = {
   },
   {
     key = "bfd", slug = "blackfathom-deeps", levels = "24-32",
-    name = { ko = "검은심연의 나락", en = "Blackfathom Deeps" },
-    instanceIDs = { 48 }, nameMatch = { "검은심연", "Blackfathom" },
+    name = { ko = "검은심연의 나락", en = "Blackfathom Deeps", de = "Blackfathom-Tiefe", fr = "Profondeurs de Brassenoire", es = "Cavernas de Brazanegra", ru = "Непроглядная Пучина", zhCN = "黑暗深渊", zhTW = "黑澗深淵" },
+    instanceIDs = { 48 }, nameMatch = { "검은심연", "Blackfathom", "Blackfathom-Tiefe", "Profondeurs de Brassenoire", "Cavernas de Brazanegra", "Непроглядная Пучина", "黑暗深渊", "黑澗深淵" },
     entrance = { map = 1440, x = 16.5, y = 11.0, zone = { ko = "잿빛 골짜기 조람 해안의 물에 잠긴 사원", en = "Sunken temple on the Zoram Strand, Ashenvale" } },
     steps = {
       { id = "s1", n = "1", kind = "boss", npc = { 4887 }, model = 5027, name = { ko = "가무라", en = "Ghamoo-ra" }, loot = { 273839, 6907, 6908 }, tip = { ko = "밟아 뭉개기로 주변에 피해. 근접은 체력 관리.", en = "Trample hits everyone close; melee mind health." } },
@@ -212,8 +212,8 @@ ns.Dungeons = {
   },
   {
     key = "stocks", slug = "stockade", levels = "24-32",
-    name = { ko = "스톰윈드 지하감옥", en = "The Stockade" },
-    instanceIDs = { 34 }, nameMatch = { "지하감옥", "Stockade" },
+    name = { ko = "스톰윈드 지하감옥", en = "The Stockade", de = "Verlies von Stormwind", fr = "Prison de Stormwind", es = "Mazmorras de Ventormenta", ru = "Тюрьма Штормграда", zhCN = "暴风城监狱", zhTW = "暴風城監獄" },
+    instanceIDs = { 34 }, nameMatch = { "지하감옥", "Stockade", "Verlies von Stormwind", "Prison de Stormwind", "Mazmorras de Ventormenta", "Тюрьма Штормграда", "暴风城监狱", "暴風城監獄" },
     entrance = { map = 1453, x = 50.4, y = 66.2, zone = { ko = "스톰윈드 운하 지구", en = "Canal district of Stormwind City" } },
     steps = {
       { id = "s1", n = "1", kind = "boss", npc = { 1696 }, model = 517, name = { ko = "흉악범 타고르", en = "Targorr the Dread" }, quest = true, loot = { 273804, 273805, 273806 }, quests = { 386 }, tip = { ko = "감방 몇 곳 중 한 곳에 나타납니다(옅은 원이 후보). 쌍수 난타, 체력이 낮으면 분노.", en = "Spawns in one of several cells (faint circles). Thrash, enrages low." } },
@@ -239,8 +239,8 @@ ns.Dungeons = {
   },
   {
     key = "excav", slug = "excavation-site", levels = "26-31",
-    name = { ko = "발굴 현장: 저습지", en = "Excavation Site: Wetlands" },
-    instanceIDs = { 2998 }, nameMatch = { "발굴 현장", "Excavation Site" },
+    name = { ko = "발굴 현장: 저습지", en = "Excavation Site: Wetlands", de = "Ausgrabungsstätte: Sumpfland", fr = "Excavations : les Paluns", es = "Excavación: Los Humedales", ru = "Раскопки: Болотина", zhCN = "挖掘场：湿地", zhTW = "挖掘場：濕地" },
+    instanceIDs = { 2998 }, nameMatch = { "발굴 현장", "Excavation Site", "Ausgrabungsstätte: Sumpfland", "Excavations : les Paluns", "Excavación: Los Humedales", "Раскопки: Болотина", "挖掘场：湿地", "挖掘場：濕地" },
     entrance = { map = 1437, x = 47.8, y = 56.3, zone = { ko = "저습지 웰가르의 발굴현장 남동쪽 언덕 위의 포털", en = "Portal on the hill southeast of Whelgar's Excavation Site, Wetlands" } },
     steps = {
       { id = "s1", n = "1", kind = "boss", name = { ko = "소금가시", en = "Saltspine" }, loot = { 273022, 273023, 273024 }, tip = { ko = "잃어버린 늪의 악어 우두머리(정예 야수). 기술 정보는 아직 없습니다.", en = "Crocolisk boss of the Lost Marsh (elite beast). Abilities not known yet." } },
@@ -262,8 +262,8 @@ ns.Dungeons = {
   },
   {
     key = "dala", slug = "dalaran", levels = "28-33",
-    name = { ko = "달라란", en = "City of Dalaran" },
-    instanceIDs = { 2959 }, nameMatch = { "달라란", "Dalaran" },
+    name = { ko = "달라란", en = "City of Dalaran", de = "Dalaran", fr = "Cité de Dalaran", es = "Ciudad de Dalaran", ru = "Даларан", zhCN = "达拉然城", zhTW = "達拉然城" },
+    instanceIDs = { 2959 }, nameMatch = { "달라란", "Dalaran", "Cité de Dalaran", "Ciudad de Dalaran", "Даларан", "达拉然城", "達拉然城" },
     entrance = { map = 1421, x = 69.6, y = 46.1, zone = { ko = "은빛소나무 숲 로다미어 호수 달라란 하수도 입구", en = "Dalaran sewer entrance by Lordamere Lake, Silverpine Forest" }, note = { ko = "하수도 문은 달라란 하수도 열쇠로 엽니다. 도시 안에서는 하수도의 선술집 옆 통로로 갈 수 있습니다.", en = "The outer sewer gate requires the Dalaran Sewer Key. From inside the city, use the passage beside the Underbelly tavern." } },
     steps = {
       { id = "s1", n = "1", kind = "boss", name = { ko = "무덤 기사 아트렉시스", en = "Atrexis the Grave Knight" }, quest = true, loot = { 273036, 273032, 273033 }, quests = { 96986 }, tip = { ko = "하수도 지나 지하 의식의 원, 키린 토 강령술사들과 함께. 해골이 계속 일어나지만 약하니 나오는 대로 잡고, 탱커 무장 해제에 대비. 호드 퀘스트 '무덤 기사' 대상.", en = "Ritual Circle in the Underbelly with Kirin Tor Necromancers. Weak skeletons keep rising: kill them as they come. Disarms the tank. Horde quest The Grave Knight." } },
@@ -293,8 +293,8 @@ ns.Dungeons = {
   },
   {
     key = "gnomer", slug = "gnomeregan", levels = "29-38",
-    name = { ko = "놈리건", en = "Gnomeregan" },
-    instanceIDs = { 90 }, nameMatch = { "놈리건", "Gnomeregan" },
+    name = { ko = "놈리건", en = "Gnomeregan", de = "Gnomeregan", fr = "Gnomeregan", es = "Gnomeregan", ru = "Гномреган", zhCN = "诺莫瑞根", zhTW = "諾姆瑞根" },
+    instanceIDs = { 90 }, nameMatch = { "놈리건", "Gnomeregan", "Гномреган", "诺莫瑞根", "諾姆瑞根" },
     entrance = { map = 1426, x = 17.7, y = 39.2, zone = { ko = "던 모로 서쪽 놈리건 정문", en = "The front gate of Gnomeregan in western Dun Morogh" } },
     steps = {
       { id = "s1", n = "1", kind = "boss", npc = { 7361 }, model = 6533, name = { ko = "그루비스", en = "Grubbis" }, loot = { 9445, 274042, 274043 }, tip = { ko = "폭발물전문가 에미에게 말을 걸면 에미가 입구를 폭파하는 동안 트로그가 몰려오고 끝에 그루비스가 나옵니다. 에미를 지키세요.", en = "Talk to Blastmaster Emi: troggs rush in while she seals the tunnels, then Grubbis comes. Keep Emi alive." } },
@@ -329,8 +329,8 @@ ns.Dungeons = {
   },
   {
     key = "rfk", slug = "razorfen-kraul", levels = "29-38",
-    name = { ko = "가시덩굴 우리", en = "Razorfen Kraul" },
-    instanceIDs = { 47 }, nameMatch = { "가시덩굴 우리", "Razorfen Kraul" },
+    name = { ko = "가시덩굴 우리", en = "Razorfen Kraul", de = "Kral von Razorfen", fr = "Kraal de Tranchebauge", es = "Horado Rajacieno", ru = "Лабиринты Иглошкурых", zhCN = "剃刀沼泽", zhTW = "剃刀沼澤" },
+    instanceIDs = { 47 }, nameMatch = { "가시덩굴 우리", "Razorfen Kraul", "Kral von Razorfen", "Kraal de Tranchebauge", "Horado Rajacieno", "Лабиринты Иглошкурых", "剃刀沼泽", "剃刀沼澤" },
     entrance = { map = 1413, x = 42.3, y = 89.9, zone = { ko = "불모의 땅 남쪽 끝 가시덤불 속", en = "In the brambles at the southern tip of The Barrens" } },
     steps = {
       { id = "s1", n = "1", kind = "boss", npc = { 6168 }, model = 6110, name = { ko = "루구그", en = "Roogug" }, quest = true, loot = { 274152, 274155, 274149 }, quests = { 1701, 1838 }, tip = { ko = "번개 화살과 바위 정령 소환. 정령부터 잡으세요. 전사 퀘스트용 연소 약병을 떨굽니다.", en = "Lightning Bolt, summons an Earth Rumbler; kill it first. Drops the warrior quest vial." } },
@@ -363,8 +363,8 @@ ns.Dungeons = {
   },
   {
     key = "smgy", slug = "scarlet-monastery-graveyard", levels = "30-38",
-    name = { ko = "붉은십자군 수도원 묘지", en = "Scarlet Monastery Graveyard" },
-    instanceIDs = { 189 }, nameMatch = { "묘지", "Graveyard" },
+    name = { ko = "붉은십자군 수도원 묘지", en = "Scarlet Monastery Graveyard", de = "Scharlachrotes Kloster Friedhof", fr = "Monastère écarlate Cimetière", es = "Monasterio Escarlata Cementerio", ru = "Монастырь Алого ордена Кладбище", zhCN = "血色修道院墓地", zhTW = "血色修道院墓地" },
+    instanceIDs = { 189 }, nameMatch = { "묘지", "Graveyard", "Scharlachrotes Kloster", "Monastère écarlate", "Monasterio Escarlata", "Монастырь Алого ордена", "血色修道院" },
     subzones = { "속죄의 방", "쓸쓸한 회랑", "명예의 무덤", "묘지", "Chamber of Atonement", "Forlorn Cloister", "Honor's Tomb", "Graveyard" }, resetNames = { "붉은십자군 수도원", "Scarlet Monastery" },
     entrance = { map = 1420, x = 85.1, y = 31.4, zone = { ko = "티리스팔 숲 동쪽 끝 붉은십자군 수도원", en = "The Scarlet Monastery at the eastern end of Tirisfal Glades" } },
     steps = {
@@ -385,8 +385,8 @@ ns.Dungeons = {
   },
   {
     key = "smlib", slug = "scarlet-monastery-library", levels = "33-41",
-    name = { ko = "붉은십자군 수도원 도서관", en = "Scarlet Monastery Library" },
-    instanceIDs = { 189 }, nameMatch = { "도서관", "Library" },
+    name = { ko = "붉은십자군 수도원 도서관", en = "Scarlet Monastery Library", de = "Scharlachrotes Kloster Bibliothek", fr = "Monastère écarlate Bibliothèque", es = "Monasterio Escarlata Biblioteca", ru = "Монастырь Алого ордена Библиотека", zhCN = "血色修道院图书馆", zhTW = "血色修道院圖書館" },
+    instanceIDs = { 189 }, nameMatch = { "도서관", "Library", "Scharlachrotes Kloster", "Monastère écarlate", "Monasterio Escarlata", "Монастырь Алого ордена", "血色修道院" },
     subzones = { "사냥꾼의 회랑", "보물 전시실", "도서관", "Huntsman's Cloister", "Gallery of Treasures", "Athenaeum", "The Athenaeum", "Library" }, resetNames = { "붉은십자군 수도원", "Scarlet Monastery" },
     entrance = { map = 1420, x = 85.1, y = 31.4, zone = { ko = "티리스팔 숲 동쪽 끝 붉은십자군 수도원", en = "The Scarlet Monastery at the eastern end of Tirisfal Glades" } },
     steps = {
@@ -415,8 +415,8 @@ ns.Dungeons = {
   },
   {
     key = "smarm", slug = "scarlet-monastery-armory", levels = "36-44",
-    name = { ko = "붉은십자군 수도원 무기고", en = "Scarlet Monastery Armory" },
-    instanceIDs = { 189 }, nameMatch = { "무기고", "Armory" },
+    name = { ko = "붉은십자군 수도원 무기고", en = "Scarlet Monastery Armory", de = "Scharlachrotes Kloster Waffenkammer", fr = "Monastère écarlate Armurerie", es = "Monasterio Escarlata Armería", ru = "Монастырь Алого ордена Оружейная", zhCN = "血色修道院军械库", zhTW = "血色修道院軍械庫" },
+    instanceIDs = { 189 }, nameMatch = { "무기고", "Armory", "Scharlachrotes Kloster", "Monastère écarlate", "Monasterio Escarlata", "Монастырь Алого ордена", "血色修道院" },
     subzones = { "훈련장", "보병 무기고", "십자군 무기고", "용사의 전당", "Training Grounds", "Footman's Armory", "Crusader's Armory", "Hall of Champions", "Armory" }, resetNames = { "붉은십자군 수도원", "Scarlet Monastery" },
     entrance = { map = 1420, x = 85.1, y = 31.4, zone = { ko = "티리스팔 숲 동쪽 끝 붉은십자군 수도원", en = "The Scarlet Monastery at the eastern end of Tirisfal Glades" } },
     steps = {
@@ -435,8 +435,8 @@ ns.Dungeons = {
   },
   {
     key = "rfd", slug = "razorfen-downs", levels = "37-46",
-    name = { ko = "가시덩굴 구릉", en = "Razorfen Downs" },
-    instanceIDs = { 129 }, nameMatch = { "가시덩굴 구릉", "Razorfen Downs" },
+    name = { ko = "가시덩굴 구릉", en = "Razorfen Downs", de = "Hügel von Razorfen", fr = "Souilles de Tranchebauge", es = "Zahúrda Rajacieno", ru = "Курганы Иглошкурых", zhCN = "剃刀高地", zhTW = "剃刀高地" },
+    instanceIDs = { 129 }, nameMatch = { "가시덩굴 구릉", "Razorfen Downs", "Hügel von Razorfen", "Souilles de Tranchebauge", "Zahúrda Rajacieno", "Курганы Иглошкурых", "剃刀高地" },
     entrance = { map = 1413, x = 50.8, y = 92.8, zone = { ko = "불모의 땅 남쪽 끝, 가시덩굴 우리 동쪽", en = "At the southern tip of The Barrens, east of Razorfen Kraul" } },
     steps = {
       { id = "s1", n = "1", kind = "boss", npc = { 7355 }, model = 7845, name = { ko = "투텐카쉬", en = "Tuten'kash" }, loot = { 10775, 10777 }, tip = { ko = "징을 울리면 나타납니다. 거미줄로 묶고 저주를 걸며 근접 공격에 독이 묻어납니다.", en = "Ring the gong to summon it. Web Spray roots, curse, poisonous melee." } },
@@ -454,8 +454,8 @@ ns.Dungeons = {
   },
   {
     key = "smcath", slug = "scarlet-monastery-cathedral", levels = "38-46",
-    name = { ko = "붉은십자군 수도원 대성당", en = "Scarlet Monastery Cathedral" },
-    instanceIDs = { 189 }, nameMatch = { "대성당", "Cathedral" },
+    name = { ko = "붉은십자군 수도원 대성당", en = "Scarlet Monastery Cathedral", de = "Scharlachrotes Kloster Kathedrale", fr = "Monastère écarlate Cathédrale", es = "Monasterio Escarlata Catedral", ru = "Монастырь Алого ордена Собор", zhCN = "血色修道院大教堂", zhTW = "血色修道院大教堂" },
+    instanceIDs = { 189 }, nameMatch = { "대성당", "Cathedral", "Scharlachrotes Kloster", "Monastère écarlate", "Monasterio Escarlata", "Монастырь Алого ордена", "血色修道院" },
     subzones = { "예배당 정원", "십자군 예배당", "대성당", "Chapel Gardens", "Crusader's Chapel", "Cathedral" }, resetNames = { "붉은십자군 수도원", "Scarlet Monastery" },
     entrance = { map = 1420, x = 85.1, y = 31.4, zone = { ko = "티리스팔 숲 동쪽 끝 붉은십자군 수도원", en = "The Scarlet Monastery at the eastern end of Tirisfal Glades" } },
     steps = {
@@ -476,8 +476,8 @@ ns.Dungeons = {
   },
   {
     key = "ulda", slug = "uldaman", levels = "41-51",
-    name = { ko = "울다만", en = "Uldaman" },
-    instanceIDs = { 70 }, nameMatch = { "울다만", "Uldaman" },
+    name = { ko = "울다만", en = "Uldaman", de = "Uldaman", fr = "Uldaman", es = "Uldaman", ru = "Ульдаман", zhCN = "奥达曼", zhTW = "奧達曼" },
+    instanceIDs = { 70 }, nameMatch = { "울다만", "Uldaman", "Ульдаман", "奥达曼", "奧達曼" },
     entrance = { map = 1418, x = 35.2, y = 10.7, zone = { ko = "황야의 땅 북쪽 끝", en = "At the northern edge of the Badlands" } },
     steps = {
       { id = "s1", n = "1", kind = "boss", npc = { 6910 }, model = 5945, name = { ko = "레벨로쉬", en = "Revelosh" }, loot = { 9389, 9388, 9390, 9387 }, tip = { ko = "번개 화살과 연쇄 번개.", en = "Lightning Bolt and Chain Lightning." } },

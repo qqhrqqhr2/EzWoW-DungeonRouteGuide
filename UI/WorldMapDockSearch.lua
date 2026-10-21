@@ -63,7 +63,9 @@ end
 function ns.WorldMapMatches(d)
     local query = ns.worldMapQuery or ""
     if query == "" then return true end
-    for _, value in ipairs({d.name.ko, d.name.en, d.key, d.slug}) do
+    local values = ns.AllLocalizedTexts(d.name)
+    values[#values + 1], values[#values + 2] = d.key, d.slug
+    for _, value in ipairs(values) do
         local extractSafeTooltipText = ns.Normalize(value)
         if extractSafeTooltipText and extractSafeTooltipText:find(query, 1, true) then return true end
     end
@@ -89,7 +91,9 @@ function WorldMapDungeonSearch.locateDungeon()
     for _, d in ipairs(ns.Dungeons) do
         if ns.WorldMapMatches(d) then
             first = first or d
-            for _, value in ipairs({d.name.ko, d.name.en, d.key, d.slug}) do
+            local values = ns.AllLocalizedTexts(d.name)
+            values[#values + 1], values[#values + 2] = d.key, d.slug
+            for _, value in ipairs(values) do
                 if ns.Normalize(value) == query then return d end
             end
         end

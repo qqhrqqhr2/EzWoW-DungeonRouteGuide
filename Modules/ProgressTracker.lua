@@ -424,7 +424,10 @@ function DungeonProgressTracker.resolveWingFromZone(list, zone)
     if not zone or zone == "" then return end
     local match
     for _, dataEntry in ipairs(list) do
-        local found = ns.Normalize(dataEntry.name.ko) == zone or ns.Normalize(dataEntry.name.en) == zone
+        local found = false
+        for _, text in ipairs(ns.AllLocalizedTexts(dataEntry.name)) do
+            if ns.Normalize(text) == zone then found = true; break end
+        end
         for _, alias in ipairs(dataEntry.subzones or {}) do
             if ns.Normalize(alias) == zone then found = true; break end
         end
@@ -519,7 +522,9 @@ function DungeonProgressTracker.hasMainDungeonZone(dataEntry, z)
     local instName = ns.InstanceInfo()
     if z == ns.Normalize(instName) then return true end
     if dataEntry then
-        if dataEntry.name and (z == ns.Normalize(dataEntry.name.en) or z == ns.Normalize(dataEntry.name.ko)) then return true end
+        for _, text in ipairs(ns.AllLocalizedTexts(dataEntry.name)) do
+            if z == ns.Normalize(text) then return true end
+        end
         for _, nmVal in ipairs(dataEntry.nameMatch or {}) do
             if z == ns.Normalize(nmVal) then return true end
         end
@@ -586,7 +591,7 @@ end
 function DungeonProgressTracker.resolveDungeonsInText(text)
     local found = {}
     for _, dataEntry in ipairs(ns.Dungeons) do
-        local names = { dataEntry.name.ko, dataEntry.name.en }
+        local names = ns.AllLocalizedTexts(dataEntry.name)
         for _, nodeEntry in ipairs(dataEntry.resetNames or {}) do names[#names + 1] = nodeEntry end
         for _, nodeEntry in ipairs(names) do
             if nodeEntry and text:find(nodeEntry, 1, true) then found[#found + 1] = dataEntry; break end

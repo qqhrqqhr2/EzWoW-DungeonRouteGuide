@@ -15,6 +15,20 @@ function ns.GetLocalizedText(v)
     return v
 end
 
+-- Every language's text of a localized field (for search and zone matching
+-- on any client language)
+function ns.AllLocalizedTexts(v)
+    local list = {}
+    if type(v) == "table" then
+        for _, text in pairs(v) do
+            if type(text) == "string" and text ~= "" then list[#list + 1] = text end
+        end
+    elseif type(v) == "string" then
+        list[1] = v
+    end
+    return list
+end
+
 local StyleService = {
     WING_PENDING    = { "수도원 지역을 아직 판별하지 못했습니다. 현재 지역을 선택하거나 지역명이 갱신될 때까지 기다려 주세요.", "The monastery area is not identified yet. Choose your current area or wait for the zone name to update." },
     WING_TITLE      = { "수도원: 현재 지역 선택", "Monastery: choose your current area" },
