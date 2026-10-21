@@ -146,7 +146,9 @@ function MapDataProvider:RefreshAllData()
     local apiInfo = id and WorldMapPinProvider.resolveMapInfo(id)
     local kind = apiInfo and ns.CoerceSafeNumber(apiInfo.mapType)
     
-    if kind ~= 1 and kind ~= 2 then return end
+    local mapTypes = Enum and Enum.UIMapType or {}
+    local worldType, continentType, zoneType = mapTypes.World or 1, mapTypes.Continent or 2, mapTypes.Zone or 3
+    if kind ~= worldType and kind ~= continentType and kind ~= zoneType then return end
     local boxWidth, headerBar = WorldMapPinProvider.canvasSize(map)
     if not boxWidth then return end
     local groups = {}
