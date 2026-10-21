@@ -298,10 +298,21 @@ function SettingsDialog.buildConfigWindow()
     end
 
     local sec1 = createSectionDivider(-70)
-    local langBtn = createStyledButton(240, -66, 200, 20, false, function()
-        ns.ChangeLanguage()
-        syncCfg()
-    end)
+    local langBtn = createStyledButton(240, -66, 200, 20, false, nil)
+    -- click the box, then pick a language from the list
+    local langItems = {}
+    for index, code in ipairs({ "auto", "ko", "en", "de", "fr", "es", "ru", "zhCN", "zhTW" }) do
+        langItems[index] = { value = code, text = function() return L["LANG_" .. code] end }
+    end
+    ns.LanguageDropdown.Attach(langBtn, {
+        items = langItems,
+        colors = { bg = ROUTE_THEME.bg, border = ROUTE_THEME.border, accent = ROUTE_THEME.accent, text = ROUTE_THEME.text },
+        get = function() return ns.db.lang or "auto" end,
+        set = function(code)
+            ns.ChangeLanguage(code)
+            syncCfg()
+        end,
+    })
 
     createStyledCheckbox(18, -94, 180, function() return SettingsDialog.cleanColonVal(L.OPT_AUTO) end,
         function() return ns.db.autoOpen end, function(v) ns.db.autoOpen = v end,

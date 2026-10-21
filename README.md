@@ -61,7 +61,7 @@ WoW Forever (`Interface: 16001`) · `v1.0.16` · `/ezdg`
 
 | 번호 | 항목 | 설명 | 기본값 |
 |---|---|---|---|
-| ① | 언어 | 누를 때마다 자동 · 한국어 · English · Deutsch · Français · Español · Русский · 简体中文 · 繁體中文 순서로 바뀝니다. | 자동 |
+| ① | 언어 | 상자를 누르고 목록(자동 · 한국어 · English · Deutsch · Français · Español · Русский · 简体中文 · 繁體中文)에서 고릅니다. | 자동 |
 | ② | 던전 입장 시 공략 창 자동 열기 | 인스턴스에 들어가면 지도 창을 엽니다. | 켬 |
 | ② | 화면 상단 다음 목표 바(HUD) 표시 | 미니 HUD | 켬 |
 | ② | 던전 희귀 몹 발견 알림 | 희귀(은테) 몹을 대상/마우스오버로 발견하면 경보음과 알림 | 켬 |
@@ -155,7 +155,7 @@ A dungeon route guide. **18 dungeons and 29 floor maps** use real minimap-tile a
 
 | No. | Option | Description | Default |
 |---|---|---|---|
-| ① | Language | Each click cycles Auto · 한국어 · English · Deutsch · Français · Español · Русский · 简体中文 · 繁體中文. | Auto |
+| ① | Language | Click the box and pick from the list (Auto · 한국어 · English · Deutsch · Français · Español · Русский · 简体中文 · 繁體中文). | Auto |
 | ② | Auto-open guide on dungeon entry | Opens the map window on entering an instance | On |
 | ② | Show next-objective HUD bar | Mini HUD | On |
 | ② | Rare mob spotted alert | Sound and alert when a rare (silver) mob is targeted or moused over | On |

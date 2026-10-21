@@ -40,6 +40,7 @@ Data\FloorAreas.lua
 Modules\ProgressTracker.lua
 Modules\EntranceArrow.lua
 UI\DungeonMapWindow.lua
+UI\LanguageDropdown.lua
 UI\OptionsWindow.lua
 UI\HUD.lua
 UI\WorldMapPins.lua
