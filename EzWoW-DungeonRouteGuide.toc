@@ -20,7 +20,7 @@
 ## Notes-zhCN: WoW Forever 地下城路线叠加层：地图、首领顺序、自动勾选、入口箭头。
 ## Notes-zhTW: WoW Forever 地城路線疊加層：地圖、首領順序、自動勾選、入口箭頭。
 ## Author: qqhrqqhr2
-## Version: 2.0.3
+## Version: 2.0.4
 ## Category: EzWoW
 ## IconTexture: Interface\AddOns\EzWoW-DungeonRouteGuide\Media\icon
 ## X-License: GPL-2.0
