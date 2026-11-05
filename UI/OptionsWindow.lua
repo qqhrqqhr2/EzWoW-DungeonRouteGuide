@@ -415,8 +415,7 @@ function SettingsDialog.buildConfigWindow()
     end)
 
     local bottomResetBtn = createStyledButton(20, -406, 204, 28, false, function()
-        ns.db.frames = {}
-        ns.db.worldMapTools = nil
+        ns.db.frames = {}   -- also clears the world map button position (frames.worldMapTools)
         ns.db.worldMapAutoAlign = true
         ns.db.showIcon = true
         if ns.SetIconShown then ns.SetIconShown(true) end

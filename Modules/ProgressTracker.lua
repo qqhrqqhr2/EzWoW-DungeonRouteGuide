@@ -944,11 +944,11 @@ SlashCmdList.EZWOWDUNGEONROUTEGUIDE = function(msg)
     if cmd == "" then ns.ToggleMap()
     elseif cmd == "config" or cmd == "opt" or cmd == "options" or cmd == "settings" or cmd == "설정" then
         if ns.ToggleConfig then ns.ToggleConfig() end
-    elseif cmd == "hud" then ns.db.hud = not ns.db.hud; ns.RefreshHUD()
+    elseif cmd == "hud" then ns.db.hud = not ns.db.hud; ns.RefreshHUD(); ns.Print(L.OPT_HUD:format(ns.FormatEnabledStateLabel(ns.db.hud)))
     elseif cmd == "next" or cmd == "skip" then ns.CompleteNextRouteStep()
     elseif cmd == "undo" then ns.UndoLastCompletedStep()
     elseif cmd == "reset" then ns.ResetProgress()
-    elseif cmd == "lock" then ns.db.locked = not ns.db.locked; ns.RefreshAll()
+    elseif cmd == "lock" then ns.db.locked = not ns.db.locked; ns.RefreshAll(); ns.Print(L.OPT_LOCK:format(ns.FormatEnabledStateLabel(ns.db.locked)))
     elseif cmd == "alpha" then
         local entryValue = tonumber(rest); if entryValue then ns.db.alpha = math.max(0.2, math.min(1, entryValue > 1 and entryValue / 100 or entryValue)); ns.ApplyAlpha() end
     elseif cmd == "size" then

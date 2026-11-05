@@ -102,6 +102,12 @@ end
 
 function PinMixin:ShouldMouseButtonBePassthrough() return true end
 
+-- SetPassThroughButtons is blocked in combat; the map calls it when pins are acquired
+function PinMixin:SetPassThroughButtons(...)
+    if InCombatLockdown() then return end
+    getmetatable(self).__index.SetPassThroughButtons(self, ...)
+end
+
 function PinMixin:OnMouseEnter()
     GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
     GameTooltip:SetText("EzWoW - Dungeon Route Guide", 1, 0.82, 0)

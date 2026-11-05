@@ -44,7 +44,7 @@ local orientationBadge
 local listScroll, listContent, listScrollKey, listRestoreOffset
 local listOffsets = {}
 local zoomReset
-local navigation, baseView, nav = {}, AVIEW, nil
+local navigation, baseView, nav = {}, nil, nil   -- baseView is set by the view builder below
 
 -----------------------------------------------------------------------------
 -- Apply Panel Backdrop
