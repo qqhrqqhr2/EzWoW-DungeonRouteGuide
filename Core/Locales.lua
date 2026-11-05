@@ -150,6 +150,7 @@ local StyleService = {
     OPT_WORLD_PINS  = { "세계 지도 던전 표시: %s", "World map dungeons: %s" },
     WORLD_PIN_GROUP = { "%s 외 %d곳", "%s +%d" },
     WORLD_PIN_LEVEL = { "권장 %s레벨", "Recommended levels %s" },
+    WORLD_PIN_CLICK = { "클릭: 동선 창 열기 · Shift+클릭: 입구 안내", "Click: open route window · Shift+click: guide to entrance" },
     WORLD_TOOLS     = { "EzWoW - Dungeon Route Guide · 던전 찾기", "EzWoW - Dungeon Route Guide · Dungeon Finder" },
     WORLD_SHOW      = { "세계지도에 던전 입구 표시", "Show dungeon entrances on World Map" },
     WORLD_LABELS    = { "세계지도에 던전 이름 표시", "Show dungeon names on World Map" },
@@ -394,6 +395,7 @@ local EXTRA_LOCALE = {
         WING_WAIT = "Die Karte öffnet sich, sobald der Bereich erkannt ist.",
         WORLD_PIN_GROUP = "%s +%d",
         WORLD_PIN_LEVEL = "Empfohlene Stufen %s",
+        WORLD_PIN_CLICK = "Klick: Routenfenster öffnen · Umschalt+Klick: zum Eingang führen",
     },
     fr = {
         TITLE = "EzWoW - Dungeon Route Guide",
@@ -550,6 +552,7 @@ local EXTRA_LOCALE = {
         WING_WAIT = "La carte s'ouvre dès que la zone est identifiée.",
         WORLD_PIN_GROUP = "%s +%d",
         WORLD_PIN_LEVEL = "Niveaux conseillés %s",
+        WORLD_PIN_CLICK = "Clic : ouvrir la fenêtre d'itinéraire · Maj+clic : guider vers l'entrée",
     },
     es = {
         TITLE = "EzWoW - Dungeon Route Guide",
@@ -706,6 +709,7 @@ local EXTRA_LOCALE = {
         WING_WAIT = "El mapa se abre al identificar la zona.",
         WORLD_PIN_GROUP = "%s +%d",
         WORLD_PIN_LEVEL = "Niveles recomendados %s",
+        WORLD_PIN_CLICK = "Clic: abrir la ventana de ruta · Mayús+clic: guiar a la entrada",
     },
     ru = {
         TITLE = "EzWoW - Dungeon Route Guide",
@@ -862,6 +866,7 @@ local EXTRA_LOCALE = {
         WING_WAIT = "Карта откроется автоматически, когда зона будет определена.",
         WORLD_PIN_GROUP = "%s +%d",
         WORLD_PIN_LEVEL = "Рекомендуемые уровни %s",
+        WORLD_PIN_CLICK = "Клик: открыть окно маршрута · Shift+клик: путь ко входу",
     },
     zhCN = {
         TITLE = "EzWoW - Dungeon Route Guide",
@@ -1018,6 +1023,7 @@ local EXTRA_LOCALE = {
         WING_WAIT = "识别区域后将自动打开地图。",
         WORLD_PIN_GROUP = "%s +%d",
         WORLD_PIN_LEVEL = "推荐等级 %s",
+        WORLD_PIN_CLICK = "点击：打开路线窗口 · Shift+点击：指引前往入口",
     },
     zhTW = {
         TITLE = "EzWoW - Dungeon Route Guide",
@@ -1174,6 +1180,7 @@ local EXTRA_LOCALE = {
         WING_WAIT = "辨識區域後將自動開啟地圖。",
         WORLD_PIN_GROUP = "%s +%d",
         WORLD_PIN_LEVEL = "建議等級 %s",
+        WORLD_PIN_CLICK = "點擊：開啟路線視窗 · Shift+點擊：指引前往入口",
     },
 }
 

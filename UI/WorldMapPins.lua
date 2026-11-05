@@ -88,7 +88,7 @@ function PinMixin:OnLoad()
 end
 
 function PinMixin:OnAcquired(group)
-    self:SetMouseClickEnabled(false)
+    self:SetMouseClickEnabled(true)
     self:SetMouseMotionEnabled(true)
     self.entries = group.entries
     self.count:SetText(#self.entries > 1 and tostring(#self.entries) or "")
@@ -100,7 +100,8 @@ function PinMixin:OnAcquired(group)
     self:ApplyCurrentScale()
 end
 
-function PinMixin:ShouldMouseButtonBePassthrough() return true end
+-- left clicks belong to the pin; other buttons (right-click zoom out) go to the map
+function PinMixin:ShouldMouseButtonBePassthrough(button) return button ~= "LeftButton" end
 
 -- SetPassThroughButtons is blocked in combat; the map calls it when pins are acquired
 function PinMixin:SetPassThroughButtons(...)
@@ -118,12 +119,61 @@ function PinMixin:OnMouseEnter()
         GameTooltip:AddLine((apiInfo and ns.CoerceSafeString(apiInfo.name) or (e and translationHelper(e.zone)) or "") .. ("  %.1f, %.1f"):format(e.x, e.y), 0.8, 0.8, 0.8, true)
         if e.note then GameTooltip:AddLine(translationHelper(e.note), 0.8, 0.8, 0.8, true) end
     end
+    if L.WORLD_PIN_CLICK then GameTooltip:AddLine(L.WORLD_PIN_CLICK, 0.5, 0.8, 1, true) end
     GameTooltip:Show()
 end
 
 function PinMixin:OnMouseLeave() GameTooltip_Hide() end
 
-function PinMixin:OnMouseClickAction() end
+-- Map waypoint on the entrance (only where the client allows one)
+function WorldMapPinProvider.setEntranceWaypoint(d)
+    local e = WorldMapPinProvider.resolveDungeonEntrancePoint(d)
+    local mapID, x, y = e and ns.CoerceSafeNumber(e.map), e and ns.CoerceSafeNumber(e.x), e and ns.CoerceSafeNumber(e.y)
+    if not (mapID and x and y and C_Map and C_Map.SetUserWaypoint and UiMapPoint and UiMapPoint.CreateFromCoordinates) then return end
+    if C_Map.CanSetUserWaypointOnMap and not ns.IsTruthySafeValue(ns.UnwrapSafeValue(C_Map.CanSetUserWaypointOnMap, mapID)) then return end
+    local ok, point = pcall(UiMapPoint.CreateFromCoordinates, mapID, x / 100, y / 100)
+    if not (ok and point) then return end
+    if pcall(C_Map.SetUserWaypoint, point) and C_SuperTrack and C_SuperTrack.SetSuperTrackedUserWaypoint then
+        pcall(C_SuperTrack.SetSuperTrackedUserWaypoint, true)
+    end
+end
+
+-- Click: that dungeon's route window. Shift+click: entrance arrow (+ map waypoint).
+function WorldMapPinProvider.activateDungeon(d, guide)
+    if not d then return end
+    if guide then
+        if ns.StartEntrance then ns.StartEntrance(d) end
+        WorldMapPinProvider.setEntranceWaypoint(d)
+    elseif ns.ShowMap then
+        local state = ns.state
+        if type(state) == "table" then
+            state.viewed, state.selected, state.cardTrash = d, nil, nil
+            state.page, state.pageManual = nil, false
+        end
+        ns.ShowMap(d)
+    end
+end
+
+function PinMixin:OnMouseClickAction(button)
+    if button and button ~= "LeftButton" then return end
+    local entries = self.entries
+    if not entries or #entries == 0 then return end
+    local guide = IsShiftKeyDown and IsShiftKeyDown()
+    if #entries == 1 or not (MenuUtil and MenuUtil.CreateContextMenu) then
+        WorldMapPinProvider.activateDungeon(entries[1], guide)
+        return
+    end
+    -- several dungeons share this pin: pick one
+    local list = {}
+    for index, d in ipairs(entries) do list[index] = d end
+    MenuUtil.CreateContextMenu(self, function(_, rootDescription)
+        for _, d in ipairs(list) do
+            rootDescription:CreateButton(translationHelper(d.name) .. "  |cffffffff" .. (d.levels or "") .. "|r", function()
+                WorldMapPinProvider.activateDungeon(d, guide)
+            end)
+        end
+    end)
+end
 
 function PinMixin:OnReleased()
     self.entries = nil

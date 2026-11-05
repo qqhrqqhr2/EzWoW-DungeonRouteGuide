@@ -27,7 +27,7 @@ local DEFAULTS = {
     mapSize = 380, showList = true, listTab = "route",
     locked = false, autoOpen = true, hud = true, rareAlert = true, showIcon = true, lang = "auto",
     worldMapPins = true,
-    worldMapLabels = true, worldMapLevels = true, worldMapAutoAlign = true,
+    worldMapLabels = false, worldMapLevels = true, worldMapAutoAlign = true,
     mapStyle = "blizzard",
     routes = {}, entrances = {}, frames = {}, names = {}, floorAreas = {},
 }
@@ -114,6 +114,11 @@ function ns.InitDB()
     end
     EzWoW_DungeonRouteGuideDB = EzWoW_DungeonRouteGuideDB
     DungeonProgressTracker.commitDefaults(EzWoW_DungeonRouteGuideDB, DEFAULTS)
+    -- World map name labels are now off by default; switch them off once for existing saves
+    if not EzWoW_DungeonRouteGuideDB.worldMapLabelsOffV1 then
+        EzWoW_DungeonRouteGuideDB.worldMapLabels = false
+        EzWoW_DungeonRouteGuideDB.worldMapLabelsOffV1 = true
+    end
     EzWoW_DungeonRouteGuideDB.alpha = ns.ClampAlpha(EzWoW_DungeonRouteGuideDB.alpha)
     EzWoW_DungeonRouteGuideDB.mapSize = ns.ClampMapSize(EzWoW_DungeonRouteGuideDB.mapSize)
 

@@ -7,7 +7,7 @@
 
 **[한국어](#한국어) · [English](#english)**
 
-WoW Forever (`Interface: 16001`) · `v1.0.16` · `/ezdg`
+WoW Forever (`Interface: 16001`) · `/ezdg`
 
 ---
 
@@ -53,7 +53,7 @@ WoW Forever (`Interface: 16001`) · `v1.0.16` · `/ezdg`
 #### 그 밖의 기능
 
 - **입구 방향 화살표**: 야외에서 선택한 던전 입구까지 방향과 남은 거리를 화살표로 안내합니다(`/ezdg go`, 끄기 `/ezdg go stop`, 런처 아이콘 우클릭).
-- **세계지도 던전 입구**: 대륙·지역 지도에 해골 표식, 던전 이름, 권장 레벨을 표시하고, 가까이 붙은 입구(수도원 4구역 등)는 하나로 묶습니다. 세계지도 왼쪽 아래 **3번째 도킹 버튼**을 누르면 던전 검색 막대가 펼쳐지고, 이름을 입력해 **Enter**를 누르면 입구가 있는 지역 지도로 이동합니다.
+- **세계지도 던전 입구**: 대륙·지역 지도에 해골 표식, 던전 이름, 권장 레벨을 표시하고, 가까이 붙은 입구(수도원 4구역 등)는 하나로 묶습니다. 세계지도 왼쪽 아래 **3번째 도킹 버튼**을 누르면 던전 검색 막대가 펼쳐지고, 이름을 입력해 **Enter**를 누르면 입구가 있는 지역 지도로 이동합니다. 입구 표식을 **클릭**하면 그 던전의 공략 창이 열리고, **Shift+클릭**하면 입구 방향 화살표 안내를 시작하고 지도에 목적지 표시를 남깁니다.
 - **단축키** (게임 단축키 설정 → 애드온): 공략 창 열기/닫기, 다음 목표 완료, 현재 단계 파티 알림.
 - **수도원 구역 판별**: 붉은십자군 수도원 4개 구역을 자동으로 구분하며, 판별이 늦으면 `/ezdg wing 도서관`처럼 직접 고를 수 있습니다.
 
@@ -68,10 +68,10 @@ WoW Forever (`Interface: 16001`) · `v1.0.16` · `/ezdg`
 | ② | 전투 중 공략 창 반투명화 | 전투가 시작되면 창을 흐리게 | 켬 |
 | ② | 공략 창 위치 잠금 | 지도 창과 HUD를 끌어도 움직이지 않게 | 끔 |
 | ② | 화면 바로가기 아이콘 표시 | 런처 아이콘 | 켬 |
-| ③ | 세계지도에 던전 입구 / 이름 / 권장 레벨 표시 | 세계지도 표식 | 켬 |
+| ③ | 세계지도에 던전 입구 / 이름 / 권장 레벨 표시 | 세계지도 표식 | 입구·권장 레벨 켬, 이름 끔 |
 | ③ | 지도 버튼 좌하단 자동 정렬 | 세계지도 도킹 버튼 정렬 | 켬 |
 | ③ | 지도 표식 위치 수동 편집 모드 | 단계를 고른 뒤 지도를 좌클릭해 표식을 옮기고, 우클릭으로 원래 자리로 되돌립니다. | 끔 |
-| ④ | 창 투명도 · 던전 지도 크기 | 배경 20~100%, 지도 240~800px | 90% · 380px |
+| ④ | 창 투명도 · 던전 지도 크기 | 배경 30~100%, 지도 260~620px | 90% · 380px |
 | ⑤ | 도구 | 공략 창 열기, 입구 방향 화살표 안내 시작, 현재 던전 진행도 초기화, 편집한 표식 위치 내보내기 | - |
 | ⑥ | 창·아이콘 위치 초기화 · 후원하기 | 지도 창, HUD, 화살표, 아이콘 위치 초기화 | - |
 
@@ -87,7 +87,7 @@ WoW Forever (`Interface: 16001`) · `v1.0.16` · `/ezdg`
 | `/ezdg go [던전키]` · `/ezdg go stop` | 입구 방향 화살표 시작 · 끄기 |
 | `/ezdg entrance set` | 지금 위치를 그 던전 입구로 저장 |
 | `/ezdg auto` · `/ezdg rare` · `/ezdg icon` | 자동 열기 · 희귀 몹 알림 · 런처 아이콘 켜기/끄기 |
-| `/ezdg lock` · `/ezdg alpha 20~100` · `/ezdg size 240~800` | 창 잠금 · 투명도 · 지도 크기 |
+| `/ezdg lock` · `/ezdg alpha 30~100` · `/ezdg size 260~620` | 창 잠금 · 투명도 · 지도 크기 |
 | `/ezdg edit` · `/ezdg export` | 표식 편집 모드 · 편집 내보내기 |
 | `/ezdg map` · `/ezdg debug` | 미니맵 다시 불러오기 · 던전 정보 확인 |
 | `/ezdg lang <auto\|ko\|en\|de\|fr\|es\|ru\|zhCN\|zhTW>` | 표시 언어 변경 |
@@ -147,7 +147,7 @@ A dungeon route guide. **18 dungeons and 29 floor maps** use real minimap-tile a
 #### More features
 
 - **Entrance arrow**: outdoors, an arrow shows the direction and distance to the chosen dungeon entrance (`/ezdg go`, stop with `/ezdg go stop`, or right-click the launcher icon).
-- **World Map entrances**: skull pins, names and recommended levels on continent and zone maps; entrances close together (the four Monastery wings) are grouped. The **3rd dock button** at the bottom-left of the World Map opens a dungeon search bar; type a name and press **Enter** to jump to the zone of its entrance.
+- **World Map entrances**: skull pins, names and recommended levels on continent and zone maps; entrances close together (the four Monastery wings) are grouped. The **3rd dock button** at the bottom-left of the World Map opens a dungeon search bar; type a name and press **Enter** to jump to the zone of its entrance. **Click** an entrance pin to open that dungeon's guide window; **Shift+click** starts the entrance arrow and sets a map waypoint.
 - **Key bindings** (Key Bindings → AddOns): toggle the guide, mark next done, announce the current step.
 - **Monastery wings**: the four Scarlet Monastery wings are detected automatically; if detection is slow, choose one with `/ezdg wing library` etc.
 
@@ -162,10 +162,10 @@ A dungeon route guide. **18 dungeons and 29 floor maps** use real minimap-tile a
 | ② | Fade guide window in combat | Dims the window when combat starts | On |
 | ② | Lock guide window | Map window and HUD cannot be dragged | Off |
 | ② | Show floating launcher icon | Launcher icon | On |
-| ③ | Show dungeon entrances / names / recommended levels on World Map | World Map pins | On |
+| ③ | Show dungeon entrances / names / recommended levels on World Map | World Map pins | Entrances and levels on, names off |
 | ③ | Auto-align map button (bottom-left) | World Map dock alignment | On |
 | ③ | Marker position edit mode | Pick a step, left-click the map to move its marker, right-click to restore it | Off |
-| ④ | Window opacity · Dungeon map size | Background 20–100%, map 240–800 px | 90% · 380 px |
+| ④ | Window opacity · Dungeon map size | Background 30–100%, map 260–620 px | 90% · 380 px |
 | ⑤ | Tools | Open the guide, start the entrance arrow, reset current dungeon progress, export marker edits | - |
 | ⑥ | Reset window & icon positions · Support | Resets map window, HUD, arrow and icon positions | - |
 
@@ -181,7 +181,7 @@ A dungeon route guide. **18 dungeons and 29 floor maps** use real minimap-tile a
 | `/ezdg go [key]` · `/ezdg go stop` | Start · stop the entrance arrow |
 | `/ezdg entrance set` | Save your current spot as the entrance |
 | `/ezdg auto` · `/ezdg rare` · `/ezdg icon` | Toggle auto-open · rare alert · launcher icon |
-| `/ezdg lock` · `/ezdg alpha 20-100` · `/ezdg size 240-800` | Lock window · opacity · map size |
+| `/ezdg lock` · `/ezdg alpha 30-100` · `/ezdg size 260-620` | Lock window · opacity · map size |
 | `/ezdg edit` · `/ezdg export` | Marker edit mode · export edits |
 | `/ezdg map` · `/ezdg debug` | Reload minimap tiles · dungeon info |
 | `/ezdg lang <auto\|ko\|en\|de\|fr\|es\|ru\|zhCN\|zhTW>` | Change display language |
