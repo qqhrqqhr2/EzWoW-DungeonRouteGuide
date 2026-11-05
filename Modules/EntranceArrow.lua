@@ -147,12 +147,16 @@ function EntranceArrowNavigator.createPrimaryWidget()
             self:SetBackdropColor(0.18, 0.23, 0.29, 1.00)
             self:SetBackdropBorderColor(0.918, 0.514, 0.494, 1.00)
         end
+        GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+        GameTooltip:SetText(L.TIP_ARROW_STOP, 1, 1, 1)
+        GameTooltip:Show()
     end)
     stop:SetScript("OnLeave", function(self)
         if self.SetBackdropColor then
             self:SetBackdropColor(0.114, 0.157, 0.192, 0.96)
             self:SetBackdropBorderColor(0.204, 0.298, 0.357, 1.00)
         end
+        GameTooltip:Hide()
     end)
     stop:SetPoint("TOPRIGHT", -2, -2)
     stop:SetScript("OnClick", function() ns.StopEntrance() end)

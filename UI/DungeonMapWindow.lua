@@ -979,6 +979,8 @@ function ns.ResolveFloorEncounterWidgets() return floorBtn, floorNext, floorList
 
 function DungeonRouteWindow.createPrimaryWidget()
     containerFrame = CreateFrame("Frame", "EzWoW_DungeonRouteGuideFrame", UIParent, "BackdropTemplate")
+    -- ESC closes the route map like other windows
+    if type(UISpecialFrames) == "table" and type(tinsert) == "function" then tinsert(UISpecialFrames, "EzWoW_DungeonRouteGuideFrame") end
     DungeonRouteWindow.applyPanelBackdrop(containerFrame)
     containerFrame:SetFrameStrata("MEDIUM")
     containerFrame:SetClampedToScreen(true)

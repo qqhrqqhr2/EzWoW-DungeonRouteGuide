@@ -32,6 +32,22 @@ local DEFAULTS = {
     routes = {}, entrances = {}, frames = {}, names = {}, floorAreas = {},
 }
 
+-- One range for both the slash command and the settings window
+ns.ALPHA_MIN, ns.ALPHA_MAX = 0.3, 1.0
+ns.MAP_SIZE_MIN, ns.MAP_SIZE_MAX = 260, 620
+
+function ns.ClampAlpha(v)
+    v = tonumber(v)
+    if not v or v ~= v then v = DEFAULTS.alpha end
+    return math.max(ns.ALPHA_MIN, math.min(ns.ALPHA_MAX, v))
+end
+
+function ns.ClampMapSize(v)
+    v = tonumber(v)
+    if not v or v ~= v then v = DEFAULTS.mapSize end
+    return math.floor(math.max(ns.MAP_SIZE_MIN, math.min(ns.MAP_SIZE_MAX, v)) + 0.5)
+end
+
 function DungeonProgressTracker.commitDefaults(db, defaults)
     for entryKey, entryValue in pairs(defaults) do
         if db[entryKey] == nil then
@@ -98,6 +114,8 @@ function ns.InitDB()
     end
     EzWoW_DungeonRouteGuideDB = EzWoW_DungeonRouteGuideDB
     DungeonProgressTracker.commitDefaults(EzWoW_DungeonRouteGuideDB, DEFAULTS)
+    EzWoW_DungeonRouteGuideDB.alpha = ns.ClampAlpha(EzWoW_DungeonRouteGuideDB.alpha)
+    EzWoW_DungeonRouteGuideDB.mapSize = ns.ClampMapSize(EzWoW_DungeonRouteGuideDB.mapSize)
 
     if type(EzWoW_DungeonRouteGuideCharDB) ~= "table" then
         if type(EzWoW_DungeonRouteGuideCharDB) == "table" then
@@ -933,6 +951,12 @@ function DungeonProgressTracker.printDebugMessage()
     if npc then ns.Print(("target npc: %d %s"):format(npc, tostring(ns.CoerceSafeString(ns.UnwrapSafeValue(UnitName, "target"))))) end
 end
 
+-- Keeps the settings window in sync when a value is changed by slash command
+function DungeonProgressTracker.refreshOpenConfig()
+    local configWindow = ns.GetConfigFrame and ns.GetConfigFrame()
+    if configWindow and configWindow:IsShown() and configWindow.RefreshCfg then configWindow.RefreshCfg() end
+end
+
 SLASH_EZWOWDUNGEONROUTEGUIDE1 = "/ezdg"
 SLASH_EZWOWDUNGEONROUTEGUIDE2 = "/drg"
 SLASH_EZWOWDUNGEONROUTEGUIDE3 = "/dungeonroute"
@@ -950,9 +974,19 @@ SlashCmdList.EZWOWDUNGEONROUTEGUIDE = function(msg)
     elseif cmd == "reset" then ns.ResetProgress()
     elseif cmd == "lock" then ns.db.locked = not ns.db.locked; ns.RefreshAll(); ns.Print(L.OPT_LOCK:format(ns.FormatEnabledStateLabel(ns.db.locked)))
     elseif cmd == "alpha" then
-        local entryValue = tonumber(rest); if entryValue then ns.db.alpha = math.max(0.2, math.min(1, entryValue > 1 and entryValue / 100 or entryValue)); ns.ApplyAlpha() end
+        local entryValue = tonumber(rest)
+        if entryValue and entryValue == entryValue then
+            ns.db.alpha = ns.ClampAlpha(entryValue > 1 and entryValue / 100 or entryValue); ns.ApplyAlpha()
+            DungeonProgressTracker.refreshOpenConfig()
+        end
+        ns.Print(L.OPT_ALPHA:format(math.floor(ns.db.alpha * 100 + 0.5)) .. (" (%d-%d%%)"):format(math.floor(ns.ALPHA_MIN * 100 + 0.5), math.floor(ns.ALPHA_MAX * 100 + 0.5)))
     elseif cmd == "size" then
-        local entryValue = tonumber(rest); if entryValue then ns.db.mapSize = math.max(240, math.min(800, entryValue)); ns.RebuildMap() end
+        local entryValue = tonumber(rest)
+        if entryValue and entryValue == entryValue then
+            ns.db.mapSize = ns.ClampMapSize(entryValue); ns.RebuildMap()
+            DungeonProgressTracker.refreshOpenConfig()
+        end
+        ns.Print(L.OPT_SIZE:format(ns.db.mapSize) .. (" (%d-%d)"):format(ns.MAP_SIZE_MIN, ns.MAP_SIZE_MAX))
     elseif cmd == "auto" then ns.db.autoOpen = not ns.db.autoOpen; ns.Print(L.OPT_AUTO:format(ns.FormatEnabledStateLabel(ns.db.autoOpen)))
     elseif cmd == "lang" or cmd == "language" or cmd == "언어" then
         local want = ({
