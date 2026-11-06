@@ -66,11 +66,33 @@ function ns.Normalize(s)
     return (s:lower():gsub("[%s%p]", ""))
 end
 
-function ns.Print(msg)
+-- Printing to chat in combat can taint the chat history, so lines written in
+-- combat are held (up to MAX_HELD) and printed when combat ends.
+local heldLines, MAX_HELD = {}, 20
+
+local function writeLine(text)
     if DEFAULT_CHAT_FRAME then
-        DEFAULT_CHAT_FRAME:AddMessage("|cffea837e[EzWoW - Dungeon Route Guide]|r " .. tostring(msg))
+        DEFAULT_CHAT_FRAME:AddMessage("|cffea837e[EzWoW - Dungeon Route Guide]|r " .. text)
     end
 end
+
+function ns.Print(msg)
+    local text = ns.IsReadableValue(msg) and tostring(msg) or "?"
+    if ns.IsTruthySafeValue(ns.UnwrapSafeValue(InCombatLockdown)) then
+        if #heldLines < MAX_HELD then heldLines[#heldLines + 1] = text end
+        return
+    end
+    writeLine(text)
+end
+
+local printFlush = CreateFrame("Frame")
+pcall(printFlush.RegisterEvent, printFlush, "PLAYER_REGEN_ENABLED")
+printFlush:SetScript("OnEvent", function()
+    if #heldLines == 0 then return end
+    local lines = heldLines
+    heldLines = {}
+    for _, text in ipairs(lines) do writeLine(text) end
+end)
 
 function ns.FormatEnabledStateLabel(v)
     return v and ("|cff55ff55" .. ns.L.ON .. "|r") or ("|cffff5555" .. ns.L.OFF .. "|r")

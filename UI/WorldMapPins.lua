@@ -109,6 +109,17 @@ function PinMixin:SetPassThroughButtons(...)
     getmetatable(self).__index.SetPassThroughButtons(self, ...)
 end
 
+-- the mouse propagation setters are protected in combat the same way
+function PinMixin:SetPropagateMouseClicks(...)
+    if InCombatLockdown() then return end
+    getmetatable(self).__index.SetPropagateMouseClicks(self, ...)
+end
+
+function PinMixin:SetPropagateMouseMotion(...)
+    if InCombatLockdown() then return end
+    getmetatable(self).__index.SetPropagateMouseMotion(self, ...)
+end
+
 function PinMixin:OnMouseEnter()
     GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
     GameTooltip:SetText("EzWoW - Dungeon Route Guide", 1, 0.82, 0)

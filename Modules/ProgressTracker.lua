@@ -779,10 +779,38 @@ function DungeonProgressTracker.resolveRareAlert(unit)
     local name = step and translationHelper(step.name) or ns.CoerceSafeString(ns.UnwrapSafeValue(UnitName, unit)) or "?"
     local msg = L.RARE_ALERT:format(name)
     ns.Print("|cffff80ff" .. msg .. "|r")
-    if RaidNotice_AddMessage and RaidWarningFrame and ChatTypeInfo then
-        ns.UnwrapSafeValue(RaidNotice_AddMessage, RaidWarningFrame, msg, ChatTypeInfo["RAID_WARNING"])
-    end
+    DungeonProgressTracker.showRareBanner(msg)
     ns.UnwrapSafeValue(PlaySound, (SOUNDKIT and SOUNDKIT.RAID_WARNING) or 8959, "Master")
+end
+
+-- Our own on-screen banner: writing into the game's raid warning frame from
+-- addon code would taint it for the game's own (secret) warnings later on.
+local rareBanner
+local RARE_BANNER_HOLD, RARE_BANNER_FADE = 4, 1.5
+function DungeonProgressTracker.showRareBanner(msg)
+    if not rareBanner then
+        rareBanner = CreateFrame("Frame", nil, UIParent)
+        rareBanner:SetSize(800, 40)
+        rareBanner:SetPoint("TOP", UIParent, "TOP", 0, -250)
+        rareBanner:SetFrameStrata("HIGH")
+        rareBanner:EnableMouse(false)
+        rareBanner.text = rareBanner:CreateFontString(nil, "OVERLAY", "GameFontNormalHuge")
+        rareBanner.text:SetAllPoints()
+        rareBanner.text:SetTextColor(1, 0.5, 1)
+        rareBanner:SetScript("OnUpdate", function(self, elapsed)
+            self.age = (self.age or 0) + elapsed
+            if self.age >= RARE_BANNER_HOLD + RARE_BANNER_FADE then
+                self:Hide()
+            elseif self.age > RARE_BANNER_HOLD then
+                self:SetAlpha(1 - (self.age - RARE_BANNER_HOLD) / RARE_BANNER_FADE)
+            end
+        end)
+        rareBanner:Hide()
+    end
+    rareBanner.text:SetText(msg)
+    rareBanner.age = 0
+    rareBanner:SetAlpha(1)
+    rareBanner:Show()
 end
 
 function DungeonProgressTracker.refreshTarget()

@@ -80,6 +80,8 @@ function WorldMapDungeonSearch.launchDungeonOnWorldMap(d)
     if not entityID or entityID <= 0 or not x or not y or x < 0 or x > 100 or y < 0 or y > 100 then return end
     local apiInfo = ns.UnwrapSafeValue(C_Map and C_Map.GetMapInfo, entityID)
     if not ns.IsReadableValue(apiInfo) or type(apiInfo) ~= "table" then return end
+    -- moving the map from addon code in combat makes the map's own pins run blocked calls
+    if ns.InCombat() then return end
     ns.UnwrapSafeValue(WorldMapFrame.SetMapID, WorldMapFrame, entityID)
     ns.UnwrapSafeValue(WorldMapFrame.PanTo, WorldMapFrame, x / 100, y / 100)
 end
