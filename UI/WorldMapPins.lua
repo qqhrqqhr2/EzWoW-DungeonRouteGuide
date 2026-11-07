@@ -280,11 +280,33 @@ function MapDataProvider:OnHide()
     if ns.WorldMapControls then ns.WorldMapControls.panel:Hide() end
 end
 
+-- Our map layer runs from post-hooks on the map instead of being registered
+-- as a map data provider: a provider runs inside the map's own update loop,
+-- and the game's pins made after it in that loop are then blocked in combat
+-- (SetPassThroughButtons). The layer keeps the provider method names.
+local function attachMapLayer(map, layer)
+    layer.owningMap = map
+    layer.GetMap = function() return map end
+    local function run(method, ...)
+        local fn = layer[method]
+        if type(fn) == "function" then fn(layer, ...) end
+    end
+    hooksecurefunc(map, "OnMapChanged", function() run("OnMapChanged") end)
+    for _, method in ipairs({ "OnCanvasScaleChanged", "OnCanvasSizeChanged", "SetGlobalAlpha" }) do
+        if type(map[method]) == "function" then
+            local target = method == "SetGlobalAlpha" and "OnGlobalAlphaChanged" or method
+            hooksecurefunc(map, method, function() run(target) end)
+        end
+    end
+    map:HookScript("OnShow", function() run("OnShow"); run("RefreshAllData", true) end)
+    map:HookScript("OnHide", function() run("OnHide") end)
+end
+
 function ns.InitWorldMap()
     if WorldMapDataProvider or not ns.db or not WorldMapFrame or not MapCanvasDataProviderMixin or not MapCanvasPinMixin then return end
     for lookupKey, value in pairs(MapCanvasPinMixin) do if PinMixin[lookupKey] == nil then PinMixin[lookupKey] = value end end
     WorldMapDataProvider = CreateFromMixins(MapCanvasDataProviderMixin, MapDataProvider)
-    WorldMapFrame:AddDataProvider(WorldMapDataProvider)
+    attachMapLayer(WorldMapFrame, WorldMapDataProvider)
     if ns.CreateWorldMapControls then ns.CreateWorldMapControls() end
     if ns.IsTruthySafeValue(ns.UnwrapSafeValue(WorldMapFrame.IsShown, WorldMapFrame)) then WorldMapDataProvider:RefreshAllData() end
 end
