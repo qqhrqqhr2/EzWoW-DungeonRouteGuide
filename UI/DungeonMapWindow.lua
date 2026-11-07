@@ -659,8 +659,7 @@ function DungeonRouteWindow.launchQuestInMapFinder(priorityQueue)
     if not priorityQueue then return end
     local qName = (priorityQueue.name and (translationHelper(priorityQueue.name) or priorityQueue.name.ko or priorityQueue.name.en)) or ns.QuestTitle(priorityQueue)
     if not qName or qName == "" then return end
-    -- opening the map from addon code in combat makes its own pins run blocked calls
-    if WorldMapFrame and not WorldMapFrame:IsShown() and not ns.InCombat() then
+    if WorldMapFrame and not WorldMapFrame:IsShown() then
         if ToggleWorldMap then
             pcall(ToggleWorldMap)
         else
