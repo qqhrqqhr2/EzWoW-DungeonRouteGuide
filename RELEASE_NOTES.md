@@ -1,9 +1,7 @@
-# v2.0.8
+# v2.0.9
 
 ### 한국어
-- 전투 중 지도와 채팅에서 나던 "애드온 동작 차단" 오류를 수정했습니다.
-- 희귀 몹 알림을 별도 알림 배너로 표시합니다.
+- 입구 화살표 툴팁과 세계 지도 아이콘 메뉴 아래에 "EzWoW - Dungeon Route Guide" 표시를 작은 회색 글씨로 넣었습니다.
 
 ### English
-- Fixed blocked-action errors with the map and chat in combat.
-- Rare alerts now use their own banner.
+- The entrance arrow tooltip and the world map pin menu now show a small gray "EzWoW - Dungeon Route Guide" label.
