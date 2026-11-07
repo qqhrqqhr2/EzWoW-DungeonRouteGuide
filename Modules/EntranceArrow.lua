@@ -149,7 +149,9 @@ function EntranceArrowNavigator.createPrimaryWidget()
         end
         GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
         GameTooltip:SetText(L.TIP_ARROW_STOP, 1, 1, 1)
+        GameTooltip:AddDoubleLine(" ", "EzWoW - Dungeon Route Guide", 0, 0, 0, 0.5, 0.5, 0.5)
         GameTooltip:Show()
+        if _G.EzWoWTooltipTagSizer and _G.EzWoWTooltipTagSizer.Refit then pcall(_G.EzWoWTooltipTagSizer.Refit, GameTooltip) end
     end)
     stop:SetScript("OnLeave", function(self)
         if self.SetBackdropColor then

@@ -183,6 +183,8 @@ function PinMixin:OnMouseClickAction(button)
                 WorldMapPinProvider.activateDungeon(d, guide)
             end)
         end
+        rootDescription:CreateDivider()
+        rootDescription:CreateTitle("|cff8c8c8cEzWoW - Dungeon Route Guide|r")
     end)
 end
 
