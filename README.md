@@ -31,7 +31,7 @@ WoW Forever (`Interface: 16001`) · `/ezdg`
 
 ![설정창](docs/images/settings_ko.png)
 
-> 지도는 애드온에 들어 있는 미니맵 타일과 위치 데이터로 그린 **통곡의 동굴** 실제 지도입니다. 나머지 창은 애드온 코드의 크기·좌표·문구로 재현한 예시 화면입니다(3D 모델 자리에는 그림을 대신 넣었습니다).
+> 지도는 애드온에 들어 있는 미니맵 타일과 위치 데이터로 그린 **통곡의 동굴** 실제 지도입니다. 나머지 창은 애드온 코드의 크기·좌표·색·문구로 재현한 예시 화면입니다(3D 모델과 아이템 아이콘 자리에는 그림을 대신 넣었습니다).
 
 ### 설치
 
@@ -43,17 +43,18 @@ WoW Forever (`Interface: 16001`) · `/ezdg`
 
 | 번호 | 부분 | 설명 |
 |---|---|---|
-| ① | 미니 HUD | 던전 안에서 **다음 목표와 진행도(처치한 보스/전체)**, 짧은 공략 메모를 보여 줍니다. **지도** 버튼은 공략 창을 열고, **파티 알림**은 현재 단계를 파티 채팅에 알립니다. |
-| ② | 던전 선택 | 제목(던전 이름)을 누르면 18개 던전 목록이 열립니다. **현재 던전**은 지금 있는 던전 지도로 돌아오고, **목록**은 오른쪽 목록을 접고 펼치며, **설정**은 설정창을 엽니다. 층이 여러 개인 던전은 층(지역) 선택 버튼이 나타납니다. |
-| ③ | 지도 | 숫자 = 공략 순서, 색 = 종류(빨강 우두머리 · 보라 희귀 몹 · 파랑 NPC · 노랑 퀘스트 장소 · 초록 입구), 작은 원 = 무작위 출현 후보 지점, 점선 = 이동 경로. **마우스 휠**로 1~5배 확대, 확대 상태에서 **끌어서** 이동, **전체** 버튼으로 다시 맞춤. 표식을 누르면 상세 카드가 열리고, 파란 번호(층 연결)를 누르면 연결된 층 지도로 이동합니다. |
-| ④ | 경로 / 퀘스트 / 준비 탭 | **경로**: 단계 목록(좌클릭 선택, 우클릭 완료 표시 전환). **퀘스트**: 이 던전 퀘스트의 시작·목표·보상, **최소 수락 레벨**(레벨이 부족하면 빨간색), 진행 상태. 좌클릭하면 던전 안 목표 위치, 우클릭하면 EzWoW-MapFinder로 세계지도 시작 위치를 찾습니다. **준비**: 입장 열쇠, 진영 주의사항(예: 달라란 호드 적대 경보), 추천 준비물. |
-| ⑤ | 자동 체크 | 보스를 처치하면 그 단계가 ✓로 바뀌고 다음 목표가 **노란색**으로 강조됩니다. 새 인스턴스에 들어가면 진행이 자동으로 초기화됩니다. |
-| ⑥ | 상세 카드 | 3D 보스 모델(끌기: 회전 · 휠: 확대 · 우클릭: 처음 각도), 공략 메모, 전리품과 드랍률. 아이템을 **Shift+클릭**하면 채팅에 링크합니다. 일반 몹 드랍 목록도 볼 수 있습니다. |
+| ① | 다음 목표 바 (HUD) | 던전 안에서 **다음 목표와 진행도(처치한 우두머리/전체)**, 짧은 공략 메모를 보여 줍니다. **지도** 버튼은 공략 창을 열고, **파티 알림**은 현재 단계를 파티 채팅에 알립니다. |
+| ② | 던전 선택 | 제목(던전 이름)을 누르면 18개 던전 목록(권장 레벨, 지금 있는 던전 표시)이 열립니다. **현재 던전**은 지금 있는 던전 지도로 돌아오고, **목록**은 오른쪽 목록을 접고 펼치며, **설정**은 설정창을 엽니다. 지역(지도)이 여러 개인 던전은 지도 왼쪽 위에 **지역 선택** 버튼(남은 목표 수 표시)과 **다음 목표 → 지역** 바로가기가 나타납니다. |
+| ③ | 지도 | 숫자 = 우두머리 순서, 색 = 종류(빨강 우두머리 · 보라 희귀 몹 · 파랑 NPC · 노랑 퀘스트 장소 · 초록 입구). 희귀 몹·NPC·할 일은 번호 대신 아이콘, 노란 **!** = 퀘스트 대상, ✓ = 완료, 빛나는 표식 = 다음 목표. 무작위로 나오는 몹은 선택하면 다른 출현 후보 지점(작은 원)을 함께 보여 줍니다. **마우스 휠**로 확대, 확대 상태에서 **끌어서** 이동, **전체** 버튼으로 다시 맞춤. 표식을 누르면 상세 카드가 열리고, 파란 번호(지역 연결)를 누르면 연결된 지역 지도로 이동합니다. |
+| ④ | 경로 / 퀘스트 / 준비 탭 | **경로**: 단계 목록(좌클릭 선택, 우클릭 완료 표시 전환), 맨 아래 **일반 몹** 줄을 누르면 일반 몹 드랍 목록. **퀘스트**: 이 던전 퀘스트의 시작·목표·보상, **최소 수락 레벨**(레벨이 부족하면 빨간색), 진행 상태. 좌클릭하면 던전 안 목표 위치, 우클릭하면 EzWoW-MapFinder로 세계지도 시작 위치를 찾습니다. **준비**: 입장 열쇠, 진영 주의사항(예: 달라란 호드 적대 경보), 추천 준비물. |
+| ⑤ | 자동 체크 | 우두머리를 처치하면 그 단계가 ✓로 바뀌고 다음 목표가 **노란색**으로 강조됩니다. 목록 아래에 고른 단계의 공략 메모와 전리품 아이콘이 나옵니다. 새 인스턴스에 들어가면 진행이 자동으로 초기화됩니다. |
+| ⑥ | 상세 카드 | 표식이나 단계를 누르면 공략 창 옆에 열립니다. 3D 모델(끌기: 회전 · 휠: 확대 · 우클릭: 처음 각도)과 전리품 목록. 일반 몹 드랍은 떨구는 몹과 드랍률도 보여 줍니다. 아이템을 **Shift+클릭**하면 채팅에 링크합니다. |
+| ⑦ | 세계지도 던전 입구 | 입구 표식에 마우스를 올리면 던전 이름·권장 레벨·좌표가 나옵니다. **클릭**하면 그 던전의 공략 창이 열리고, **Shift+클릭**하면 입구 방향 화살표 안내를 시작하고 지도에 목적지 표시를 남깁니다. |
 
 #### 그 밖의 기능
 
 - **입구 방향 화살표**: 야외에서 선택한 던전 입구까지 방향과 남은 거리를 화살표로 안내합니다(`/ezdg go`, 끄기 `/ezdg go stop`, 런처 아이콘 우클릭).
-- **세계지도 던전 입구**: 대륙·지역 지도에 해골 표식, 던전 이름, 권장 레벨을 표시하고, 가까이 붙은 입구(수도원 4구역 등)는 하나로 묶습니다. 세계지도 왼쪽 아래 **3번째 도킹 버튼**을 누르면 던전 검색 막대가 펼쳐지고, 이름을 입력해 **Enter**를 누르면 입구가 있는 지역 지도로 이동합니다. 입구 표식을 **클릭**하면 그 던전의 공략 창이 열리고, **Shift+클릭**하면 입구 방향 화살표 안내를 시작하고 지도에 목적지 표시를 남깁니다.
+- **세계지도 던전 입구**: 대륙·지역 지도에 던전 입구 표식을 표시하고(이름·권장 레벨 표시는 설정에서 선택), 가까이 붙은 입구(수도원 4구역 등)는 하나로 묶습니다. 묶인 표식을 누르면 던전을 고르는 메뉴가 나옵니다. 세계지도 왼쪽 아래 **3번째 도킹 버튼**을 누르면 던전 검색 막대가 펼쳐지고, 이름을 입력해 **Enter**를 누르면 입구가 있는 지역 지도로 이동합니다(전투 중에도 동작).
 - **단축키** (게임 단축키 설정 → 애드온): 공략 창 열기/닫기, 다음 목표 완료, 현재 단계 파티 알림.
 - **수도원 구역 판별**: 붉은십자군 수도원 4개 구역을 자동으로 구분하며, 판별이 늦으면 `/ezdg wing 도서관`처럼 직접 고를 수 있습니다.
 
@@ -73,7 +74,7 @@ WoW Forever (`Interface: 16001`) · `/ezdg`
 | ③ | 지도 표식 위치 수동 편집 모드 | 단계를 고른 뒤 지도를 좌클릭해 표식을 옮기고, 우클릭으로 원래 자리로 되돌립니다. | 끔 |
 | ④ | 창 투명도 · 던전 지도 크기 | 배경 30~100%, 지도 260~620px | 90% · 380px |
 | ⑤ | 도구 | 공략 창 열기, 입구 방향 화살표 안내 시작, 현재 던전 진행도 초기화, 편집한 표식 위치 내보내기 | - |
-| ⑥ | 창·아이콘 위치 초기화 · 후원하기 | 지도 창, HUD, 화살표, 아이콘 위치 초기화 | - |
+| ⑥ | 창·아이콘 위치 초기화 · 후원하기 | 공략 창, 화면 아이콘, 다음 목표 바, 입구 화살표, 세계지도 버튼을 처음 위치로 되돌리고 숨긴 화면 아이콘을 다시 표시 | - |
 
 ### 명령어 (`/ezdg`, `/drg`, `/dungeonroute`, `/던전길잡이`)
 
@@ -82,7 +83,7 @@ WoW Forever (`Interface: 16001`) · `/ezdg`
 | `/ezdg` | 공략 지도 창 열기/닫기 |
 | `/ezdg config` (`설정`) | 설정창 |
 | `/ezdg hud` | 미니 HUD 표시/숨기기 |
-| `/ezdg next` · `/ezdg undo` · `/ezdg reset` | 다음 단계 완료 · 되돌리기 · 현재 던전 진행 초기화 |
+| `/ezdg next` (`skip`) · `/ezdg undo` · `/ezdg reset` | 다음 단계 완료 · 되돌리기 · 현재 던전 진행 초기화 |
 | `/ezdg wing <구역\|auto>` | 수도원 구역 직접 지정 / 자동 판별로 복귀 |
 | `/ezdg go [던전키]` · `/ezdg go stop` | 입구 방향 화살표 시작 · 끄기 |
 | `/ezdg entrance set` | 지금 위치를 그 던전 입구로 저장 |
@@ -91,6 +92,7 @@ WoW Forever (`Interface: 16001`) · `/ezdg`
 | `/ezdg edit` · `/ezdg export` | 표식 편집 모드 · 편집 내보내기 |
 | `/ezdg map` · `/ezdg debug` | 미니맵 다시 불러오기 · 던전 정보 확인 |
 | `/ezdg lang <auto\|ko\|en\|de\|fr\|es\|ru\|zhCN\|zhTW>` | 표시 언어 변경 |
+| `/ezdg donate` (`후원`) | 후원 안내 |
 
 ### 저장 데이터
 
@@ -125,7 +127,7 @@ A dungeon route guide. **18 dungeons and 29 floor maps** use real minimap-tile a
 
 ![Settings window](docs/images/settings_en.png)
 
-> The map is the real **Wailing Caverns** map drawn from the minimap tiles and position data bundled with the addon. The other windows are mock-ups rebuilt from the sizes, coordinates and strings in the code (a picture stands in for the 3D model).
+> The map is the real **Wailing Caverns** map drawn from the minimap tiles and position data bundled with the addon. The other windows are mock-ups rebuilt from the sizes, coordinates, colours and strings in the code (pictures stand in for the 3D model and item icons).
 
 ### Installation
 
@@ -137,17 +139,18 @@ A dungeon route guide. **18 dungeons and 29 floor maps** use real minimap-tile a
 
 | No. | Part | Description |
 |---|---|---|
-| ① | Mini HUD | Inside a dungeon: **next objective and progress (bosses killed / total)** with a short tip. **Map** opens the guide, **Tell party** posts the current step to party chat. |
-| ② | Pick a dungeon | Click the title for the list of 18 dungeons. **Current** returns to the dungeon you are in, **List** toggles the side list, **Options** opens settings. Multi-floor dungeons show an area selector. |
-| ③ | Map | Number = route order, colour = type (red boss · purple rare · blue NPC · yellow quest spot · green entrance), small rings = random spawn candidates, dashed line = path. **Mouse wheel** zooms 1–5×, **drag** to pan when zoomed, **Fit** resets. Click a marker for its detail card; click a blue link number to jump to the connected floor. |
-| ④ | Route / Quests / Prep tabs | **Route**: step list (left-click select, right-click toggle done). **Quests**: start, objective and rewards for each dungeon quest, **minimum level** (red when too low) and status. Left-click shows the in-dungeon objective, right-click finds the quest start on the World Map with EzWoW-MapFinder. **Prep**: keys, faction warnings (e.g. Horde hostility in Dalaran), suggested supplies. |
-| ⑤ | Auto check | Killing a boss ticks its step and highlights the next one in **yellow**. Progress resets automatically on a new instance. |
-| ⑥ | Detail card | 3D boss model (drag: rotate · wheel: zoom · right-click: reset), tips, loot with drop chances. **Shift+click** an item to link it. Trash-drop lists are available too. |
+| ① | Next-objective bar (HUD) | Inside a dungeon: **next objective and progress (bosses killed / total)** with a short tip. **Map** opens the guide, **Tell party** posts the current step to party chat. |
+| ② | Pick a dungeon | Click the title for the list of 18 dungeons (with levels; the one you are in is marked). **Current** returns to the dungeon you are in, **List** toggles the side list, **Options** opens settings. Dungeons with several areas (maps) get an **area** button at the top-left of the map (with objectives left) and a **Next objective → area** shortcut. |
+| ③ | Map | Number = boss order, colour = type (red boss · purple rare · blue NPC · yellow quest spot · green entrance). Rares, NPCs and tasks show an icon instead of a number, yellow **!** = quest target, ✓ = done, glowing marker = next objective. Selecting a random spawn also shows its other possible spots (small rings). **Mouse wheel** zooms, **drag** to pan when zoomed, **Fit** resets. Click a marker for its detail card; click a blue link number to jump to the connected area. |
+| ④ | Route / Quests / Prep tabs | **Route**: step list (left-click select, right-click toggle done); the **Trash mobs** row at the bottom opens the trash-drop list. **Quests**: start, objective and rewards for each dungeon quest, **minimum level** (red when too low) and status. Left-click shows the in-dungeon objective, right-click finds the quest start on the World Map with EzWoW-MapFinder. **Prep**: keys, faction warnings (e.g. Horde hostility in Dalaran), suggested supplies. |
+| ⑤ | Auto check | Killing a boss ticks its step and highlights the next one in **yellow**. The selected step's tip and loot icons appear below the list. Progress resets automatically on a new instance. |
+| ⑥ | Detail card | Opens next to the guide when you click a marker or step: 3D model (drag: rotate · wheel: zoom · right-click: reset) and the loot list. Trash drops also show which mobs drop them and how often. **Shift+click** an item to link it. |
+| ⑦ | World Map entrances | Hover an entrance pin for the dungeon name, levels and coordinates. **Click** opens that dungeon's guide window; **Shift+click** starts the entrance arrow and sets a map waypoint. |
 
 #### More features
 
 - **Entrance arrow**: outdoors, an arrow shows the direction and distance to the chosen dungeon entrance (`/ezdg go`, stop with `/ezdg go stop`, or right-click the launcher icon).
-- **World Map entrances**: skull pins, names and recommended levels on continent and zone maps; entrances close together (the four Monastery wings) are grouped. The **3rd dock button** at the bottom-left of the World Map opens a dungeon search bar; type a name and press **Enter** to jump to the zone of its entrance. **Click** an entrance pin to open that dungeon's guide window; **Shift+click** starts the entrance arrow and sets a map waypoint.
+- **World Map entrances**: entrance pins on continent and zone maps (names and recommended levels are optional in the settings); entrances close together (the four Monastery wings) are grouped, and clicking a group lets you pick the dungeon from a menu. The **3rd dock button** at the bottom-left of the World Map opens a dungeon search bar; type a name and press **Enter** to jump to the zone of its entrance (works in combat too).
 - **Key bindings** (Key Bindings → AddOns): toggle the guide, mark next done, announce the current step.
 - **Monastery wings**: the four Scarlet Monastery wings are detected automatically; if detection is slow, choose one with `/ezdg wing library` etc.
 
@@ -167,7 +170,7 @@ A dungeon route guide. **18 dungeons and 29 floor maps** use real minimap-tile a
 | ③ | Marker position edit mode | Pick a step, left-click the map to move its marker, right-click to restore it | Off |
 | ④ | Window opacity · Dungeon map size | Background 30–100%, map 260–620 px | 90% · 380 px |
 | ⑤ | Tools | Open the guide, start the entrance arrow, reset current dungeon progress, export marker edits | - |
-| ⑥ | Reset window & icon positions · Support | Resets map window, HUD, arrow and icon positions | - |
+| ⑥ | Reset window & icon positions · Support | Moves the guide, launcher icon, objective bar, entrance arrow and World Map button back to their defaults and shows a hidden launcher icon again | - |
 
 ### Slash commands (`/ezdg`, `/drg`, `/dungeonroute`, `/던전길잡이`)
 
@@ -176,7 +179,7 @@ A dungeon route guide. **18 dungeons and 29 floor maps** use real minimap-tile a
 | `/ezdg` | Open/close the map window |
 | `/ezdg config` | Settings |
 | `/ezdg hud` | Show/hide the mini HUD |
-| `/ezdg next` · `/ezdg undo` · `/ezdg reset` | Mark next step done · undo · reset current dungeon progress |
+| `/ezdg next` (`skip`) · `/ezdg undo` · `/ezdg reset` | Mark next step done · undo · reset current dungeon progress |
 | `/ezdg wing <wing\|auto>` | Choose the Monastery wing / return to auto detection |
 | `/ezdg go [key]` · `/ezdg go stop` | Start · stop the entrance arrow |
 | `/ezdg entrance set` | Save your current spot as the entrance |
@@ -185,6 +188,7 @@ A dungeon route guide. **18 dungeons and 29 floor maps** use real minimap-tile a
 | `/ezdg edit` · `/ezdg export` | Marker edit mode · export edits |
 | `/ezdg map` · `/ezdg debug` | Reload minimap tiles · dungeon info |
 | `/ezdg lang <auto\|ko\|en\|de\|fr\|es\|ru\|zhCN\|zhTW>` | Change display language |
+| `/ezdg donate` | Support info |
 
 ### Saved data
 
