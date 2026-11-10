@@ -1,7 +1,11 @@
-# v2.0.11
+# v2.0.12
 
 ### 한국어
-- 전투 중에도 애드온 기능으로 세계지도를 열고 위치로 이동할 수 있습니다.
+- 게임패드를 지원합니다. 패드로 EzWoW 창을 다루고, 보기(Create) 버튼으로 화면의 EzWoW 프레임으로 이동합니다.
+- EzWoW 애드온끼리 퀘스트·희귀 몬스터·드롭·채집 기록을 공유합니다(기본 켜짐, `/ezshare`).
+- 게임패드 사용 중 지도 패널에서 나던 기능 차단 오류를 수정했습니다.
 
 ### English
-- The world map can now be opened and moved to a location from the addon during combat.
+- Added gamepad support: EzWoW windows work with a gamepad, and View (Create) moves to the EzWoW frames on screen.
+- EzWoW addons now share quest, rare monster, drop and gathering records (on by default, `/ezshare`).
+- Fixed actions being blocked by the map panel with a gamepad.
