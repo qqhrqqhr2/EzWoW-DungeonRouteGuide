@@ -659,7 +659,10 @@ function DungeonRouteWindow.launchQuestInMapFinder(priorityQueue)
     if not priorityQueue then return end
     local qName = (priorityQueue.name and (translationHelper(priorityQueue.name) or priorityQueue.name.ko or priorityQueue.name.en)) or ns.QuestTitle(priorityQueue)
     if not qName or qName == "" then return end
-    if WorldMapFrame and not WorldMapFrame:IsShown() then
+    -- with the gamepad on, a map opened by addon code taints the gamepad
+    -- navigation (Libs/EzWoWGamePad): the search only runs on an open map
+    local padOn = ns.GamePad and ns.GamePad.IsActive()
+    if WorldMapFrame and not WorldMapFrame:IsShown() and not padOn then
         if ToggleWorldMap then
             pcall(ToggleWorldMap)
         else

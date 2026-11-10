@@ -27,9 +27,11 @@
 ## X-Website: https://github.com/qqhrqqhr2/EzWoW-DungeonRouteGuide
 ## X-Curse-Project-ID: 1728502
 ## X-Credits: WoW Forever client minimap geometry
-## SavedVariables: EzWoW_DungeonRouteGuideDB
+## SavedVariables: EzWoW_DungeonRouteGuideDB, EzWoW_SharedData
 ## SavedVariablesPerCharacter: EzWoW_DungeonRouteGuideCharDB
 
+Libs\EzWoWGamePad\GamePad.lua
+Libs\EzWoWShare\Share.lua
 Core\Locales.lua
 Core\UIKit.lua
 Core\Init.lua

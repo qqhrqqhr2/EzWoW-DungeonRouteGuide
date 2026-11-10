@@ -3,6 +3,9 @@
 -- UI/WorldMapDockSearch.lua : WorldMap Dock Button & Dungeon Quick-Search Popover
 --===========================================================================
 local _, ns = ...
+-- frames made on the World Map are made without a parent and put in after
+-- (Libs/EzWoWGamePad MakeFrame: keeps the game's gamepad cursor untainted)
+local CreateFrame = (ns.GamePad and ns.GamePad.MakeFrame) or CreateFrame
 local type, pairs, ipairs, tonumber, tostring, select, pcall = type, pairs, ipairs, tonumber, tostring, select, pcall
 
 local WorldMapDungeonSearch = ns.WorldMapDungeonSearch or {}
@@ -82,6 +85,8 @@ function WorldMapDungeonSearch.launchDungeonOnWorldMap(d)
     if not ns.IsReadableValue(apiInfo) or type(apiInfo) ~= "table" then return end
     -- moving the map from addon code in combat makes the map's own pins run blocked calls
     if ns.InCombat() then return end
+    -- the same with the gamepad on: it taints the gamepad navigation (Libs/EzWoWGamePad)
+    if ns.GamePad and ns.GamePad.IsActive() then return end
     ns.UnwrapSafeValue(WorldMapFrame.SetMapID, WorldMapFrame, entityID)
     ns.UnwrapSafeValue(WorldMapFrame.PanTo, WorldMapFrame, x / 100, y / 100)
 end
@@ -212,7 +217,8 @@ function ns.CreateWorldMapControls()
     c.container = container
     local strata = ns.CoerceSafeString(ns.UnwrapSafeValue(WorldMapFrame.GetFrameStrata, WorldMapFrame)) or "HIGH"
     local level = ns.CoerceSafeNumber(ns.UnwrapSafeValue(WorldMapFrame.GetFrameLevel, WorldMapFrame)) or 0
-    c.button = CreateFrame("Button", "EzWoW_DungeonRouteGuideWorldMapButton", container)
+    -- made on the map window (like the panel), anchored to the canvas
+    c.button = CreateFrame("Button", "EzWoW_DungeonRouteGuideWorldMapButton", WorldMapFrame)
     c.button:SetSize(28, 28)
     local iconTex = "Interface\\AddOns\\EzWoW-DungeonRouteGuide\\Media\\icon"
     c.button.icon = c.button:CreateTexture(nil, "ARTWORK")
@@ -311,7 +317,8 @@ function ns.CreateWorldMapControls()
         WorldMapDungeonSearch.positionButton(c)
     end
 
-    c.panel = CreateFrame("Frame", nil, WorldMapFrame, "BackdropTemplate")
+    -- named so the shared gamepad navigation (Libs/EzWoWGamePad) finds it
+    c.panel = CreateFrame("Frame", "EzWoW_DungeonRouteGuideMapPanel", WorldMapFrame, "BackdropTemplate")
     c.panel:SetFrameStrata(strata); c.panel:SetFrameLevel(level + 510)
     c.panel:SetClampedToScreen(true); c.panel:EnableMouse(true)
     c.panel:SetPoint("BOTTOMLEFT", c.button, "BOTTOMRIGHT", 6, 0)
