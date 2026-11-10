@@ -250,6 +250,7 @@ function DungeonRouteWindow.stepTooltip(owner, d, index)
         GameTooltip:AddLine(L.LOOT, 1, 0.82, 0)
         for entryKey, entityID in ipairs(step.loot) do
             if entryKey > 12 then GameTooltip:AddLine(("+%d"):format(#step.loot - 12), 0.7, 0.7, 0.7); break end
+            ns.ItemState(entityID)                     -- lets a long-unknown item fall back to its shipped name
             local displayName, _, priorityQueue, iconTex = ns.ItemInfo(entityID)
             local textureRegion = iconTex and ("|T" .. iconTex .. ":14:14|t ") or ""
             GameTooltip:AddLine(textureRegion .. (displayName and (ns.QualityHex(priorityQueue) .. displayName .. "|r") or ("|cff888888#" .. entityID .. " " .. L.LOADING .. "|r")))
@@ -786,6 +787,12 @@ function DungeonRouteWindow.layoutWindowRegions()
     local headerBar = HEADER + StyleService + LEGEND_H + FOOT_H + 8
     containerFrame:SetSize(w, headerBar)
     canvasFrame:SetSize(CW, StyleService)
+    -- the dungeon picker spans the map width, but never runs under the header buttons
+    if dropdown and DungeonRouteWindow.headerButtons then
+        local used = 16
+        for _, btn in ipairs(DungeonRouteWindow.headerButtons) do used = used + (btn:GetWidth() or 0) end
+        dropdown:SetWidth(math.max(120, math.min(CW, w - PAD - PAD - used)))
+    end
     legend:ClearAllPoints()
     legend:SetPoint("TOPLEFT", canvasFrame, "BOTTOMLEFT", 0, -3)
     itemList:SetShown(ns.db.showList)
@@ -819,6 +826,7 @@ end
 function ns.OnLanguageChanged()
     for _, buttonWidget in ipairs(fitBtns) do DungeonRouteWindow.fitButtonWidthToLabel(buttonWidget) end
     if legend then DungeonRouteWindow.layoutLegend() end
+    if containerFrame then DungeonRouteWindow.layoutWindowRegions() end   -- button widths changed: picker width too
     if ns.RefreshAll then ns.RefreshAll() end
 end
 
@@ -1019,8 +1027,8 @@ function DungeonRouteWindow.createPrimaryWidget()
     local titleBtn = CreateFrame("Button", nil, containerFrame, "BackdropTemplate")
     dropdown = titleBtn
     titleBtn:SetPoint("TOPLEFT", PAD, -4)
-    titleBtn:SetPoint("RIGHT", currentBtn, "LEFT", -6, 0)
-    titleBtn:SetHeight(20)
+    titleBtn:SetSize(200, 20)          -- width follows the map (layoutWindowRegions)
+    DungeonRouteWindow.headerButtons = { close, menuBtn, listBtn, currentBtn }
     if titleBtn.SetBackdrop then
         titleBtn:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1 })
         titleBtn:SetBackdropColor(0.114, 0.157, 0.192, 0.94)
@@ -1712,6 +1720,41 @@ function DungeonRouteWindow.plotTiles(page, sc)
     return set ~= nil
 end
 
+-- Drawn map pages carry an empty title banner: put the dungeon name on it in the client language.
+local bannerText
+-- the game's own title-style fonts per client language (map titles, book pages)
+local BANNER_FONTS = {
+    koKR = "Fonts\\K_Pagetext.TTF", zhCN = "Fonts\\ARKai_T.ttf", zhTW = "Fonts\\bKAI00M.ttf", ruRU = "Fonts\\MORPHEUS_CYR.TTF",
+}
+local function setBannerFont(fs, size)
+    local face = BANNER_FONTS[GetLocale()] or "Fonts\\MORPHEUS.TTF"
+    if not fs:SetFont(face, size, "") then fs:SetFont(STANDARD_TEXT_FONT, size, "") end
+end
+function DungeonRouteWindow.plotBannerTitle(d, page, sc)
+    local spot = d and page and not page.unavailable and page.title
+    if not spot then
+        if bannerText then bannerText:Hide() end
+        return
+    end
+    if not bannerText then
+        bannerText = overlay:CreateFontString(nil, "OVERLAY")
+        setBannerFont(bannerText, 14)
+        bannerText:SetTextColor(0.35, 0.22, 0.08)
+        bannerText:SetShadowColor(1, 0.9, 0.6, 0.5)
+        bannerText:SetShadowOffset(1, -1)
+    end
+    local x, y = spot[1], spot[2]
+    if x < view[1] or x > view[1] + view[3] or y < view[2] or y > view[2] + view[4] then
+        bannerText:Hide()
+        return
+    end
+    setBannerFont(bannerText, math.max(8, math.floor((spot[3] or 26) * sc + 0.5)))
+    bannerText:SetText(translationHelper(d.name))
+    bannerText:ClearAllPoints()
+    bannerText:SetPoint("CENTER", canvasFrame, "TOPLEFT", (x - view[1]) * sc, -(y - view[2]) * sc)
+    bannerText:Show()
+end
+
 local flowLines = {}
 function DungeonRouteWindow.plotFlowLines(d, page, sc)
     local entryKey = 0
@@ -2061,6 +2104,7 @@ function ns.RefreshMap(mapOnly)
         DungeonRouteWindow.dismissMapLayer()
         DungeonRouteWindow.plotFlowLines(d, nil, sc)
     end
+    DungeonRouteWindow.plotBannerTitle(d, page, sc)
     plotFloors(d, page)
     if mapOnly then return end
     

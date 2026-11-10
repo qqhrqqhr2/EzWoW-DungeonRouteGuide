@@ -102,20 +102,33 @@ function ns.InCombat()
     return ns.IsTruthySafeValue(ns.UnwrapSafeValue(InCombatLockdown))
 end
 
-ns.itemMissing, ns.itemAsked = {}, {}
+ns.itemMissing, ns.itemAsked, ns.itemFallback = {}, {}, {}
 local ITEM_WAIT = 12   
+
+-- The server sends an item's data only after someone has found it, so a real drop can stay unknown to the client.
+-- Such items fall back to the names shipped in Data/LootNames.lua instead of showing as missing.
+local function useFallback(entityID)
+    if ns.LootNames and ns.LootNames[entityID] then ns.itemFallback[entityID] = true; ns.itemMissing[entityID] = nil; return true end
+    return false
+end
 
 function ns.ItemState(entityID)
     local displayName = ns.ItemInfo(entityID)
     if displayName then ns.itemMissing[entityID] = nil; return "ok" end   
-    if ns.itemMissing[entityID] then return "missing" end
+    if ns.itemMissing[entityID] then return useFallback(entityID) and "ok" or "missing" end
     
     local exists = ns.UnwrapSafeValue(C_Item and C_Item.DoesItemExistByID, entityID)
-    if ns.IsReadableValue(exists) and exists == false then ns.itemMissing[entityID] = true; return "missing" end
+    if ns.IsReadableValue(exists) and exists == false then
+        if useFallback(entityID) then return "ok" end
+        ns.itemMissing[entityID] = true; return "missing"
+    end
     local currentTime = ns.CoerceSafeNumber(ns.UnwrapSafeValue(GetTime)) or 0
     local asked = ns.itemAsked[entityID]
     if not asked then ns.itemAsked[entityID] = currentTime
-    elseif currentTime - asked > ITEM_WAIT then ns.itemMissing[entityID] = true; return "missing" end
+    elseif currentTime - asked > ITEM_WAIT then
+        if useFallback(entityID) then return "ok" end
+        ns.itemMissing[entityID] = true; return "missing"
+    end
     return "loading"
 end
 
@@ -140,7 +153,15 @@ function ns.ItemInfo(entityID)
         quality = quality or ns.UnwrapSafeValue(C_Item and C_Item.GetItemQualityByID, entityID)
     end
     if not ns.IsReadableValue(iconTex) or (type(iconTex) ~= "number" and type(iconTex) ~= "string") then iconTex = nil end
-    return ns.CoerceSafeString(displayName), ns.CoerceSafeString(link), ns.CoerceSafeNumber(quality), iconTex
+    displayName = ns.CoerceSafeString(displayName)
+    if displayName then
+        ns.itemFallback[entityID] = nil
+    elseif ns.itemFallback[entityID] then
+        local f = ns.LootNames[entityID]           -- { ko, en, quality, icon }
+        local loc = GetLocale and GetLocale()
+        return (loc == "koKR" and f[1] ~= "" and f[1]) or f[2], nil, f[3], iconTex or f[4]
+    end
+    return displayName, ns.CoerceSafeString(link), ns.CoerceSafeNumber(quality), iconTex
 end
 
 function ns.QualityHex(q)

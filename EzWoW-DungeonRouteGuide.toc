@@ -39,6 +39,7 @@ Core\WorldMapDock.lua
 Data\DungeonData.lua
 Data\MinimapData.lua
 Data\FloorAreas.lua
+Data\LootNames.lua
 Modules\ProgressTracker.lua
 Modules\EntranceArrow.lua
 UI\DungeonMapWindow.lua
