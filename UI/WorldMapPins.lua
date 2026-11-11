@@ -147,6 +147,12 @@ function WorldMapPinProvider.setEntranceWaypoint(d)
     if pcall(C_Map.SetUserWaypoint, point) and C_SuperTrack and C_SuperTrack.SetSuperTrackedUserWaypoint then
         pcall(C_SuperTrack.SetSuperTrackedUserWaypoint, true)
     end
+    -- the on-screen arrow (Libs/EzWoWWaypointArrow) names the dungeon; it stays
+    -- hidden while this addon's own entrance arrow is up
+    local arrow = _G.EzWoW_WaypointArrow
+    if type(arrow) == "table" and type(arrow.SetLabel) == "function" then
+        pcall(arrow.SetLabel, translationHelper(d.name), "EzWoW - Dungeon Route Guide")
+    end
 end
 
 -- Click: that dungeon's route window. Shift+click: entrance arrow (+ map waypoint).
