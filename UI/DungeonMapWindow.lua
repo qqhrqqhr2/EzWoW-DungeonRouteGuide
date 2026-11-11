@@ -25,6 +25,41 @@ local CAT = {
     done     = { 0.38, 0.38, 0.38 },
     link     = { 0.70, 0.70, 0.70 },
 }
+-- Map marks drawn with the game's own map icons (atlases); the plain coloured circle stays as the fallback.
+local MARK_ATLAS = {
+    boss = "skull-gold", rare = "skull-silver", npc = "QuestRepeatableTurnin",
+    quest = "QuestNormal", object = "VignetteLoot", entrance = "poi-door-down",
+}
+local QUEST_BADGE_ATLAS = "QuestNormal"
+local function atlasExists(name)
+    if not name or not (C_Texture and C_Texture.GetAtlasInfo) then return false end
+    local ok, info = pcall(C_Texture.GetAtlasInfo, name)
+    return ok and info ~= nil
+end
+-- boss: gold skull, rare: silver skull (the white skull raid mark, tinted)
+local SKULL = "Interface\\TargetingFrame\\UI-RaidTargetingIcon_8"
+local SKULL_COLOR = { ["skull-gold"] = { 1, 0.78, 0.18 }, ["skull-silver"] = { 0.80, 0.84, 0.92 } }
+ns.SKULL_TEXTURE, ns.SKULL_COLOR = SKULL, SKULL_COLOR
+ns.MARK_ATLAS = MARK_ATLAS
+local atlasOk = {}
+function DungeonRouteWindow.setMarkAtlas(tex, name)
+    local skull = SKULL_COLOR[name]
+    if skull then
+        tex:SetTexture(SKULL)
+        tex:SetVertexColor(skull[1], skull[2], skull[3], 1)
+        return true
+    end
+    if tex.SetVertexColor then tex:SetVertexColor(1, 1, 1, 1) end
+    if atlasOk[name] == nil then atlasOk[name] = atlasExists(name) end
+    if not atlasOk[name] or not tex.SetAtlas then return false end
+    tex:SetAtlas(name)
+    return true
+end
+function DungeonRouteWindow.markAtlasFor(step)
+    if step.kind == "object" then return MARK_ATLAS.object end
+    return MARK_ATLAS[DungeonRouteWindow.resolveCategory(step)]
+end
+
 function DungeonRouteWindow.resolveCategory(step)
     if step.kind == "object" or step.kind == "task" then return "quest" end
     return CAT[step.kind] and step.kind or "boss"
@@ -466,6 +501,21 @@ function DungeonRouteWindow.resolveMarker(entryKey)
     matchRef.badgeText = matchRef:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     matchRef.badgeText:SetPoint("CENTER", matchRef.badge, "CENTER", 0, 0)
     matchRef.badgeText:SetText("!"); matchRef.badgeText:SetTextColor(0, 0, 0)
+    -- dark disc under the game icon so it stands out on the parchment
+    matchRef.back = DungeonRouteWindow.applyCircularMask(matchRef, "BORDER", 20, 1)
+    matchRef.back:SetVertexColor(0, 0, 0, 0.55)
+    matchRef.back:Hide()
+    matchRef.mark = matchRef:CreateTexture(nil, "ARTWORK", nil, 2)
+    matchRef.mark:SetSize(20, 20); matchRef.mark:SetPoint("CENTER", 0, 0)
+    matchRef.mark:Hide()
+    matchRef.num = matchRef:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    matchRef.num:SetPoint("CENTER", matchRef, "BOTTOMRIGHT", 3, 0)
+    do local face, size = matchRef.num:GetFont(); if face then matchRef.num:SetFont(face, (size or 12) + 1, "THICKOUTLINE") end end
+    matchRef.num:SetTextColor(1, 0.9, 0.35)
+    matchRef.num:Hide()
+    matchRef.questMark = matchRef:CreateTexture(nil, "OVERLAY", nil, 2)
+    matchRef.questMark:SetSize(13, 16); matchRef.questMark:SetPoint("CENTER", matchRef, "TOPRIGHT", 0, 0)
+    matchRef.questMark:Hide()
     matchRef.check = matchRef:CreateTexture(nil, "OVERLAY", nil, 3)
     matchRef.check:SetTexture(CHECK)
     matchRef.check:SetSize(12, 12)
@@ -476,6 +526,49 @@ function DungeonRouteWindow.resolveMarker(entryKey)
     matchRef:SetScript("OnClick", function(self, button) DungeonRouteWindow.stepClick(unitState.viewed, self.index, button) end)
     markers[entryKey] = matchRef
     return matchRef
+end
+
+-- Entrance / exit: the game's dungeon door icon on a dark disc, with a label under it
+local DOOR_ATLAS = { "Dungeon", "poi-door-down", "poi-door" }
+function DungeonRouteWindow.createDoorMark(labelKey, color)
+    local f = CreateFrame("Frame", nil, overlay)
+    f:SetSize(22, 22)
+    f:SetFrameLevel(overlay:GetFrameLevel() + 3)
+    f.back = DungeonRouteWindow.applyCircularMask(f, "BORDER", 24)
+    f.back:SetVertexColor(0, 0, 0, 0.6)
+    f.ring = DungeonRouteWindow.applyCircularMask(f, "BACKGROUND", 28)
+    f.ring:SetVertexColor(color[1], color[2], color[3], 0.9)
+    f.icon = f:CreateTexture(nil, "ARTWORK")
+    f.icon:SetSize(18, 18); f.icon:SetPoint("CENTER", 0, 0)
+    local ok = false
+    for _, name in ipairs(DOOR_ATLAS) do
+        if DungeonRouteWindow.setMarkAtlas(f.icon, name) then ok = true; break end
+    end
+    if not ok then
+        f.icon:SetColorTexture(color[1], color[2], color[3], 1)
+        f.icon:SetSize(10, 10)
+    end
+    f.text = f:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    f.text:SetPoint("TOP", f, "BOTTOM", 0, -2)
+    do local face, size = f.text:GetFont(); if face then f.text:SetFont(face, size or 12, "OUTLINE") end end
+    ns.GetLocalizedEntryField(f.text, labelKey)
+    f.text:SetTextColor(color[1], color[2], color[3])
+    return f
+end
+
+local portalMarks = {}
+function DungeonRouteWindow.plotPortals(greenVal, page, sc)
+    local n = 0
+    for _, po in ipairs(greenVal and greenVal.portals or {}) do
+        if page and po.page == page.key and DungeonRouteWindow.inView(po.pos) then
+            n = n + 1
+            local f = portalMarks[n]
+            if not f then f = DungeonRouteWindow.createDoorMark("LEG_EXIT", CAT.link); portalMarks[n] = f end
+            DungeonRouteWindow.updateWidgetAnchorPosition(f, sc, po.pos)
+            f:Show()
+        end
+    end
+    for i = n + 1, #portalMarks do portalMarks[i]:Hide() end
 end
 
 function DungeonRouteWindow.resolveAlt(entryKey)
@@ -510,15 +603,23 @@ function DungeonRouteWindow.resolveLink(entryKey)
     leftPos:SetFrameLevel(overlay:GetFrameLevel() + 3)
     leftPos.leader = overlay:CreateLine(nil, "ARTWORK")
     leftPos.leader:SetThickness(1); leftPos.leader:SetColorTexture(0.45,0.8,1,0.65); leftPos.leader:Hide()
-    leftPos.bg = DungeonRouteWindow.applyCircularMask(leftPos, "BACKGROUND", 18)
-    leftPos.bg:SetVertexColor(0.05, 0.05, 0.08, 0.75)
+    leftPos:SetSize(22, 22)
+    leftPos.bg = DungeonRouteWindow.applyCircularMask(leftPos, "BACKGROUND", 24)
+    leftPos.bg:SetVertexColor(0.02, 0.06, 0.12, 0.8)
     leftPos.tex = leftPos:CreateTexture(nil, "ARTWORK")
-    leftPos.tex:SetSize(11, 11); leftPos.tex:SetPoint("BOTTOMRIGHT",4,-2)
-    leftPos.tex:SetTexture(LINK_ICON)
+    -- floor change: the game's door icon (arrow icon as the fallback)
+    local doorOk = false
+    for _, name in ipairs({ "poi-door-arrow-up", "poi-door-up", "poi-door" }) do
+        if DungeonRouteWindow.setMarkAtlas(leftPos.tex, name) then doorOk = true; break end
+    end
+    if doorOk then leftPos.tex:SetSize(18, 18); leftPos.tex:SetPoint("CENTER", 0, 0)
+    else leftPos.tex:SetSize(11, 11); leftPos.tex:SetPoint("BOTTOMRIGHT", 4, -2); leftPos.tex:SetTexture(LINK_ICON) end
+    leftPos.doorIcon = doorOk
     leftPos.number=leftPos:CreateFontString(nil,"OVERLAY","GameFontNormalSmall")
     leftPos.number:SetPoint("CENTER");leftPos.number:SetTextColor(0.55,0.85,1)
-    leftPos.name = leftPos:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    leftPos.name = leftPos:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     leftPos.name:SetPoint("TOP", leftPos, "BOTTOM", 0, -1)
+    do local face, size = leftPos.name:GetFont(); if face then leftPos.name:SetFont(face, size or 12, "OUTLINE") end end
     leftPos.name:SetTextColor(0.55, 0.85, 1)
     leftPos.nameBg = leftPos:CreateTexture(nil, "BORDER")
     leftPos.nameBg:SetColorTexture(0, 0, 0, 0.6)
@@ -601,6 +702,9 @@ function DungeonRouteWindow.resolveRow(entryKey)
     rowEntry.dot = DungeonRouteWindow.applyCircularMask(rowEntry, "ARTWORK", 8)
     
     rowEntry.dot:ClearAllPoints(); rowEntry.dot:SetPoint("TOPLEFT", 4, -4)
+    rowEntry.mark = rowEntry:CreateTexture(nil, "ARTWORK", nil, 1)     -- same game icon as the map mark
+    rowEntry.mark:SetSize(14, 14); rowEntry.mark:SetPoint("TOPLEFT", 1, -1.5)
+    rowEntry.mark:Hide()
     rowEntry.check = rowEntry:CreateTexture(nil, "OVERLAY")
     rowEntry.check:SetTexture(CHECK); rowEntry.check:SetSize(14, 14); rowEntry.check:SetPoint("TOPLEFT", 1, -1)
     rowEntry.num = rowEntry:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
@@ -815,8 +919,17 @@ function DungeonRouteWindow.buildLegend()
     legend = CreateFrame("Frame", nil, containerFrame)
     legend:SetSize(400, LEGEND_H)
     for _, lookupKey in ipairs({ "entrance", "boss", "rare", "npc", "quest" }) do
-        local dot = DungeonRouteWindow.applyCircularMask(legend, "ARTWORK", 9)
-        dot:SetVertexColor(CAT[lookupKey][1], CAT[lookupKey][2], CAT[lookupKey][3], 1)
+        local dot = legend:CreateTexture(nil, "ARTWORK")
+        dot:SetSize(14, 14)
+        local okIcon = false
+        for _, name in ipairs(lookupKey == "entrance" and DOOR_ATLAS or { MARK_ATLAS[lookupKey] }) do
+            if DungeonRouteWindow.setMarkAtlas(dot, name) then okIcon = true; break end
+        end
+        if not okIcon then dot:Hide(); dot = nil end
+        if not dot then
+            dot = DungeonRouteWindow.applyCircularMask(legend, "ARTWORK", 9)
+            dot:SetVertexColor(CAT[lookupKey][1], CAT[lookupKey][2], CAT[lookupKey][3], 1)
+        end
         local labelRegion = legend:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
         legendItems[#legendItems + 1] = { key = lookupKey, dot = dot, fs = labelRegion }
     end
@@ -1110,17 +1223,7 @@ function DungeonRouteWindow.createPrimaryWidget()
     zoomReset:SetPoint("BOTTOMRIGHT", -4, 4)
     zoomReset:SetFrameLevel(overlay:GetFrameLevel()+8)
 
-    entranceMark = CreateFrame("Frame", nil, overlay)
-    entranceMark:SetSize(15, 15)
-    entranceMark:SetFrameLevel(overlay:GetFrameLevel() + 3)
-    local ering = DungeonRouteWindow.applyCircularMask(entranceMark, "BORDER", 15)
-    ering:SetVertexColor(CAT.entrance[1], CAT.entrance[2], CAT.entrance[3], 1)
-    local einner = DungeonRouteWindow.applyCircularMask(entranceMark, "ARTWORK", 9)
-    einner:SetVertexColor(0.05, 0.15, 0.05, 0.5)
-    entranceMark.text = entranceMark:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-    entranceMark.text:SetPoint("TOP", entranceMark, "BOTTOM", 0, -1)
-    ns.GetLocalizedEntryField(entranceMark.text, "LEG_ENTRANCE")
-    entranceMark.text:SetTextColor(CAT.entrance[1], CAT.entrance[2], CAT.entrance[3])
+    entranceMark = DungeonRouteWindow.createDoorMark("LEG_ENTRANCE", CAT.entrance)
 
     buildFloorPicker()
 
@@ -1530,14 +1633,31 @@ function DungeonRouteWindow.plotMarkers(d, page, nextIndex, sc)
                 matchRef.label:Hide()
             end
             
-            matchRef.circle:SetVertexColor(themeColor[1], themeColor[2], themeColor[3], step.optional and 0.45 or 0.6)
-            if unitState.selected == index then matchRef.ring:SetVertexColor(1, 1, 1, 0.9) else matchRef.ring:SetVertexColor(0, 0, 0, 0.5) end
             local bnVal, icVal = ns.ResolveBossEncounterOrderIndex(d, index), ns.ResolveStepCategoryIcon(step)
-            matchRef.text:SetText(bnVal and tostring(bnVal) or "")
-            if not bnVal and icVal then matchRef.icon:SetTexture(icVal); matchRef.icon:Show() else matchRef.icon:Hide() end
-            matchRef.check:SetShown(done)
             local presentBadge = step.quest and not done and step.kind ~= "object" and step.kind ~= "task"
-            matchRef.badge:SetShown(presentBadge); matchRef.badgeText:SetShown(presentBadge)
+            local useAtlas = DungeonRouteWindow.setMarkAtlas(matchRef.mark, DungeonRouteWindow.markAtlasFor(step))
+            if useAtlas then
+                -- game map icon; the number sits at its corner, a quest on it shows the game's quest mark
+                matchRef.mark:SetDesaturated(done and true or false)
+                if done then matchRef.mark:SetVertexColor(0.6, 0.6, 0.6, 1) end
+                matchRef.mark:SetAlpha((done or step.optional) and 0.6 or 1)
+                matchRef.mark:Show(); matchRef.back:Show()
+                matchRef.circle:Hide(); matchRef.text:SetText(""); matchRef.icon:Hide()
+                matchRef.ring:SetShown(unitState.selected == index)
+                matchRef.ring:SetVertexColor(1, 1, 1, 0.55)
+                matchRef.num:SetText(bnVal and tostring(bnVal) or ""); matchRef.num:Show()
+                matchRef.badge:Hide(); matchRef.badgeText:Hide()
+                matchRef.questMark:SetShown(presentBadge and DungeonRouteWindow.setMarkAtlas(matchRef.questMark, QUEST_BADGE_ATLAS))
+            else
+                matchRef.mark:Hide(); matchRef.back:Hide(); matchRef.num:Hide(); matchRef.questMark:Hide()
+                matchRef.circle:Show(); matchRef.ring:Show()
+                matchRef.circle:SetVertexColor(themeColor[1], themeColor[2], themeColor[3], step.optional and 0.45 or 0.6)
+                if unitState.selected == index then matchRef.ring:SetVertexColor(1, 1, 1, 0.9) else matchRef.ring:SetVertexColor(0, 0, 0, 0.5) end
+                matchRef.text:SetText(bnVal and tostring(bnVal) or "")
+                if not bnVal and icVal then matchRef.icon:SetTexture(icVal); matchRef.icon:Show() else matchRef.icon:Hide() end
+                matchRef.badge:SetShown(presentBadge); matchRef.badgeText:SetShown(presentBadge)
+            end
+            matchRef.check:SetShown(done)
             local hasNext2 = (index == nextIndex) or (unitState.targetStep == index and unitState.current == d)
             matchRef.glow:SetShown(hasNext2)
             if matchRef.pulse then if hasNext2 then matchRef.pulse:Play() else matchRef.pulse:Stop() end end
@@ -1559,6 +1679,7 @@ function DungeonRouteWindow.plotMarkers(d, page, nextIndex, sc)
     else
         entranceMark:Hide()
     end
+    DungeonRouteWindow.plotPortals(greenVal, page, sc)
     local klVal = 0
     local linkOccupied={}
     for subIndex=reservedCount+1,#occupied do linkOccupied[#linkOccupied+1]=occupied[subIndex]end
@@ -1585,8 +1706,8 @@ function DungeonRouteWindow.plotMarkers(d, page, nextIndex, sc)
             leftPos.approx = lnVal.approx
             local dest = DungeonRouteWindow.resolvePageByKey(greenVal, lnVal.toPage)
             local nameText = (dest and dest.name and translationHelper(dest.name)) or (lnVal.to and translationHelper(lnVal.to)) or ""
-            leftPos.name:SetText(nameText)
-            leftPos.number:SetText(lnVal.caption and translationHelper(lnVal.caption):match("^(%d+)") or "↗")
+            leftPos.name:SetText(nameText ~= "" and ("→ " .. nameText) or "")
+            leftPos.number:SetText(leftPos.doorIcon and "" or (lnVal.caption and translationHelper(lnVal.caption):match("^(%d+)") or "↗"))
             local dx,dy=DungeonRouteWindow.resolveMarkerSpot(lnVal.pos,sc,linkOccupied)
             DungeonRouteWindow.updateWidgetAnchorPosition(leftPos, sc, lnVal.pos,dx,dy)
             local cxVal, cyVal = (lnVal.pos[1]-view[1])*sc + dx, (lnVal.pos[2]-view[2])*sc - dy
@@ -1785,6 +1906,7 @@ function DungeonRouteWindow.dismissMapLayer()
     for _, resolvedValue in ipairs(markers) do resolvedValue:Hide(); resolvedValue.leader:Hide() end
     for _, resolvedValue in ipairs(alts) do resolvedValue:Hide() end
     for _, resolvedValue in ipairs(links) do resolvedValue:Hide();resolvedValue.leader:Hide() end
+    for _, resolvedValue in ipairs(portalMarks) do resolvedValue:Hide() end
     for _, matchRef in ipairs(masks) do matchRef.outer:Hide(); matchRef.inner:Hide() end
     entranceMark:Hide()
 end
@@ -1888,11 +2010,20 @@ function DungeonRouteWindow.plotRouteList(d, nextIndex)
             rowEntry:SetAlpha((onShownFloor or unitState.selected == index) and 1 or 0.72)
             rowEntry.check:SetShown(done)
             local themeColor = CAT[DungeonRouteWindow.resolveCategory(step)]
-            rowEntry.dot:SetVertexColor(themeColor[1], themeColor[2], themeColor[3], 1)
-            rowEntry.dot:SetShown(not done and step.kind ~= "fork")
             local rbn, ric = ns.ResolveBossEncounterOrderIndex(d, index), ns.ResolveStepCategoryIcon(step)
             rowEntry.num:SetText(rbn and tostring(rbn) or "")
-            if not rbn and ric then rowEntry.kicon:SetTexture(ric); rowEntry.kicon:Show() else rowEntry.kicon:Hide() end
+            local rowAtlas = step.kind ~= "fork" and DungeonRouteWindow.setMarkAtlas(rowEntry.mark, DungeonRouteWindow.markAtlasFor(step))
+            if rowAtlas then
+                rowEntry.mark:SetDesaturated(done and true or false)
+                if done then rowEntry.mark:SetVertexColor(0.6, 0.6, 0.6, 1) end
+                rowEntry.mark:SetAlpha(done and 0.5 or 1)
+                rowEntry.mark:Show(); rowEntry.dot:Hide(); rowEntry.kicon:Hide()
+            else
+                rowEntry.mark:Hide()
+                rowEntry.dot:SetVertexColor(themeColor[1], themeColor[2], themeColor[3], 1)
+                rowEntry.dot:SetShown(not done and step.kind ~= "fork")
+                if not rbn and ric then rowEntry.kicon:SetTexture(ric); rowEntry.kicon:Show() else rowEntry.kicon:Hide() end
+            end
             if done then rowEntry.name:SetTextColor(0.55, 0.55, 0.55)
             elseif index == nextIndex then rowEntry.name:SetTextColor(1, 0.82, 0)
             elseif step.kind == "fork" then rowEntry.name:SetTextColor(0.7, 0.7, 0.7)
@@ -1920,6 +2051,7 @@ function DungeonRouteWindow.plotRouteList(d, nextIndex)
         rowEntry:ClearAllPoints()
         rowEntry:SetPoint("TOPLEFT", 0, coordY)
         rowEntry.check:Hide()
+        rowEntry.mark:Hide()
         rowEntry.dot:SetVertexColor(0.6, 0.6, 0.6, 1); rowEntry.dot:Show()
         rowEntry.num:SetText("")
         rowEntry.kicon:SetTexture(TRASH_ICON); rowEntry.kicon:Show()

@@ -76,7 +76,10 @@ end
 function DungeonProgressTracker.commitName(npc, lang, name)
     for _, dataEntry in ipairs(ns.Dungeons) do
         for _, stateFlag in ipairs(dataEntry.steps) do
-            if stateFlag.npc and stateFlag.npc[1] == npc and not stateFlag.group then stateFlag.name[lang] = name end
+            if stateFlag.npc and stateFlag.npc[1] == npc and not stateFlag.group and stateFlag.name[lang] ~= name then
+                if ns.OwnStepName then ns.OwnStepName(stateFlag) end   -- shared name tables (EzWoW-Data) are copied first
+                stateFlag.name[lang] = name
+            end
         end
     end
 end
@@ -252,8 +255,18 @@ end
 function ns.FormatRouteStepBadgeTag(dataEntry, i, size)
     local buttonWidget = ns.ResolveBossEncounterOrderIndex(dataEntry, i)
     if buttonWidget then return tostring(buttonWidget) end
-    local icVal = KIND_ICON[dataEntry.steps[i].kind]
     size = size or 14
+    -- same game map icons as the map marks and the route list
+    if dataEntry.steps[i].kind == "rare" and ns.SKULL_TEXTURE then
+        local c = ns.SKULL_COLOR["skull-silver"]
+        return ("|T%s:%d:%d:0:0:64:64:0:64:0:64:%d:%d:%d|t"):format(ns.SKULL_TEXTURE, size, size, c[1] * 255, c[2] * 255, c[3] * 255)
+    end
+    local atlas = ({ npc = "QuestRepeatableTurnin", object = "VignetteLoot", task = "QuestNormal" })[dataEntry.steps[i].kind]
+    if atlas and C_Texture and C_Texture.GetAtlasInfo then
+        local ok, info = pcall(C_Texture.GetAtlasInfo, atlas)
+        if ok and info then return "|A:" .. atlas .. ":" .. size .. ":" .. size .. "|a" end
+    end
+    local icVal = KIND_ICON[dataEntry.steps[i].kind]
     return icVal and ("|T" .. icVal .. ":" .. size .. ":" .. size .. "|t") or "-"
 end
 
@@ -882,7 +895,10 @@ for _, recordEntry in ipairs(EVENTS) do pcall(eventFrame.RegisterEvent, eventFra
 
 local EVENT_DISPATCH_TABLE = {}
 EVENT_DISPATCH_TABLE.ADDON_LOADED = function(name)
-    if name == ADDON then ns.InitDB() end
+    if name == ADDON then
+        if ns.LoadSharedData then ns.LoadSharedData() end
+        ns.InitDB()
+    end
     if name == "Blizzard_WorldMap" and ns.InitWorldMap then ns.InitWorldMap() end
 end
 EVENT_DISPATCH_TABLE.PLAYER_LOGIN = function()

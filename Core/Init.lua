@@ -105,10 +105,133 @@ end
 ns.itemMissing, ns.itemAsked, ns.itemFallback = {}, {}, {}
 local ITEM_WAIT = 12   
 
+-----------------------------------------------------------------------------
+-- Shared data (EzWoW-Data, optional)
+-- When EzWoW-Data is installed and its table format matches, the dungeon rows (bosses, kill
+-- order, loot, quests) and the loot names (name, quality, icon) come from its Dungeons
+-- module; until it is loaded (never during combat; EzWoW_Data.Load waits for the combat to
+-- end) and whenever it is missing, the bundled Data/DungeonData.lua rows and
+-- Data/LootNames.lua are used. The shared rows are merged into this addon's own dungeon
+-- tables, which keep their identity and the parts that stay here (step tips and sources,
+-- dungeon notes, map geometry). Shared values are used as they are; a step's name table is
+-- copied only when a name learned in game is written into it (ns.OwnStepName). The shared
+-- tables are only read, never changed.
+-----------------------------------------------------------------------------
+local SHARED_FORMAT = 2
+-- data fields a shared row may leave out (cleared here too when it does)
+local DUNGEON_OPTIONAL = { "quests", "trash", "trashGroups", "subzones", "resetNames" }
+local STEP_FIELDS = { "id", "n", "kind", "npc", "model", "name", "loot", "quest", "quests", "optional",
+    "unconfirmed", "outside", "aliases", "group", "faction" }
+
+local function sharedAPI()
+    local D = _G.EzWoW_Data
+    if type(D) == "table" and D.formatVersion == SHARED_FORMAT and type(D.Load) == "function"
+        and type(D.Peek) == "function" then
+        return D
+    end
+    return nil
+end
+
+-- step name tables that still belong to the shared rows (weak keys)
+local sharedStepNames = setmetatable({}, { __mode = "k" })
+
+-- Before a learned name is written into a step's name table: copy it if it is a shared one.
+function ns.OwnStepName(step)
+    local t = step and step.name
+    if type(t) ~= "table" or not sharedStepNames[t] then return end
+    local o = {}
+    for lang, text in pairs(t) do o[lang] = text end
+    step.name = o
+end
+
+-- Builds everything first and only then writes into d, so a bad row leaves d as it was.
+local function mergeDungeon(d, sd)
+    local fields = {}
+    for k, v in pairs(sd) do
+        if k ~= "steps" and k ~= "notes" and k ~= "key" then fields[k] = v end
+    end
+    local own = {}
+    for _, s in ipairs(d.steps or {}) do
+        if s.id then own[s.id] = s end
+    end
+    local steps = {}
+    for i, ss in ipairs(sd.steps) do
+        if type(ss) ~= "table" or ss.id == nil then return false end
+        local row = {}
+        for k, v in pairs(ss) do
+            if k ~= "tip" and k ~= "from" then row[k] = v end
+        end
+        steps[i] = { own[ss.id] or {}, row }
+    end
+    if #steps == 0 then return false end
+    -- write
+    for k, v in pairs(fields) do d[k] = v end
+    for _, k in ipairs(DUNGEON_OPTIONAL) do
+        if fields[k] == nil then d[k] = nil end
+    end
+    d.steps = d.steps or {}
+    for i = #d.steps, 1, -1 do d.steps[i] = nil end
+    for i, pair in ipairs(steps) do
+        local s, row = pair[1], pair[2]
+        for _, k in ipairs(STEP_FIELDS) do s[k] = nil end
+        for k, v in pairs(row) do s[k] = v end
+        if type(s.name) == "table" then sharedStepNames[s.name] = true end
+        -- same rule as Data/MinimapData.lua: a step without a map spot is unconfirmed
+        if d.bliz and s.kind ~= "fork" and not s.outside then
+            local p = d.bliz.steps and d.bliz.steps[s.id]
+            s.unconfirmed = not (p and p.pos) or nil
+        end
+        d.steps[i] = s
+    end
+    d._npcStepIndex, d._nameStepIndex, d.flowGeo = nil, nil, nil
+    return true
+end
+
+local function useSharedDungeons(D)
+    local m = D.Peek("Dungeons")
+    if type(m) ~= "table" or m.formatVersion ~= SHARED_FORMAT then return end
+    local list, loot = m.list, m.loot
+    if type(list) ~= "table" or not ns.Dungeons then return end
+    -- loot names, quality and icons (same shape as Data/LootNames.lua)
+    if type(loot) == "table" and next(loot) ~= nil then ns.LootNames = loot end
+    local byKey = {}
+    for _, sd in ipairs(list) do
+        if type(sd) == "table" and sd.key and type(sd.steps) == "table" then byKey[sd.key] = sd end
+    end
+    -- only dungeons this addon has a map for; the others keep their bundled rows
+    local changed = false
+    for _, d in ipairs(ns.Dungeons) do
+        local sd = byKey[d.key]
+        if sd then
+            local ok, merged = pcall(mergeDungeon, d, sd)
+            changed = changed or (ok and merged)
+        end
+    end
+    if not changed then return end
+    ns.usingSharedDungeons = true
+    -- names learned in game are kept over the data (same as at login)
+    local tracker = ns.DungeonProgressTracker
+    if ns.db and tracker and tracker.commitLearnedNames then pcall(tracker.commitLearnedNames) end
+    if ns.ready and ns.RefreshAll then pcall(ns.RefreshAll) end
+end
+
+-- called once the addon is loaded (out of combat, or the load waits for the combat to end)
+function ns.LoadSharedData()
+    local D = sharedAPI()
+    if not D then return end
+    pcall(D.Load, "Dungeons", function(_, ok) if ok then useSharedDungeons(D) end end)
+end
+
+-- { koKR name, enUS name, quality, icon } of a route guide drop, or nil (shape of Data/LootNames.lua)
+function ns.GetLootFallback(entityID)
+    if entityID == nil then return nil end
+    return ns.LootNames and ns.LootNames[entityID]
+end
+
 -- The server sends an item's data only after someone has found it, so a real drop can stay unknown to the client.
--- Such items fall back to the names shipped in Data/LootNames.lua instead of showing as missing.
+-- Such items fall back to the names shipped in Data/LootNames.lua (or EzWoW-Data) instead of showing as missing.
 local function useFallback(entityID)
-    if ns.LootNames and ns.LootNames[entityID] then ns.itemFallback[entityID] = true; ns.itemMissing[entityID] = nil; return true end
+    if ns.GetLootFallback(entityID) then ns.itemFallback[entityID] = true; ns.itemMissing[entityID] = nil; return true end
     return false
 end
 
@@ -157,7 +280,7 @@ function ns.ItemInfo(entityID)
     if displayName then
         ns.itemFallback[entityID] = nil
     elseif ns.itemFallback[entityID] then
-        local f = ns.LootNames[entityID]           -- { ko, en, quality, icon }
+        local f = ns.GetLootFallback(entityID)     -- { ko, en, quality, icon }
         local loc = GetLocale and GetLocale()
         return (loc == "koKR" and f[1] ~= "" and f[1]) or f[2], nil, f[3], iconTex or f[4]
     end

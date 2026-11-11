@@ -19,14 +19,15 @@
 ## Notes-ruRU: Путеводитель по подземельям для WoW Forever: карта, порядок боссов, авто-отметка, стрелка ко входу.
 ## Notes-zhCN: WoW Forever 地下城路线叠加层：地图、首领顺序、自动勾选、入口箭头。
 ## Notes-zhTW: WoW Forever 地城路線疊加層：地圖、首領順序、自動勾選、入口箭頭。
+## OptionalDeps: EzWoW-Data
 ## Author: qqhrqqhr2
 ## Version: 2.0.12
 ## Category: EzWoW
 ## IconTexture: Interface\AddOns\EzWoW-DungeonRouteGuide\Media\icon
-## X-License: GPL-2.0
+## X-License: GPL-3.0
 ## X-Website: https://github.com/qqhrqqhr2/EzWoW-DungeonRouteGuide
 ## X-Curse-Project-ID: 1728502
-## X-Credits: WoW Forever client minimap geometry
+## X-Credits: WoW Forever client minimap geometry; boss spots partly from CMaNGOS Classic-DB spawns (GPL v3)
 ## SavedVariables: EzWoW_DungeonRouteGuideDB, EzWoW_SharedData
 ## SavedVariablesPerCharacter: EzWoW_DungeonRouteGuideCharDB
 

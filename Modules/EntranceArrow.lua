@@ -207,3 +207,143 @@ function ns.SaveEntranceHere(d)
     if ns.RefreshWorldMap then ns.RefreshWorldMap() end
     ns.Print(L.ENTRANCE_SET:format(translationHelper(d.name), coordX * 100, coordY * 100))
 end
+
+--===========================================================================
+-- Boss / rare areas: the sub-zone a boss or rare monster of a dungeon lies in,
+-- taken when its corpse is looted. The game gives no position inside dungeons,
+-- but the sub-zone name tells the floor (Data/FloorAreas.lua).
+-- Shared between players with the same client language (EzWoW shared data,
+-- kind "B"): "npcID,instanceID,count,area".
+-- Kept in the shared store: store[npcID] = { i = instanceID, own = { [area] = count }, peers = { [sender] = area } }.
+-- Only areas this character looted in are sent; received ones are never sent on.
+-- They are gathered into the dungeon data of the next release (boss floors, missing bosses).
+--===========================================================================
+local BossAreas = {}
+ns.BossAreas = BossAreas
+local BOSS_CLASSES = { worldboss = true, rare = true, rareelite = true }
+local MAX_PEERS = 20
+local MAX_AREAS = 4
+
+function BossAreas.store()
+    if ns.Share and ns.Share.Store then
+        local ok, s = pcall(ns.Share.Store, "B")
+        if ok and type(s) == "table" then return s end
+    end
+    local db = ns.db
+    if type(db) ~= "table" then return nil end
+    db.bossAreas = type(db.bossAreas) == "table" and db.bossAreas or {}
+    return db.bossAreas
+end
+
+function BossAreas.isStepNpc(npcID)
+    local d = unitState.current
+    if not d then return false end
+    for _, step in ipairs(d.steps or {}) do
+        if (step.kind == "boss" or step.kind == "rare") and step.npc then
+            for _, id in ipairs(step.npc) do
+                if id == npcID then return true end
+            end
+        end
+    end
+    return false
+end
+
+-- a boss / rare by its unit, when the corpse is the target or under the mouse
+function BossAreas.isBossUnit(npcID)
+    for _, unit in ipairs({ "target", "mouseover" }) do
+        if ns.UnitNpcID(unit) == npcID then
+            local class = ns.CoerceSafeString(ns.UnwrapSafeValue(UnitClassification, unit))
+            local level = ns.CoerceSafeNumber(ns.UnwrapSafeValue(UnitLevel, unit))
+            if (class and BOSS_CLASSES[class]) or level == -1 then return true end
+        end
+    end
+    return false
+end
+
+function BossAreas.currentArea()
+    for _, api in ipairs({ "GetSubZoneText", "GetMinimapZoneText" }) do
+        local text = ns.CoerceSafeString(ns.UnwrapSafeValue(_G[api]))
+        if text and text ~= "" and not text:find("[,;|]") and #text < 120 then return text end
+    end
+end
+
+function BossAreas.record(npcID, instanceID)
+    local area = BossAreas.currentArea()
+    if not area then return end
+    local s = BossAreas.store()
+    if not s then return end
+    local key = tostring(npcID)
+    local row = type(s[key]) == "table" and s[key] or {}
+    s[key] = row
+    row.i = instanceID
+    row.own = type(row.own) == "table" and row.own or {}
+    if not row.own[area] then
+        local n = 0
+        for _ in pairs(row.own) do n = n + 1 end
+        if n >= MAX_AREAS then return end
+    end
+    row.own[area] = math.min((row.own[area] or 0) + 1, 99)
+end
+
+function BossAreas.onLoot()
+    local _, itype, instanceID = ns.InstanceInfo()
+    if not itype or itype == "none" or not instanceID then return end
+    local slots = ns.CoerceSafeNumber(ns.UnwrapSafeValue(GetNumLootItems))
+    if not slots or slots < 1 or slots > 100 then return end
+    local seen = {}
+    for slot = 1, slots do
+        local sources = { ns.UnwrapSafeValue(GetLootSourceInfo, slot) }
+        for k = 1, #sources, 2 do
+            local npcID = ns.NpcIDFromGUID(sources[k])
+            if npcID and not seen[npcID] then
+                seen[npcID] = true
+                if BossAreas.isStepNpc(npcID) or BossAreas.isBossUnit(npcID) then BossAreas.record(npcID, instanceID) end
+            end
+        end
+    end
+end
+
+if ns.Share and ns.Share.RegisterKind then
+    ns.Share.RegisterKind("B", {
+        localized = true,
+        own = function()
+            local out = {}
+            for npc, row in pairs(BossAreas.store() or {}) do
+                if type(row) == "table" and type(row.own) == "table" and tonumber(npc) and tonumber(row.i) then
+                    for area, count in pairs(row.own) do
+                        if type(area) == "string" and type(count) == "number" then
+                            out[#out + 1] = string.format("%d,%d,%d,%s", tonumber(npc), tonumber(row.i), math.min(count, 99), area)
+                        end
+                    end
+                end
+            end
+            return out
+        end,
+        receive = function(body, hash)
+            local npc, inst, area = body:match("^(%d+),(%d+),%d+,([^,;|]+)$")
+            npc, inst = tonumber(npc), tonumber(inst)
+            if not (npc and inst and area) or npc < 1 or npc > 10000000 or inst < 1 or inst > 100000 or #area >= 120 then return false end
+            local s = BossAreas.store()
+            if not s then return false end
+            local key = tostring(npc)
+            local row = type(s[key]) == "table" and s[key] or {}
+            s[key] = row
+            row.i = row.i or inst
+            row.peers = type(row.peers) == "table" and row.peers or {}
+            local h = tostring(hash or "?")
+            if not row.peers[h] then
+                local n = 0
+                for _ in pairs(row.peers) do n = n + 1 end
+                if n >= MAX_PEERS then return false end
+            end
+            row.peers[h] = area
+            return true
+        end,
+    })
+end
+
+do
+    local f = CreateFrame("Frame")
+    f:SetScript("OnEvent", function() pcall(BossAreas.onLoot) end)
+    pcall(f.RegisterEvent, f, "LOOT_OPENED")
+end

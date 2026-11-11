@@ -224,6 +224,13 @@ A dungeon route guide. **18 dungeons and 29 floor maps** use real minimap-tile a
 
 ---
 
+## Data credits / 데이터 출처
+
+- Many boss and rare spots on the dungeon maps were worked out from monster spawn positions in **Classic-DB** of the CMaNGOS project ([cmangos/classic-db](https://github.com/cmangos/classic-db), GNU GPL v3). See `LICENSE-DATA.md` and `LICENSE-DATA-NOTICE.md`.
+- 던전 지도의 보스·레어 위치 상당수는 CMaNGOS 프로젝트의 **Classic-DB**([cmangos/classic-db](https://github.com/cmangos/classic-db), GNU GPL v3)의 몬스터 출현 위치로 계산했습니다. `LICENSE-DATA.md`, `LICENSE-DATA-NOTICE.md`를 참고하세요.
+
+---
+
 ## Support / 후원
 
 If you find this addon useful, you can support its development.
