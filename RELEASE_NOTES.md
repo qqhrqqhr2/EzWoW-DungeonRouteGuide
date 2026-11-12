@@ -1,9 +1,7 @@
-# v2.0.15
+# v2.0.16
 
 ### 한국어
-- 월드맵 던전 핀으로 입구에 추적 핀을 찍으면 던전 이름이 화살표에 함께 나옵니다.
-- 화살표 창을 오른쪽 클릭하면 화살표 모양을 고를 수 있습니다.
+- 다른 EzWoW 사용자와 기록을 주고받을 때, 귓속말이 닿지 않는 사람에게 같은 기록을 반복해서 보내지 않습니다. 그 사람이 다시 접속하면 바로 다시 주고받습니다.
 
 ### English
-- Waypoints set on a dungeon entrance from the world map now show the dungeon name on the on-screen arrow.
-- Right-click the arrow to pick its look.
+- Record sharing with other EzWoW users no longer keeps whispering players it cannot reach; it picks them up again as soon as they come back online.
