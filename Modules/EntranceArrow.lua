@@ -214,7 +214,7 @@ end
 -- but the sub-zone name tells the floor (Data/FloorAreas.lua).
 -- Shared between players with the same client language (EzWoW shared data,
 -- kind "B"): "npcID,instanceID,count,area".
--- Kept in the shared store: store[npcID] = { i = instanceID, own = { [area] = count }, peers = { [sender] = area } }.
+-- Kept in the shared store: store[npcID] = { i = instanceID, own = { [area] = count }, peers = { [sender] = { [area] = true } } }.
 -- Only areas this character looted in are sent; received ones are never sent on.
 -- They are gathered into the dungeon data of the next release (boss floors, missing bosses).
 --===========================================================================
@@ -331,12 +331,22 @@ if ns.Share and ns.Share.RegisterKind then
             row.i = row.i or inst
             row.peers = type(row.peers) == "table" and row.peers or {}
             local h = tostring(hash or "?")
-            if not row.peers[h] then
+            -- the areas each player sent (one player can loot a boss in up to MAX_AREAS sub-zones)
+            local mine = row.peers[h]
+            if type(mine) == "string" then mine = { [mine] = true } end   -- one area, as older copies kept it
+            if type(mine) == "table" and mine[area] then return false end   -- had it already
+            if type(mine) ~= "table" then
                 local n = 0
                 for _ in pairs(row.peers) do n = n + 1 end
                 if n >= MAX_PEERS then return false end
+                mine = {}
+            else
+                local n = 0
+                for _ in pairs(mine) do n = n + 1 end
+                if n >= MAX_AREAS then return false end
             end
-            row.peers[h] = area
+            mine[area] = true
+            row.peers[h] = mine
             return true
         end,
     })

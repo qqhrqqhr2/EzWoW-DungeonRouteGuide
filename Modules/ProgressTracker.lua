@@ -348,7 +348,22 @@ function ns.ResolveNextIncompleteStep(dataEntry)
     return best
 end
 
+-- True when the single progress slot holds another dungeon's live run.
+function DungeonProgressTracker.isRunHeldByOther(dataEntry)
+    local p = ns.char.progress
+    if p.key == nil or p.key == dataEntry.key then return false end
+    if unitState.current then return unitState.current ~= dataEntry end
+    if not p.done or next(p.done) == nil then return false end
+    -- A finished run is dropped by enterDungeon anyway, so nothing to protect.
+    local held = ns.DungeonByKey and ns.DungeonByKey[p.key]
+    if not held then return false end
+    local done, grandTotal = ns.ComputeDungeonProgressCounts(held)
+    if grandTotal > 0 and done >= grandTotal then return false end
+    return (time() - (p.lastSeen or 0)) <= 30 * 60   -- same window enterDungeon keeps a run
+end
+
 function ns.SetRouteStepCompleted(dataEntry, i, value, auto)
+    if not auto and DungeonProgressTracker.isRunHeldByOther(dataEntry) then ns.Print(L.BROWSE_ONLY); return end
     local anchorTarget = DungeonProgressTracker.resolveProgress(dataEntry)
     local step = dataEntry.steps[i]
     if (anchorTarget.done[step.id] == true) == (value and true or false) then return end
@@ -382,9 +397,12 @@ function ns.ResetProgress(dataEntry)
     dataEntry = dataEntry or unitState.current or unitState.viewed
     if not dataEntry then return end
     local anchorTarget = ns.char.progress
-    anchorTarget.key = dataEntry.key; anchorTarget.done = {}; anchorTarget.history = {}; anchorTarget.zone = nil; anchorTarget.lastSeen = time()
-    unitState.rareSeen = {}
-    ns.Print(L.RESET_DONE)
+    -- Only clear a matching slot; never take over another dungeon's run.
+    if anchorTarget.key == dataEntry.key then
+        anchorTarget.done = {}; anchorTarget.history = {}; anchorTarget.zone = nil; anchorTarget.lastSeen = time()
+        unitState.rareSeen = {}   -- rareSeen belongs to the run in this slot
+        ns.Print(L.RESET_DONE)
+    end
     ns.RefreshAll()
 end
 

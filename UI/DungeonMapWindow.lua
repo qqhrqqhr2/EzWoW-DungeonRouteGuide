@@ -1129,7 +1129,8 @@ function DungeonRouteWindow.createPrimaryWidget()
     
     currentBtn = DungeonRouteWindow.createStyledButton(containerFrame, L.BTN_CURRENT, 64, function() return L.TIP_CURRENT end, function()
         if unitState.current then
-            unitState.viewed, unitState.selected, unitState.pageManual = unitState.current, nil, false
+            unitState.viewed, unitState.selected, unitState.cardTrash = unitState.current, nil, nil
+            unitState.page, unitState.pageManual = nil, false
             picker:Hide(); ns.RefreshMap()
         end
     end)
@@ -2178,6 +2179,9 @@ function ns.RefreshMap(mapOnly)
     if not containerFrame or not containerFrame:IsShown() then return end
     local d = unitState.viewed
     if not d then return end
+    -- Drop a selection left over from another dungeon.
+    if unitState.selected and not (d.steps and d.steps[unitState.selected]) then unitState.selected = nil end
+    if unitState.cardTrash and not (d.trashGroups and d.trashGroups[unitState.cardTrash]) then unitState.cardTrash = nil end
     local nextIndex = ns.ResolveNextIncompleteStep(d)
     local page = DungeonRouteWindow.resolveCurrentPage(d)
     
@@ -2331,7 +2335,12 @@ function ns.ShowMap(d, auto)
         return
     end
     if not containerFrame then DungeonRouteWindow.createPrimaryWidget() end
-    unitState.viewed = d or unitState.viewed or unitState.current or (ns.SuggestDungeon and ns.SuggestDungeon()) or ns.Dungeons[1]
+    local target = d or unitState.viewed or unitState.current or (ns.SuggestDungeon and ns.SuggestDungeon()) or ns.Dungeons[1]
+    if target ~= unitState.viewed then
+        unitState.selected, unitState.cardTrash = nil, nil
+        unitState.page, unitState.pageManual = nil, false
+    end
+    unitState.viewed = target
     containerFrame.autoShown = auto and true or false
     containerFrame:Show()
     ns.RefreshMap()

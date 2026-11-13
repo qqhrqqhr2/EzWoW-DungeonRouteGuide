@@ -28,7 +28,7 @@
 ## X-Website: https://github.com/qqhrqqhr2/EzWoW-DungeonRouteGuide
 ## X-Curse-Project-ID: 1728502
 ## X-Credits: WoW Forever client minimap geometry; boss spots partly from CMaNGOS Classic-DB spawns (GPL v3)
-## SavedVariables: EzWoW_DungeonRouteGuideDB, EzWoW_SharedData
+## SavedVariables: EzWoW_DungeonRouteGuideDB, EzWoW_SharedData, EzWoW_ShareStore_DungeonRouteGuide
 ## SavedVariablesPerCharacter: EzWoW_DungeonRouteGuideCharDB
 
 Libs\EzWoWGamePad\GamePad.lua
