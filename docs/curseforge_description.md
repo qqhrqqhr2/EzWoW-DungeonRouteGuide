@@ -13,7 +13,7 @@ A dungeon route guide for WoW Forever. **18 dungeons and 29 area maps** are draw
 
 ![Settings window](https://raw.githubusercontent.com/qqhrqqhr2/EzWoW-DungeonRouteGuide/master/docs/images/settings_en.png)
 
-*The map is Wailing Caverns drawn from the minimap tiles shipped with the addon. The other windows are mock-ups rebuilt from the window sizes, coordinates, colours and strings in the addon code; pictures stand in for the 3D model and item icons.*
+*In-game screenshots (WoW Forever, Korean client). Character and player names and chat text are blurred.*
 
 ## Features
 
@@ -23,7 +23,7 @@ Ragefire Chasm, The Hall of Thanes, Wailing Caverns, Ruins of Lordaeron, The Dea
 ### Route window
 - Opens by itself when you enter a dungeon; elsewhere use `/ezdg` or the launcher icon.
 - Pick any dungeon from the title list (levels shown, the one you are in is marked). **Current** returns to the dungeon you are in.
-- Map markers: numbers give the boss order, colours the type (boss, rare, NPC, quest spot, entrance). Rares, NPCs and tasks get an icon, a yellow **!** marks quest targets, ✓ marks what is done and the next objective glows.
+- Map markers: numbers give the boss order, shapes and colours the type (gold skull boss, silver skull rare, NPC, quest spot, entrance, passage to another floor). Rares, NPCs and tasks get an icon, a yellow **!** marks quest targets, ✓ marks what is done and the next objective glows.
 - Random spawns show their other possible spots when selected.
 - Mouse wheel to zoom, drag to pan, **Fit** to reset. Multi-area dungeons get an area button with objectives left and a **Next objective → area** shortcut; blue link numbers jump to the connected area.
 
@@ -82,7 +82,7 @@ Languages: English, 한국어, Deutsch, Français, Español, Русский, 简
 
 ![설정창](https://raw.githubusercontent.com/qqhrqqhr2/EzWoW-DungeonRouteGuide/master/docs/images/settings_ko.png)
 
-*지도는 애드온에 들어 있는 미니맵 타일로 그린 통곡의 동굴입니다. 나머지 창은 애드온 코드의 창 크기·좌표·색상·문구로 재현한 예시 화면이고, 3D 모델과 아이템 아이콘 자리에는 그림을 넣었습니다.*
+*실제 게임 화면입니다(WoW Forever, 한국어 클라이언트). 캐릭터 · 다른 플레이어 이름과 채팅 내용은 가렸습니다.*
 
 ## 기능
 
@@ -92,7 +92,7 @@ Languages: English, 한국어, Deutsch, Français, Español, Русский, 简
 ### 공략 창
 - 던전에 들어가면 자동으로 열립니다. 밖에서는 `/ezdg` 또는 화면 런처 아이콘으로 엽니다.
 - 제목을 누르면 던전 목록(권장 레벨, 지금 있는 던전 표시)에서 아무 던전이나 고를 수 있습니다. **현재 던전**은 지금 있는 던전으로 돌아옵니다.
-- 지도 표식: 숫자는 우두머리 순서, 색은 종류(우두머리·희귀 몹·NPC·퀘스트 장소·입구). 희귀 몹·NPC·할 일은 아이콘, 노란 **!**는 퀘스트 대상, ✓는 완료, 다음 목표는 빛납니다.
+- 지도 표식: 숫자는 우두머리 순서, 모양·색은 종류(금색 해골 우두머리·은색 해골 희귀 몹·NPC·퀘스트 장소·입구·다른 층으로 가는 통로). 희귀 몹·NPC·할 일은 아이콘, 노란 **!**는 퀘스트 대상, ✓는 완료, 다음 목표는 빛납니다.
 - 무작위로 나오는 몹은 선택하면 다른 출현 후보 지점도 보여 줍니다.
 - 마우스 휠로 확대, 끌어서 이동, **전체**로 다시 맞춤. 지역이 여러 개인 던전은 남은 목표 수가 붙은 지역 선택 버튼과 **다음 목표 → 지역** 바로가기가 나오고, 파란 번호를 누르면 연결된 지역으로 이동합니다.
 
