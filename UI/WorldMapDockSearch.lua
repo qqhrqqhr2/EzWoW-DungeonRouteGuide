@@ -87,8 +87,10 @@ function WorldMapDungeonSearch.launchDungeonOnWorldMap(d)
     if ns.InCombat() then return end
     -- the same with the gamepad on: it taints the gamepad navigation (Libs/EzWoWGamePad)
     if ns.GamePad and ns.GamePad.IsActive() then return end
-    ns.UnwrapSafeValue(WorldMapFrame.SetMapID, WorldMapFrame, entityID)
-    ns.UnwrapSafeValue(WorldMapFrame.PanTo, WorldMapFrame, x / 100, y / 100)
+    -- moved by the game itself (C_Map.OpenWorldMap): a map moved or panned from
+    -- addon code keeps values written by tainted code, and its own pins are then
+    -- blocked in combat (SetPassThroughButtons)
+    if C_Map and C_Map.OpenWorldMap then pcall(C_Map.OpenWorldMap, entityID) end
 end
 
 function WorldMapDungeonSearch.locateDungeon()

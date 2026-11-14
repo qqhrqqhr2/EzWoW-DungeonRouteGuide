@@ -767,12 +767,12 @@ function DungeonRouteWindow.launchQuestInMapFinder(priorityQueue)
     -- with the gamepad on, a map opened by addon code taints the gamepad
     -- navigation (Libs/EzWoWGamePad): the search only runs on an open map
     local padOn = ns.GamePad and ns.GamePad.IsActive()
-    if WorldMapFrame and not WorldMapFrame:IsShown() and not padOn then
-        if ToggleWorldMap then
-            pcall(ToggleWorldMap)
-        else
-            pcall(ShowUIPanel, WorldMapFrame)
-        end
+    -- opened by the game itself (C_Map.OpenWorldMap): opened from addon code, the
+    -- map keeps values written by tainted code and its own pins are then
+    -- blocked in combat (SetPassThroughButtons)
+    if WorldMapFrame and not WorldMapFrame:IsShown() and not padOn and C_Map and C_Map.OpenWorldMap
+        and not (InCombatLockdown and InCombatLockdown()) then
+        pcall(C_Map.OpenWorldMap)
     end
     if _G.SlashCmdList and type(_G.SlashCmdList.EZWOWMAPFINDER) == "function" then
         pcall(_G.SlashCmdList.EZWOWMAPFINDER, "Q " .. qName)
