@@ -312,7 +312,9 @@ if ns.Share and ns.Share.RegisterKind then
                 if type(row) == "table" and type(row.own) == "table" and tonumber(npc) and tonumber(row.i) then
                     for area, count in pairs(row.own) do
                         if type(area) == "string" and type(count) == "number" then
-                            out[#out + 1] = string.format("%d,%d,%d,%s", tonumber(npc), tonumber(row.i), math.min(count, 99), area)
+                            -- (the count field is not read by anyone; kept at 1 so the record
+                            -- does not change, and go out again, with every loot)
+                            out[#out + 1] = string.format("%d,%d,%d,%s", tonumber(npc), tonumber(row.i), 1, area)
                         end
                     end
                 end
