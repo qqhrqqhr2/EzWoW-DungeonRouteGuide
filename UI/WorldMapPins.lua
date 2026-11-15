@@ -76,15 +76,49 @@ function PinMixin:OnLoad()
     self.count = self:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     self.count:SetPoint("TOPRIGHT", 2, 2)
     self.count:SetTextColor(0.3, 0.9, 1)
-    self.label = self:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-    local font, size, flags = self.label:GetFont()
-    self.label:SetFont(font, math.max(11, size or 11), "OUTLINE")
-    self.label:SetJustifyH("LEFT")
+    -- name tag: a small see-through plate with a thin gold rim, the name and the
+    -- level range on one line (no thick outline on the letters)
+    local tag = CreateFrame("Frame", nil, self, "BackdropTemplate")
+    if tag.SetBackdrop then
+        tag:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8X8", edgeFile = "Interface\\Buttons\\WHITE8X8", edgeSize = 1 })
+        tag:SetBackdropColor(0.04, 0.05, 0.07, 0.72)
+        tag:SetBackdropBorderColor(0.80, 0.64, 0.30, 0.50)
+    end
+    tag:SetHeight(WorldMapPinProvider.TAG_H)
+    if tag.EnableMouse then tag:EnableMouse(false) end
+    tag:Hide()
+    self.tag = tag
+    self.label = tag:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    local font = self.label:GetFont()
+    self.label:SetFont(font, 11, "")
+    self.label:SetTextColor(1.0, 0.86, 0.45)
     self.label:SetShadowColor(0, 0, 0, 1); self.label:SetShadowOffset(1, -1)
-    self.labelBg = self:CreateTexture(nil, "BACKGROUND")
-    self.labelBg:SetColorTexture(0.02, 0.02, 0.02, 0.85)
-    self.labelBg:SetPoint("TOPLEFT", self.label, "TOPLEFT", -4, 3)
-    self.labelBg:SetPoint("BOTTOMRIGHT", self.label, "BOTTOMRIGHT", 4, -3)
+    self.label:SetJustifyH("LEFT")
+    self.label:SetPoint("LEFT", tag, "LEFT", WorldMapPinProvider.TAG_PAD, 0)
+    self.level = tag:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    self.level:SetFont(font, 10, "")
+    self.level:SetShadowColor(0, 0, 0, 1); self.level:SetShadowOffset(1, -1)
+    self.level:SetPoint("LEFT", self.label, "RIGHT", 4, 0)
+end
+
+WorldMapPinProvider.TAG_H = 17
+WorldMapPinProvider.TAG_PAD = 5
+
+-- level range colour against the player's level: red too high, orange soon,
+-- green right, grey done
+function WorldMapPinProvider.levelColor(levels)
+    local low, high = tostring(levels or ""):match("(%d+)%D+(%d+)")
+    low, high = tonumber(low), tonumber(high)
+    if not low then
+        low = tonumber(tostring(levels or ""):match("(%d+)"))
+        high = low
+    end
+    local level = ns.CoerceSafeNumber(ns.UnwrapSafeValue(UnitLevel, "player"))
+    if not (low and level) then return 0.85, 0.85, 0.85 end
+    if level < low - 3 then return 1.00, 0.38, 0.30 end
+    if level < low then return 1.00, 0.62, 0.25 end
+    if level <= high then return 0.45, 0.90, 0.45 end
+    return 0.62, 0.62, 0.62
 end
 
 function PinMixin:OnAcquired(group)
@@ -92,10 +126,22 @@ function PinMixin:OnAcquired(group)
     self:SetMouseMotionEnabled(true)
     self.entries = group.entries
     self.count:SetText(#self.entries > 1 and tostring(#self.entries) or "")
-    local extractSafeTooltipText = translationHelper(self.entries[1].name)
-    if #self.entries > 1 then extractSafeTooltipText = L.WORLD_PIN_GROUP:format(extractSafeTooltipText, #self.entries - 1)
-    elseif ns.db.worldMapLevels then extractSafeTooltipText = extractSafeTooltipText .. "\n|cffffffff" .. L.WORLD_PIN_LEVEL:format(self.entries[1].levels or "") .. "|r" end
-    self.label:SetWidth(0); self.label:SetText(extractSafeTooltipText)
+    local nameText = translationHelper(self.entries[1].name)
+    local levels = self.entries[1].levels
+    if #self.entries > 1 then
+        nameText = L.WORLD_PIN_GROUP:format(nameText, #self.entries - 1)
+        levels = nil
+    elseif not ns.db.worldMapLevels or type(levels) ~= "string" or levels == "" then
+        levels = nil
+    end
+    self.label:SetWidth(0); self.label:SetText(nameText)
+    self.level:SetText(levels or "")
+    self.level:SetShown(levels ~= nil)
+    if levels then self.level:SetTextColor(WorldMapPinProvider.levelColor(levels)) end
+    local nameW = ns.CoerceSafeNumber(ns.UnwrapSafeValue(self.label.GetStringWidth, self.label)) or 80
+    local levelW = levels and (ns.CoerceSafeNumber(ns.UnwrapSafeValue(self.level.GetStringWidth, self.level)) or 30) + 4 or 0
+    self.tag:SetWidth(math.ceil(nameW + levelW + WorldMapPinProvider.TAG_PAD * 2))
+    self.tag:Hide()
     self:SetPosition(group.x, group.y)
     self:ApplyCurrentScale()
 end
@@ -250,32 +296,61 @@ function MapDataProvider:PlaceLabels()
     local used = {}
     local function canLabelFitWithoutOverlap(coordX, coordY, width, height)
         if coordX < 3 or coordY < 3 or coordX + width > boxWidth - 3 or coordY + height > headerBar - 3 then return false end
+        -- the pin icons (20 px)
         for _, anchorTarget in ipairs(self.pins or {}) do
             local pxVal, pyVal = anchorTarget.normalizedX * boxWidth, anchorTarget.normalizedY * headerBar
-            if coordX < pxVal + 18 and coordX + width > pxVal - 18 and coordY < pyVal + 18 and coordY + height > pyVal - 18 then return false end
+            if coordX < pxVal + 10 and coordX + width > pxVal - 10 and coordY < pyVal + 10 and coordY + height > pyVal - 10 then return false end
         end
         for _, rowEntry in ipairs(used) do
             if coordX < rowEntry[3] and coordX + width > rowEntry[1] and coordY < rowEntry[4] and coordY + height > rowEntry[2] then return false end
         end
         return true
     end
+    -- next to the pin, toward the nearer edge of the map first so the middle of
+    -- the map (the land) stays clear: a pin in the left half gets its tag on
+    -- the left, one in the upper half above rather than below. The inner side
+    -- comes last. A tag that would cover another pin or tag is left out (the
+    -- tooltip still names it).
+    local GAP = 11
     for _, pinFrame in ipairs(self.pins or {}) do
+        local tag = pinFrame.tag
         if not ns.db.worldMapLabels then
-            pinFrame.label:Hide(); pinFrame.labelBg:Hide()
+            tag:Hide()
         else
-        local coordX, coordY = pinFrame.normalizedX * boxWidth, pinFrame.normalizedY * headerBar
-        local width = (ns.CoerceSafeNumber(ns.UnwrapSafeValue(pinFrame.label.GetStringWidth, pinFrame.label)) or 100) + 8
-        local height = (ns.CoerceSafeNumber(ns.UnwrapSafeValue(pinFrame.label.GetStringHeight, pinFrame.label)) or 26) + 6
-        local candidates = { {20, -height/2}, {-20-width, -height/2}, {-width/2, 20}, {-width/2, -20-height}, {20, 20}, {-20-width, 20}, {20, -20-height}, {-20-width, -20-height} }
-        local placed
-        for _, offset in ipairs(candidates) do
-            if canLabelFitWithoutOverlap(coordX + offset[1], coordY + offset[2], width, height) then
-                used[#used + 1] = { coordX + offset[1], coordY + offset[2], coordX + offset[1] + width, coordY + offset[2] + height }
-                pinFrame.label:ClearAllPoints(); pinFrame.label:SetPoint("TOPLEFT", pinFrame, "CENTER", offset[1] + 4, -offset[2] - 3)
-                placed = true; break
+            local coordX, coordY = pinFrame.normalizedX * boxWidth, pinFrame.normalizedY * headerBar
+            local width = ns.CoerceSafeNumber(ns.UnwrapSafeValue(tag.GetWidth, tag)) or 100
+            local height = WorldMapPinProvider.TAG_H
+            local leftOut = pinFrame.normalizedX < 0.5
+            local upOut = pinFrame.normalizedY < 0.5
+            local outX = leftOut and (-GAP - width) or GAP                  -- beside, on the outer side
+            local inX = leftOut and GAP or (-GAP - width)
+            local outCornerX = leftOut and (-GAP - width + 3) or (GAP - 3)
+            local inCornerX = leftOut and (GAP - 3) or (-GAP - width + 3)
+            local outY = upOut and (-GAP - height) or GAP                   -- above / below, outer side
+            local inY = upOut and GAP or (-GAP - height)
+            local outCornerY = upOut and (-GAP - height + 5) or (GAP - 5)
+            local inCornerY = upOut and (GAP - 5) or (-GAP - height + 5)
+            local candidates = {
+                { outX, -height / 2 },            -- beside, outer side
+                { outCornerX, outCornerY },       -- outer corner
+                { outCornerX, inCornerY },
+                { -width / 2, outY },             -- above / below, outer side
+                { -width / 2, inY },
+                { inX, -height / 2 },             -- inner side last
+                { inCornerX, outCornerY },
+                { inCornerX, inCornerY },
+            }
+            local placed
+            for _, offset in ipairs(candidates) do
+                if canLabelFitWithoutOverlap(coordX + offset[1], coordY + offset[2], width, height) then
+                    used[#used + 1] = { coordX + offset[1], coordY + offset[2], coordX + offset[1] + width, coordY + offset[2] + height }
+                    tag:ClearAllPoints()
+                    tag:SetPoint("TOPLEFT", pinFrame, "CENTER", offset[1], -offset[2])
+                    placed = true
+                    break
+                end
             end
-        end
-        pinFrame.label:SetShown(placed == true); pinFrame.labelBg:SetShown(placed == true)
+            tag:SetShown(placed == true)
         end
     end
 end
