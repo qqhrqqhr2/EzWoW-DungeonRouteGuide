@@ -1,15 +1,13 @@
-# v2.0.23
+# v2.0.24
 
 ### 한국어
-- EzWoW-Data가 깔려 있으면 예전 데이터가 쓰이던 문제를 고쳤습니다. 애드온에 든 최신 데이터를 먼저 씁니다.
-- `/ezshare` 창 "종류별" 탭에서 다른 사용자에게 받아 지금 쓰고 있는 기록 수와 보이는 곳을 볼 수 있습니다.
-- 보스 툴팁과 목록에 사용자들이 그 보스를 잡은 곳("처치한 곳")을 표시합니다.
-- 층 정보가 없는 구역에 들어가면 사용자들이 보고한 보스 위치로 지도 층을 맞춥니다.
-- 지도에 핀이 겹쳐 있을 때 마우스를 올린 핀이 이름표와 함께 맨 위로 올라옵니다.
+- 세계지도의 던전 이름표에 마우스를 올려도 핀처럼 위로 올라오고 툴팁이 나오며, 이름표를 눌러도 핀을 누른 것과 같습니다.
+- 지도에서 마지막으로 마우스를 올린 핀이 마우스를 떼도 다른 모든 EzWoW 핀(퀘스트·던전·비행·낚시 등) 위에 남습니다. 다른 핀에 올리면 그 핀이 맨 위로 옵니다.
+- 애드온에 든 데이터가 다 있으면 공용 데이터 애드온의 던전 데이터를 불러오지 않아 메모리를 덜 씁니다.
+- 공유 기록 저장 데이터가 오래 쓰면 조금씩 커지던 문제를 고쳤습니다.
 
 ### English
-- Fixed older data being used when EzWoW-Data is installed; the addon's own, newer data now comes first.
-- The /ezshare "By kind" tab now shows how many records from other players are in use and where they show.
-- Boss tooltips and the list show where players killed the boss ("Killed in").
-- In a sub-zone without floor data, the map switches to the floor players reported for its bosses.
-- On the map, the hovered pin comes to the front of pins overlapping it, with its label.
+- Dungeon name tags on the World Map now act like their pins: hovering raises them and shows the tooltip, and a click does what a pin click does.
+- The map pin you hovered last stays in front of all other EzWoW pins (quests, dungeons, flights, fishing…) after the mouse leaves, until you hover another one.
+- Uses less memory: the shared data addon's dungeon module is no longer loaded when the addon's own data is complete.
+- Fixed shared-record save data slowly growing over long use.
