@@ -221,6 +221,15 @@ end
 
 -- called once the addon is loaded (out of combat, or the load waits for the combat to end)
 function ns.LoadSharedData()
+    -- with the bundled loot names and every dungeon's route the shared module is not
+    -- loaded at all (memory)
+    local complete = type(ns.LootNames) == "table" and next(ns.LootNames) ~= nil and type(ns.Dungeons) == "table"
+    if complete then
+        for _, d in ipairs(ns.Dungeons) do
+            if not (type(d.steps) == "table" and #d.steps > 0) then complete = false break end
+        end
+    end
+    if complete then return end
     local D = sharedAPI()
     if not D then return end
     pcall(D.Load, "Dungeons", function(_, ok) if ok then useSharedDungeons(D) end end)

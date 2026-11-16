@@ -85,7 +85,13 @@ function PinMixin:OnLoad()
         tag:SetBackdropBorderColor(0.80, 0.64, 0.30, 0.50)
     end
     tag:SetHeight(WorldMapPinProvider.TAG_H)
-    if tag.EnableMouse then tag:EnableMouse(false) end
+    -- the tag answers the mouse like its pin: hover raises both and shows the
+    -- tooltip, a click does what a click on the pin does
+    local pin = self
+    if tag.EnableMouse then tag:EnableMouse(true) end
+    tag:SetScript("OnEnter", function() pin:OnMouseEnter() end)
+    tag:SetScript("OnLeave", function() pin:OnMouseLeave() end)
+    tag:SetScript("OnMouseUp", function(_, button) pin:OnMouseClickAction(button) end)
     tag:Hide()
     self.tag = tag
     self.label = tag:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
@@ -166,10 +172,50 @@ function PinMixin:SetPropagateMouseMotion(...)
     getmetatable(self).__index.SetPropagateMouseMotion(self, ...)
 end
 
--- the hovered mark (and its name label) comes to the front of marks that overlap it
+-- One mark of all EzWoW map marks is in front: the last one the mouse was on
+-- (above every other mark, its label too). It stays in front after the mouse
+-- leaves, until another mark is hovered; the one before goes back to its place.
+-- Kept in a table all EzWoW addons share (EzWoWMapPinFront).
+local function mapPinFront()
+    local f = _G.EzWoWMapPinFront
+    if type(f) == "table" and (tonumber(f.v) or 0) >= 2 then return f end
+    f = { v = 2 }
+    local STRATA = { BACKGROUND = 1, LOW = 2, MEDIUM = 3, HIGH = 4, DIALOG = 5, FULLSCREEN = 6,
+        FULLSCREEN_DIALOG = 7, TOOLTIP = 8 }
+    function f.Restore(pin)
+        if not pin then return end
+        if pin.ezBaseLevel ~= nil then
+            if pin.ezBaseStrata then pcall(pin.SetFrameStrata, pin, pin.ezBaseStrata) end
+            -- a level its addon gave it since (the marks were drawn again) stays
+            if pin:GetFrameLevel() == pin.ezFrontLevel then pcall(pin.SetFrameLevel, pin, pin.ezBaseLevel) end
+        end
+        pin.ezBaseLevel, pin.ezBaseStrata, pin.ezFrontLevel = nil, nil, nil
+        if f.pin == pin then f.pin = nil end
+    end
+    function f.Raise(pin)
+        if not pin then return end
+        if f.pin == pin then
+            if pin:GetFrameLevel() == pin.ezFrontLevel then return end
+            -- drawn again at its own level since it came to the front: raised from there
+            pin.ezBaseLevel = pin:GetFrameLevel()
+        else
+            if f.pin then f.Restore(f.pin) end
+            pin.ezBaseLevel, pin.ezBaseStrata = pin:GetFrameLevel(), pin:GetFrameStrata()
+            f.pin = pin
+        end
+        -- the marks of the quest addons sit in HIGH: at least that layer
+        if (STRATA[pin.ezBaseStrata] or 0) < STRATA.HIGH then pcall(pin.SetFrameStrata, pin, "HIGH") end
+        local parent = pin:GetParent()
+        pcall(pin.SetFrameLevel, pin, ((parent and parent:GetFrameLevel()) or 0) + 1200)
+        pin.ezFrontLevel = pin:GetFrameLevel()
+    end
+    _G.EzWoWMapPinFront = f
+    return f
+end
+
+-- the hovered mark (and its name tag) comes to the front of every map mark and stays there
 function PinMixin:OnMouseEnter()
-    if self.ezBaseLevel == nil then self.ezBaseLevel = self:GetFrameLevel() end
-    self:SetFrameLevel(self.ezBaseLevel + 500)
+    mapPinFront().Raise(self)
     GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
     GameTooltip:SetText("EzWoW - Dungeon Route Guide", 1, 0.82, 0)
     for _, d in ipairs(self.entries) do
@@ -184,10 +230,6 @@ function PinMixin:OnMouseEnter()
 end
 
 function PinMixin:OnMouseLeave()
-    if self.ezBaseLevel ~= nil then
-        self:SetFrameLevel(self.ezBaseLevel)
-        self.ezBaseLevel = nil
-    end
     GameTooltip_Hide()
 end
 
@@ -251,7 +293,7 @@ end
 
 function PinMixin:OnReleased()
     self.entries = nil
-    self.ezBaseLevel = nil
+    mapPinFront().Restore(self)
     if ns.IsTruthySafeValue(ns.UnwrapSafeValue(GameTooltip.IsOwned, GameTooltip, self)) then GameTooltip_Hide() end
     MapCanvasPinMixin.OnReleased(self)
 end
