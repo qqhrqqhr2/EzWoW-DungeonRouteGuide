@@ -192,8 +192,12 @@ local function useSharedDungeons(D)
     if type(m) ~= "table" or m.formatVersion ~= SHARED_FORMAT then return end
     local list, loot = m.list, m.loot
     if type(list) ~= "table" or not ns.Dungeons then return end
-    -- loot names, quality and icons (same shape as Data/LootNames.lua)
-    if type(loot) == "table" and next(loot) ~= nil then ns.LootNames = loot end
+    -- loot names, quality and icons (same shape as Data/LootNames.lua); the bundled
+    -- tables come with every release (never older), so the shared ones only stand
+    -- in for missing ones
+    if type(loot) == "table" and next(loot) ~= nil and (type(ns.LootNames) ~= "table" or next(ns.LootNames) == nil) then
+        ns.LootNames = loot
+    end
     local byKey = {}
     for _, sd in ipairs(list) do
         if type(sd) == "table" and sd.key and type(sd.steps) == "table" then byKey[sd.key] = sd end
@@ -202,7 +206,7 @@ local function useSharedDungeons(D)
     local changed = false
     for _, d in ipairs(ns.Dungeons) do
         local sd = byKey[d.key]
-        if sd then
+        if sd and not (type(d.steps) == "table" and #d.steps > 0) then
             local ok, merged = pcall(mergeDungeon, d, sd)
             changed = changed or (ok and merged)
         end

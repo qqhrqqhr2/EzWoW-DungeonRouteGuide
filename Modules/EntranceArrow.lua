@@ -224,6 +224,12 @@ local BOSS_CLASSES = { worldboss = true, rare = true, rareelite = true }
 local MAX_PEERS = 20
 local MAX_AREAS = 4
 
+-- counts changes of the store, so the areas picked from it are read again
+BossAreas.version = 0
+function BossAreas.touch()
+    BossAreas.version = BossAreas.version + 1
+end
+
 function BossAreas.store()
     if ns.Share and ns.Share.Store then
         local ok, s = pcall(ns.Share.Store, "B")
@@ -283,6 +289,7 @@ function BossAreas.record(npcID, instanceID)
         if n >= MAX_AREAS then return end
     end
     row.own[area] = math.min((row.own[area] or 0) + 1, 99)
+    BossAreas.touch()
 end
 
 function BossAreas.onLoot()
@@ -301,6 +308,116 @@ function BossAreas.onLoot()
             end
         end
     end
+end
+
+-----------------------------------------------------------------------------
+-- Reading: the sub-zone of a route step's boss, as this character and other
+-- players looted it. Each player counts once per area (this character too);
+-- the area most players reported wins, a tie goes to this character's own,
+-- then to the name. The dungeon's own name (what the game shows outside any
+-- sub-zone) tells nothing and is left out. An area only other players sent
+-- needs MIN_PLAYERS of them. Shown in the step's tooltip and route card, and
+-- the map follows it to the boss's floor (see learnedPage in DungeonMapWindow.lua).
+-----------------------------------------------------------------------------
+local MIN_PLAYERS = 2
+local OWN = {}   -- this character among the senders
+local picked, pickedVersion, pickedAt = {}, -1, 0
+
+-- true for a name that is the dungeon's own: its zone, instance or wing name
+function BossAreas.isMainName(d, area)
+    local z = ns.Normalize(area)
+    if not z or z == "" then return true end
+    if ns.IsMainDungeonZone and ns.IsMainDungeonZone(d, z) then return true end
+    for _, name in ipairs(d.resetNames or {}) do
+        if ns.Normalize(name) == z then return true end
+    end
+    for _, id in ipairs(d.instanceIDs or {}) do
+        -- the zone name of an instance map (outside the dungeon too)
+        if ns.Normalize(ns.CoerceSafeString(ns.UnwrapSafeValue(GetRealZoneText, id))) == z then return true end
+    end
+    return false
+end
+
+-- { area, n = players, got = players other than this character } of a boss or
+-- rare step (all its NPCs together), or false
+function BossAreas.pick(d, step)
+    local s = BossAreas.store()
+    if type(s) ~= "table" then return false end
+    local inst, anyInst = {}, false
+    for _, id in ipairs(d.instanceIDs or {}) do inst[id], anyInst = true, true end
+    local tally, order = {}, {}
+    local function add(area, who)
+        if type(area) ~= "string" or area == "" then return end
+        local t = tally[area]
+        if not t then
+            t = { area = area, n = 0, got = 0, seen = {} }
+            tally[area] = t
+            order[#order + 1] = t
+        end
+        if t.seen[who] then return end
+        t.seen[who] = true
+        t.n = t.n + 1
+        if who == OWN then t.own = true else t.got = t.got + 1 end
+    end
+    for _, npc in ipairs(step.npc) do
+        local row = s[tostring(npc)]
+        local rowInst = type(row) == "table" and tonumber(row.i)
+        if type(row) == "table" and not (anyInst and rowInst and not inst[rowInst]) then
+            for area in pairs(type(row.own) == "table" and row.own or {}) do add(area, OWN) end
+            for who, v in pairs(type(row.peers) == "table" and row.peers or {}) do
+                if type(v) == "string" then
+                    add(v, who)   -- one area, as older copies kept it
+                elseif type(v) == "table" then
+                    for area, on in pairs(v) do
+                        if on then add(area, who) end
+                    end
+                end
+            end
+        end
+    end
+    local best
+    for _, t in ipairs(order) do
+        if (t.own or t.got >= MIN_PLAYERS) and not BossAreas.isMainName(d, t.area) then
+            if not best or t.n > best.n
+                or (t.n == best.n and ((t.own and not best.own) or (t.own == best.own and t.area < best.area))) then
+                best = t
+            end
+        end
+    end
+    if not best then return false end
+    return { area = best.area, n = best.n, got = best.got }
+end
+
+-- the sub-zone of a boss or rare step: area text, players, players other than
+-- this character (nil when none is known)
+function BossAreas.stepArea(d, step)
+    if type(d) ~= "table" or type(step) ~= "table" or type(step.npc) ~= "table" then return nil end
+    if step.kind ~= "boss" and step.kind ~= "rare" then return nil end
+    -- read again after a change, and a while later (saved copies joined since)
+    local now = ns.CoerceSafeNumber(ns.UnwrapSafeValue(GetTime)) or 0
+    if pickedVersion ~= BossAreas.version or now - pickedAt > 60 or now < pickedAt then
+        picked, pickedVersion, pickedAt = {}, BossAreas.version, now
+    end
+    local hit = picked[step]
+    if hit == nil then
+        local ok, res = pcall(BossAreas.pick, d, step)
+        hit = (ok and res) or false
+        picked[step] = hit
+    end
+    if not hit then return nil end
+    return hit.area, hit.n, hit.got
+end
+
+-- bosses whose shown area has reports from other players in it
+function BossAreas.usedCount()
+    local n = 0
+    for _, d in ipairs(ns.Dungeons or {}) do
+        for _, step in ipairs(d.steps or {}) do
+            local area, _, got = BossAreas.stepArea(d, step)
+            if area and got and got > 0 then n = n + 1 end
+        end
+    end
+    return n
 end
 
 if ns.Share and ns.Share.RegisterKind then
@@ -349,7 +466,13 @@ if ns.Share and ns.Share.RegisterKind then
             end
             mine[area] = true
             row.peers[h] = mine
+            BossAreas.touch()
             return true
+        end,
+        -- for the shared records window: bosses whose received areas are in use
+        used = function()
+            local ok, n = pcall(BossAreas.usedCount)
+            return ok and n or 0
         end,
     })
 end

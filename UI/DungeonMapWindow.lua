@@ -279,6 +279,9 @@ function DungeonRouteWindow.stepTooltip(owner, d, index)
     if step.quest then GameTooltip:AddLine("! " .. L.QUEST_MARK, 1, 0.82, 0) end
     local position = d.bliz and d.bliz.steps and d.bliz.steps[step.id]
     if position and position.candidates then GameTooltip:AddLine(L.PIN_CANDIDATES, 1, 0.75, 0.3, true) end
+    -- the sub-zone players looted the boss in (Modules/EntranceArrow.lua)
+    local bossArea = ns.BossAreas and ns.BossAreas.stepArea(d, step)
+    if bossArea then GameTooltip:AddLine(L.BOSS_AREA:format(bossArea), 0.55, 0.8, 1, true) end
     GameTooltip:AddLine(translationHelper(step.tip), 1, 1, 1, true)
     if step.loot and #step.loot > 0 then
         GameTooltip:AddLine(" ")
@@ -330,10 +333,32 @@ function DungeonRouteWindow.learnedSet(d, greenVal)
     local all = ns.db.floorAreas
     return all and all[d.key .. (d.editSpace or "") .. (greenVal == d.bliz and ":b" or ":a")]
 end
+-- the floor of the boss steps whose players' loot sub-zone (Modules/EntranceArrow.lua)
+-- is this one (normalized name); nil when none is, or they lie on different floors
+function DungeonRouteWindow.bossAreaPage(d, area)
+    local bossAreas = ns.BossAreas
+    if not (area and bossAreas and bossAreas.stepArea) then return nil end
+    local found
+    for index, step in ipairs(d.steps or {}) do
+        local text = bossAreas.stepArea(d, step)
+        if text and ns.Normalize(text) == area then
+            local pageKey = DungeonRouteWindow.stepGeo(d, index)
+            if pageKey then
+                if found and found ~= pageKey then return nil end
+                found = pageKey
+            end
+        end
+    end
+    return found
+end
+
 function DungeonRouteWindow.learnedPage(d, greenVal, area)
     if not area or (ns.IsMainDungeonZone and ns.IsMainDungeonZone(d, area)) then return nil end
     local resolvedValue = DungeonRouteWindow.learnedSet(d, greenVal)
-    return resolvedValue and resolvedValue[area] and DungeonRouteWindow.resolvePageByKey(greenVal, resolvedValue[area]) or nil
+    local pageKey = resolvedValue and resolvedValue[area]
+    -- not learned on this character (false: learned on two floors): where the bosses of this sub-zone are
+    if pageKey == nil then pageKey = DungeonRouteWindow.bossAreaPage(d, area) end
+    return pageKey and DungeonRouteWindow.resolvePageByKey(greenVal, pageKey) or nil
 end
 function ns.LearnFloor(d, index)
     local area = unitState.area
@@ -2079,6 +2104,8 @@ function DungeonRouteWindow.plotRouteList(d, nextIndex)
         text = "|cffffd100" .. translationHelper(tgVal.name) .. "|r\n" .. L.TRASH_TIP:format(#tgVal.loot)
     elseif index then
         text = "|cffffd100" .. ns.ResolveRouteStepDisplayTitle(d, index) .. "|r\n" .. translationHelper(step.tip)
+        local bossArea = ns.BossAreas and ns.BossAreas.stepArea(d, step)
+        if bossArea then text = text .. "\n|cff8cccff" .. L.BOSS_AREA:format(bossArea) .. "|r" end
     else
         text = "|cff55ff55" .. L.DONE_ALL .. "|r"
     end

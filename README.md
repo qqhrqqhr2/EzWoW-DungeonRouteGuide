@@ -57,7 +57,7 @@ WoW Forever (`Interface: 16001`) · `/ezdg`
 - **세계지도 던전 입구**: 대륙·지역 지도에 던전 입구 표식을 표시하고(이름·권장 레벨 표시는 설정에서 선택), 가까이 붙은 입구(수도원 4구역 등)는 하나로 묶습니다. 묶인 표식을 누르면 던전을 고르는 메뉴가 나옵니다. 세계지도 왼쪽 아래 **3번째 도킹 버튼**을 누르면 던전 검색 막대가 펼쳐지고, 이름을 입력해 **Enter**를 누르면 입구가 있는 지역 지도로 이동합니다(전투 중에도 동작).
 - **단축키** (게임 단축키 설정 → 애드온): 공략 창 열기/닫기, 다음 목표 완료, 현재 단계 파티 알림.
 - **EzWoW - Data**가 설치돼 있으면 그 공용 자료를 함께 씁니다. 없어도 그대로 동작합니다.
-- 보스·레어를 루팅한 층을 다른 EzWoW 사용자와 함께 모아 보스 층 정보와 목록을 더 정확하게 고칩니다(기록 공유).
+- 보스·레어를 루팅한 층을 다른 EzWoW 사용자와 함께 모아 보스 층 정보와 목록을 더 정확하게 고칩니다(기록 공유). 여러 사용자가 확인한 곳은 단계 툴팁과 아래 설명에 “처치한 곳”으로 나오고, 그 지역에 들어가면 지도가 그 보스의 층으로 바뀝니다.
 - **수도원 구역 판별**: 붉은십자군 수도원 4개 구역을 자동으로 구분하며, 판별이 늦으면 `/ezdg wing 도서관`처럼 직접 고를 수 있습니다.
 
 ### 설정창 (`/ezdg config`)
@@ -164,7 +164,7 @@ A dungeon route guide. **18 dungeons and 29 floor maps** use real minimap-tile a
 #### More features
 
 - With **EzWoW - Data** installed its shared data is used too; without it everything still works.
-- The floors where bosses and rares were looted are gathered with other EzWoW users (record sharing) to make boss floors and lists more accurate.
+- The floors where bosses and rares were looted are gathered with other EzWoW users (record sharing) to make boss floors and lists more accurate. The sub-zone several users saw shows as “Killed in” in the step tooltip and the tip below the list, and entering it switches the map to that boss's floor.
 - **Entrance arrow**: outdoors, an arrow shows the direction and distance to the chosen dungeon entrance (`/ezdg go`, stop with `/ezdg go stop`, or right-click the launcher icon).
 - **World Map entrances**: entrance pins on continent and zone maps (names and recommended levels are optional in the settings); entrances close together (the four Monastery wings) are grouped, and clicking a group lets you pick the dungeon from a menu. The **3rd dock button** at the bottom-left of the World Map opens a dungeon search bar; type a name and press **Enter** to jump to the zone of its entrance (works in combat too).
 - **Key bindings** (Key Bindings → AddOns): toggle the guide, mark next done, announce the current step.

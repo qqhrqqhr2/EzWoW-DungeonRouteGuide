@@ -166,7 +166,10 @@ function PinMixin:SetPropagateMouseMotion(...)
     getmetatable(self).__index.SetPropagateMouseMotion(self, ...)
 end
 
+-- the hovered mark (and its name label) comes to the front of marks that overlap it
 function PinMixin:OnMouseEnter()
+    if self.ezBaseLevel == nil then self.ezBaseLevel = self:GetFrameLevel() end
+    self:SetFrameLevel(self.ezBaseLevel + 500)
     GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
     GameTooltip:SetText("EzWoW - Dungeon Route Guide", 1, 0.82, 0)
     for _, d in ipairs(self.entries) do
@@ -180,7 +183,13 @@ function PinMixin:OnMouseEnter()
     GameTooltip:Show()
 end
 
-function PinMixin:OnMouseLeave() GameTooltip_Hide() end
+function PinMixin:OnMouseLeave()
+    if self.ezBaseLevel ~= nil then
+        self:SetFrameLevel(self.ezBaseLevel)
+        self.ezBaseLevel = nil
+    end
+    GameTooltip_Hide()
+end
 
 -- Map waypoint on the entrance (only where the client allows one)
 function WorldMapPinProvider.setEntranceWaypoint(d)
@@ -242,6 +251,7 @@ end
 
 function PinMixin:OnReleased()
     self.entries = nil
+    self.ezBaseLevel = nil
     if ns.IsTruthySafeValue(ns.UnwrapSafeValue(GameTooltip.IsOwned, GameTooltip, self)) then GameTooltip_Hide() end
     MapCanvasPinMixin.OnReleased(self)
 end
