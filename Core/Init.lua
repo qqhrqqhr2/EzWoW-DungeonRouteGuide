@@ -221,6 +221,9 @@ end
 
 -- called once the addon is loaded (out of combat, or the load waits for the combat to end)
 function ns.LoadSharedData()
+    -- the dungeon list for the other EzWoW addons, read only (the flight map's dungeon
+    -- entrances); its rows have the shape of the shared Dungeons module's list
+    if type(ns.Dungeons) == "table" then _G.EzWoWDungeonRouteGuideDungeons = ns.Dungeons end
     -- with the bundled loot names and every dungeon's route the shared module is not
     -- loaded at all (memory)
     local complete = type(ns.LootNames) == "table" and next(ns.LootNames) ~= nil and type(ns.Dungeons) == "table"

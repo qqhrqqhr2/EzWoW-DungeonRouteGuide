@@ -5,6 +5,20 @@
 local _, ns = ...
 local type, pairs, ipairs, tonumber, tostring, select, pcall = type, pairs, ipairs, tonumber, tostring, select, pcall
 
+-- With the gamepad UI on, the pins are made outside the map's pin pools: the map runs the
+-- mouse code of the pins near its gamepad cursor itself, and addon code there taints its
+-- gamepad steps (Libs/EzWoWGamePad: AcquireMapPin / RemoveMapPins)
+local function acquirePin(map, template, ...)
+    local pad = ns.GamePad
+    if pad and pad.AcquireMapPin then return pad.AcquireMapPin(map, template, ...) end
+    return map:AcquirePin(template, ...)
+end
+local function removePins(map, template)
+    local pad = ns.GamePad
+    if pad and pad.RemoveMapPins then return pad.RemoveMapPins(map, template) end
+    map:RemoveAllPinsByTemplate(template)
+end
+
 local WorldMapPinProvider = ns.WorldMapPinProvider or {}
 ns.WorldMapPinProvider = WorldMapPinProvider
 local L, translationHelper = ns.L, ns.GetLocalizedText
@@ -94,6 +108,8 @@ function PinMixin:OnLoad()
     tag:SetScript("OnMouseUp", function(_, button) pin:OnMouseClickAction(button) end)
     tag:Hide()
     self.tag = tag
+    -- the gamepad cursor on the map finds the tag as well (Libs/EzWoWGamePad)
+    if ns.GamePad and ns.GamePad.MapMark then ns.GamePad.MapMark(tag) end
     self.label = tag:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     local font = self.label:GetFont()
     self.label:SetFont(font, 11, "")
@@ -307,12 +323,16 @@ function WorldMapPinProvider.canvasSize(map)
 end
 
 function MapDataProvider:RemoveAllData()
-    self:GetMap():RemoveAllPinsByTemplate(TEMPLATE)
+    removePins(self:GetMap(), TEMPLATE)
     self.pins = {}
 end
 
 function MapDataProvider:RefreshAllData()
     self:RemoveAllData()
+    do
+        local w, h = WorldMapPinProvider.canvasSize(self:GetMap())
+        self.canvasKey = w and h and string.format("%.1f:%.1f", w, h) or nil
+    end
     if not ns.db or not ns.db.worldMapPins then return end
     local map = self:GetMap()
     local id = ns.CoerceSafeNumber(ns.UnwrapSafeValue(map.GetMapID, map))
@@ -338,7 +358,7 @@ function MapDataProvider:RefreshAllData()
             group.entries[#group.entries + 1] = d
         end
     end
-    for _, group in ipairs(groups) do self.pins[#self.pins + 1] = map:AcquirePin(TEMPLATE, group) end
+    for _, group in ipairs(groups) do self.pins[#self.pins + 1] = acquirePin(map, TEMPLATE, group) end
     self:PlaceLabels()
 end
 
@@ -407,8 +427,17 @@ function MapDataProvider:PlaceLabels()
     end
 end
 
-function MapDataProvider:OnCanvasScaleChanged() self:RefreshAllData() end
-function MapDataProvider:OnCanvasSizeChanged() self:RefreshAllData() end
+-- The map calls these on every frame in some states (the gamepad cursor on the map: 50 refreshes a
+-- second were counted). Each refresh releases the pins, and with the gamepad UI the game then runs
+-- every released pin's mouse-leave, which hid any tooltip on the map. Only a real change refreshes.
+function MapDataProvider:RefreshIfCanvasChanged()
+    local w, h = WorldMapPinProvider.canvasSize(self:GetMap())
+    local key = w and h and string.format("%.1f:%.1f", w, h) or nil
+    if key and key == self.canvasKey then return end
+    self:RefreshAllData()
+end
+function MapDataProvider:OnCanvasScaleChanged() self:RefreshIfCanvasChanged() end
+function MapDataProvider:OnCanvasSizeChanged() self:RefreshIfCanvasChanged() end
 function MapDataProvider:OnHide()
     if ns.WorldMapControls then ns.WorldMapControls.panel:Hide() end
 end
