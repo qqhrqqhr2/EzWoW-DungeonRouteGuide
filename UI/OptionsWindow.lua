@@ -166,6 +166,8 @@ end
 function SettingsDialog.buildConfigWindow()
     if configFrame then return configFrame end
     local windowFrame = CreateFrame("Frame", "EzWoW_DungeonRouteGuideConfig", UIParent, "BackdropTemplate")
+    -- (taller than the screen: shrunk to fit, Libs/EzWoWGamePad)
+    if ns.GamePad and ns.GamePad.KeepOnScreen then ns.GamePad.KeepOnScreen(windowFrame) end
     windowFrame:SetSize(460, 470)
     windowFrame:SetPoint("CENTER")
     windowFrame:SetFrameStrata("FULLSCREEN_DIALOG")

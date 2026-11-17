@@ -3,6 +3,15 @@
 -- UI/WorldMapPins.lua : WorldMap Dungeon Entrance Pin Mixin & Canvas Data Provider
 --===========================================================================
 local _, ns = ...
+-- every EzWoW mark on the maps can be turned off at once, and the marks only
+-- the shared records make apart (Libs/EzWoWShare MapMarksOn / SharedMarksOn)
+local function ezMapOn(sharedOnly)
+    local share = _G.EzWoW_Share
+    local fn = type(share) == "table" and share[sharedOnly and "SharedMarksOn" or "MapMarksOn"]
+    if type(fn) ~= "function" then return true end
+    local ok, on = pcall(fn)
+    return not ok or on ~= false
+end
 local type, pairs, ipairs, tonumber, tostring, select, pcall = type, pairs, ipairs, tonumber, tostring, select, pcall
 
 -- With the gamepad UI on, the pins are made outside the map's pin pools: the map runs the
@@ -333,7 +342,7 @@ function MapDataProvider:RefreshAllData()
         local w, h = WorldMapPinProvider.canvasSize(self:GetMap())
         self.canvasKey = w and h and string.format("%.1f:%.1f", w, h) or nil
     end
-    if not ns.db or not ns.db.worldMapPins then return end
+    if not ns.db or not ns.db.worldMapPins or not ezMapOn() then return end
     local map = self:GetMap()
     local id = ns.CoerceSafeNumber(ns.UnwrapSafeValue(map.GetMapID, map))
     local apiInfo = id and WorldMapPinProvider.resolveMapInfo(id)
@@ -480,3 +489,14 @@ function ns.RefreshWorldMap()
 end
 
 _G.EzWoWRouteGuideWorldPinMixin = EzWoWRouteGuideWorldPinMixin
+
+-- the EzWoW map marks turned on or off (Libs/EzWoWShare settings window)
+do
+    local share = _G.EzWoW_Share
+    if type(share) == "table" and type(share.RegisterCallback) == "function" then
+        share.RegisterCallback("EzWoW-DungeonRouteGuide-Marks", function(kinds)
+            if type(kinds) ~= "table" or not kinds.mapMarks then return end
+            if ns.RefreshWorldMap then pcall(ns.RefreshWorldMap) end
+        end)
+    end
+end
