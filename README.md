@@ -60,6 +60,7 @@ WoW Forever (`Interface: 16001`) · `/ezdg`
 #### 그 밖의 기능
 
 - **입구 방향 화살표**: 야외에서 선택한 던전 입구까지 방향과 남은 거리를 화살표로 안내합니다(`/ezdg go`, 끄기 `/ezdg go stop`, 런처 아이콘 우클릭).
+- **추적 화살표 창**: 지도에 추적 핀이 있으면 핀 쪽을 가리키는 화살표 창이 뜹니다(X: 핀 지우기). 화살표 창은 게임 설정 > 애드온 > **EzWoW - Data Sharing**(`/ezshare`)에서 "화면의 추적 화살표 창"을 끄면 숨길 수 있습니다(지도의 핀은 그대로, 모든 EzWoW 애드온에 같이 적용).
 - **세계지도 던전 입구**: 대륙·지역 지도에 던전 입구 표식을 표시하고(이름·권장 레벨 표시는 설정에서 선택), 가까이 붙은 입구(수도원 4구역 등)는 하나로 묶습니다. 묶인 표식을 누르면 던전을 고르는 메뉴가 나옵니다. 세계지도 왼쪽 아래 **3번째 도킹 버튼**을 누르면 던전 검색 막대가 펼쳐지고, 이름을 입력해 **Enter**를 누르면 입구가 있는 지역 지도로 이동합니다(전투 중에도 동작).
 - **단축키** (게임 단축키 설정 → 애드온): 공략 창 열기/닫기, 다음 목표 완료, 현재 단계 파티 알림.
 - **EzWoW - Data**가 설치돼 있으면 그 공용 자료를 함께 씁니다. 없어도 그대로 동작합니다.
@@ -178,6 +179,7 @@ A dungeon route guide. **35 dungeons and 56 area maps** use real minimap-tile ar
 - With **EzWoW - Data** installed its shared data is used too; without it everything still works.
 - The floors where bosses and rares were looted are gathered with other EzWoW users (record sharing) to make boss floors and lists more accurate. The sub-zone several users saw shows as “Killed in” in the step tooltip and the tip below the list, and entering it switches the map to that boss's floor.
 - **Entrance arrow**: outdoors, an arrow shows the direction and distance to the chosen dungeon entrance (`/ezdg go`, stop with `/ezdg go stop`, or right-click the launcher icon).
+- **Tracking arrow window**: while a pin is set on the map, an arrow window points to it (X clears the pin). To hide the arrow window, uncheck "Arrow window on screen" in Options > AddOns > **EzWoW - Data Sharing** (`/ezshare`); the pin on the map stays, for all EzWoW addons.
 - **World Map entrances**: entrance pins on continent and zone maps (names and recommended levels are optional in the settings); entrances close together (the four Monastery wings) are grouped, and clicking a group lets you pick the dungeon from a menu. The **3rd dock button** at the bottom-left of the World Map opens a dungeon search bar; type a name and press **Enter** to jump to the zone of its entrance (works in combat too).
 - **Key bindings** (Key Bindings → AddOns): toggle the guide, mark next done, announce the current step.
 - **Monastery wings**: the four Scarlet Monastery wings are detected automatically; if detection is slow, choose one with `/ezdg wing library` etc.
