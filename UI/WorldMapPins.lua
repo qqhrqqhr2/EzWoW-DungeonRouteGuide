@@ -243,12 +243,24 @@ function PinMixin:OnMouseEnter()
     mapPinFront().Raise(self)
     GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
     GameTooltip:SetText("EzWoW - Dungeon Route Guide", 1, 0.82, 0)
-    for _, d in ipairs(self.entries) do
-        GameTooltip:AddLine(translationHelper(d.name) .. "  |cffffffff" .. (d.levels or "") .. "|r", 1, 0.82, 0, true)
+    -- each dungeon's place line; wings that share one entrance (Dire Maul)
+    -- get it once, under all their names
+    local rows, sameSpot = {}, true
+    for i, d in ipairs(self.entries) do
         local e = WorldMapPinProvider.resolveDungeonEntrancePoint(d)
         local apiInfo = e and WorldMapPinProvider.resolveMapInfo(e.map)
-        GameTooltip:AddLine((apiInfo and ns.CoerceSafeString(apiInfo.name) or (e and translationHelper(e.zone)) or "") .. ("  %.1f, %.1f"):format(e.x, e.y), 0.8, 0.8, 0.8, true)
-        if e.note then GameTooltip:AddLine(translationHelper(e.note), 0.8, 0.8, 0.8, true) end
+        local place = e and ((apiInfo and ns.CoerceSafeString(apiInfo.name) or (e.zone and translationHelper(e.zone)) or "")
+            .. ("  %.1f, %.1f"):format(e.x, e.y)) or nil
+        local note = e and e.note and translationHelper(e.note) or nil
+        rows[i] = { d = d, place = place, note = note }
+        if i > 1 and (place ~= rows[1].place or note ~= rows[1].note) then sameSpot = false end
+    end
+    for i, row in ipairs(rows) do
+        GameTooltip:AddLine(translationHelper(row.d.name) .. "  |cffffffff" .. (row.d.levels or "") .. "|r", 1, 0.82, 0, true)
+        if not sameSpot or i == #rows then
+            if row.place then GameTooltip:AddLine(row.place, 0.8, 0.8, 0.8, true) end
+            if row.note then GameTooltip:AddLine(row.note, 0.8, 0.8, 0.8, true) end
+        end
     end
     if L.WORLD_PIN_CLICK then GameTooltip:AddLine(L.WORLD_PIN_CLICK, 0.5, 0.8, 1, true) end
     GameTooltip:Show()
