@@ -1,7 +1,7 @@
-# v2.0.28
+# v2.0.29
 
 ### 한국어
-- 세계 지도에서 혈투의 전장 입구 툴팁에 같은 좌표가 날개마다 반복되던 것을 한 번만 보여 줍니다.
+- 접속 직후 공유용 채널이 공개 채널의 번호(1번)를 차지할 수 있던 문제를 고쳤습니다.
 
 ### English
-- The World Map entrance tooltip of Dire Maul shows the shared location once instead of once per wing.
+- Fixed the data-sharing channel possibly taking General's number (1) right after login.
