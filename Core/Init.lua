@@ -176,10 +176,11 @@ local function mergeDungeon(d, sd)
         for _, k in ipairs(STEP_FIELDS) do s[k] = nil end
         for k, v in pairs(row) do s[k] = v end
         if type(s.name) == "table" then sharedStepNames[s.name] = true end
-        -- same rule as Data/MinimapData.lua: a step without a map spot is unconfirmed
+        -- same rule as Data/MinimapData.lua: a step without a map spot is unconfirmed; so is one whose spot is
+        -- only an estimate (approx: marked where it is said to be, e.g. somewhere in a cave)
         if d.bliz and s.kind ~= "fork" and not s.outside then
             local p = d.bliz.steps and d.bliz.steps[s.id]
-            s.unconfirmed = not (p and p.pos) or nil
+            s.unconfirmed = (not (p and p.pos) or p.approx) and true or nil
         end
         d.steps[i] = s
     end

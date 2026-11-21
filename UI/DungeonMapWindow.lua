@@ -1105,21 +1105,27 @@ plotFloors = function(d, page)
         floorNext.hasNext = false
         floorNext:Hide()
     end
+    -- a long floor name must not run under the "next / N left" tag at the row's right: widen the list to fit
     local w = math.max(220, btnW)
-    floorList:SetSize(w, #pages * 20 + 8)
     for entryKey, p in ipairs(pages) do
         local rowEntry = DungeonRouteWindow.resolveFloorRow(entryKey)
         if rowEntry then
             rowEntry.key = p.key
-            rowEntry:SetWidth(w - 12)
             rowEntry.text:SetText((p == page and "|cff55ff55> |r" or "") .. entryKey .. ". " .. DungeonRouteWindow.resolvePageName(p, entryKey))
             if p == page then rowEntry.text:SetTextColor(1, 0.82, 0) else rowEntry.text:SetTextColor(1, 1, 1) end
             local tag = {}
             if p.key == nextPage then tag[#tag + 1] = "|cffea837e" .. L.AREA_NEXT .. "|r" end
             if left[p.key] then tag[#tag + 1] = L.AREA_LEFT:format(left[p.key]) end
             rowEntry.tag:SetText(table.concat(tag, " · "))
+            local need = DungeonRouteWindow.getSafeStringWidth(rowEntry.text, 150) + DungeonRouteWindow.getSafeStringWidth(rowEntry.tag, 0) + 32
+            if need > w then w = math.floor(need + 0.5) end
             rowEntry:Show()
         end
+    end
+    floorList:SetSize(w, #pages * 20 + 8)
+    for entryKey = 1, #pages do
+        local rowEntry = DungeonRouteWindow.resolveFloorRow(entryKey)
+        if rowEntry then rowEntry:SetWidth(w - 12) end
     end
     for subIndex = #pages + 1, #floorRows do floorRows[subIndex]:Hide() end
 end

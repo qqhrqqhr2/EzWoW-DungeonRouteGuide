@@ -33,6 +33,15 @@ local AREAS = {
     main = { "Chamber of Atonement", "속죄의 방", "Forlorn Cloister", "버려진 회랑", "The Graveyard", "묘지" },
     crypt = { "Honor's Tomb", "명예의 무덤", "Crypt", "납골당" },
   },
+  drowned = {
+    main = { "Sunken Hollow", "가라앉은 공동", "Flooded Shrine", "침수된 제단", "Deep Archives", "심층 기록 보관소", "Altar of the Serpent", "뱀의 제단", "Eternal Amphitheater", "영원의 투기장", "Abyssal Dais", "심연의 연단", "The Unsinkable", "가라앉지 않는 터전" },
+    ataal = { "Ataal'Byzal", "Atal'Byzal", "아탈바이잘" },
+  },
+  -- the great cave's levels have no sub-zone name of their own (the game shows "Blackmaw Hold")
+  blackmaw = {
+    main = { "Defiled Peak", "더럽혀진 봉우리", "Blackmaw Grove", "검은아귀 숲", "Blackmaw Stillwater", "검은아귀 호수", "Bonesnout's Thicket", "해골주둥이의 숲" },
+    grotto = { "Festering Grotto", "썩어가는 소굴" },
+  },
   dala = {
     sewers = { "The Underbelly", "마법사 구역 지하", "Dalaran Sewers", "달라란 하수도", "The Sewers", "하수도", "Cantrips & Crows", "마법과 까마귀 여관" },
     main = { "Krasus' Landing", "크라서스 착륙장", "The Violet Hold", "보랏빛 요새", "The Violet Citadel", "보랏빛 성채", "Antonidas Memorial", "안토니다스 기념비", "Runeweaver Square", "룬매듭 광장", "The Magus Commerce Exchange", "마법사 거래소", "The Eventide", "황혼의 제단", "Sunreaver's Sanctuary", "선리버 성소", "The Silver Enclave", "은빛 자치구", "Purple Parlor", "보랏빛 응접실" },
