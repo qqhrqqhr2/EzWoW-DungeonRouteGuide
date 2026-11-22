@@ -956,7 +956,13 @@ EVENT_DISPATCH_TABLE.GET_ITEM_INFO_RECEIVED = function(itemID, success)
     if entityID and success == false then ns.itemMissing[entityID] = true end
     if itemRefreshQueued or not (C_Timer and C_Timer.After) then return end
     itemRefreshQueued = true
-    C_Timer.After(0.3, function() itemRefreshQueued = false; if ns.RefreshMap then ns.RefreshMap() end end)
+    C_Timer.After(0.3, function()
+        itemRefreshQueued = false
+        if ns.RefreshMap then ns.RefreshMap() end
+        -- an open step tooltip waiting for loot names: built again with them
+        local W = ns.DungeonRouteWindow
+        if W and W.refreshStepTooltip then W.refreshStepTooltip() end
+    end)
 end
 local questRefreshQueued = false
 EVENT_DISPATCH_TABLE.QUEST_LOG_UPDATE = function()

@@ -267,8 +267,24 @@ function DungeonRouteWindow.zoomMap(delta)
     ns.RefreshMap(true)
 end
 
+-- The step tooltip open now. While loot names are still loading it is built again when they
+-- arrive and every half second while it is open: it stood at "#id loading" until the
+-- mouse moved (2026-11-22).
+local shownTip, tipToken = nil, 0
+function DungeonRouteWindow.refreshStepTooltip(token)
+    local t = shownTip
+    if not t or (token and t.token ~= token) then return end
+    local owner = t.owner
+    if not (GameTooltip:IsShown() and GameTooltip:GetOwner() == owner and owner:IsVisible() and owner:IsMouseOver()) then
+        shownTip = nil
+        return
+    end
+    if owner.index ~= nil and owner.index ~= t.index then shownTip = nil; return end
+    DungeonRouteWindow.stepTooltip(owner, t.d, t.index)
+end
 function DungeonRouteWindow.stepTooltip(owner, d, index)
     local step = d.steps[index]
+    local loading = false
     GameTooltip:SetOwner(owner, "ANCHOR_RIGHT")
     GameTooltip:SetText(ns.ResolveRouteStepDisplayTitle(d, index), 1, 0.82, 0)
     local kind = L["KIND_" .. step.kind] or step.kind
@@ -292,10 +308,19 @@ function DungeonRouteWindow.stepTooltip(owner, d, index)
             local displayName, _, priorityQueue, iconTex = ns.ItemInfo(entityID)
             local textureRegion = iconTex and ("|T" .. iconTex .. ":14:14|t ") or ""
             GameTooltip:AddLine(textureRegion .. (displayName and (ns.QualityHex(priorityQueue) .. displayName .. "|r") or ("|cff888888#" .. entityID .. " " .. L.LOADING .. "|r")))
+            if not displayName then loading = true end
         end
     end
     GameTooltip:AddLine(L.CLICK_HINT, 0.5, 0.8, 1, true)
     GameTooltip:Show()
+    -- kept up to date while it is open and a name is still loading; stops once all are in,
+    -- or when the mouse leaves (refreshStepTooltip checks the owner)
+    tipToken = tipToken + 1
+    local token = tipToken
+    shownTip = loading and { owner = owner, d = d, index = index, token = token } or nil
+    if shownTip and C_Timer and C_Timer.After then
+        C_Timer.After(0.5, function() DungeonRouteWindow.refreshStepTooltip(token) end)
+    end
 end
 
 function DungeonRouteWindow.stepClick(d, index, button)
