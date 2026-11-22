@@ -905,7 +905,7 @@ local EVENTS = {
     "ADDON_LOADED", "PLAYER_LOGIN", "PLAYER_LOGOUT", "PLAYER_ENTERING_WORLD",
     "ZONE_CHANGED_NEW_AREA", "ZONE_CHANGED", "ZONE_CHANGED_INDOORS",
     "PLAYER_TARGET_CHANGED", "UNIT_HEALTH", "NAME_PLATE_UNIT_ADDED",
-    "LOOT_OPENED", "ENCOUNTER_END", "BOSS_KILL", "UPDATE_MOUSEOVER_UNIT", "UNIT_TARGET", "CHAT_MSG_SYSTEM", "GET_ITEM_INFO_RECEIVED",
+    "LOOT_OPENED", "ENCOUNTER_END", "BOSS_KILL", "UPDATE_MOUSEOVER_UNIT", "UNIT_TARGET", "CHAT_MSG_SYSTEM", "GET_ITEM_INFO_RECEIVED", "ITEM_DATA_LOAD_RESULT",
     "PLAYER_REGEN_DISABLED", "PLAYER_REGEN_ENABLED",
     "QUEST_LOG_UPDATE", "QUEST_ACCEPTED", "QUEST_TURNED_IN", "QUEST_REMOVED",
 }
@@ -950,6 +950,8 @@ EVENT_DISPATCH_TABLE.PLAYER_TARGET_CHANGED = DungeonProgressTracker.refreshTarge
 EVENT_DISPATCH_TABLE.UNIT_HEALTH = function(unit) if unitState.current and DungeonProgressTracker.isNpcTrackedInDungeon(unit) then DungeonProgressTracker.verifyUnitDeath(unit) end end
 EVENT_DISPATCH_TABLE.NAME_PLATE_UNIT_ADDED = function(unit) DungeonProgressTracker.noteInstance(unit); DungeonProgressTracker.resolveRareAlert(unit); DungeonProgressTracker.verifyUnitDeath(unit) end
 EVENT_DISPATCH_TABLE.LOOT_OPENED = DungeonProgressTracker.verifyLoot
+-- (C_Item.RequestLoadItemDataByID answers only with ITEM_DATA_LOAD_RESULT on this client, 2026-11-22)
+EVENT_DISPATCH_TABLE.ITEM_DATA_LOAD_RESULT = function(...) return EVENT_DISPATCH_TABLE.GET_ITEM_INFO_RECEIVED(...) end
 local itemRefreshQueued = false
 EVENT_DISPATCH_TABLE.GET_ITEM_INFO_RECEIVED = function(itemID, success)
     local entityID = ns.CoerceSafeNumber(itemID)
