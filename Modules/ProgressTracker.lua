@@ -27,7 +27,7 @@ local DEFAULTS = {
     mapSize = 380, showList = true, listTab = "route",
     locked = false, autoOpen = true, hud = true, rareAlert = true, showIcon = true, lang = "auto",
     worldMapPins = true,
-    worldMapLabels = false, worldMapLevels = true, worldMapAutoAlign = true,
+    worldMapLabels = false, worldMapLevels = true, worldMapAutoAlign = true, mapKeyInDungeon = true,
     mapStyle = "blizzard",
     routes = {}, entrances = {}, frames = {}, names = {}, floorAreas = {},
 }
@@ -1014,6 +1014,57 @@ end)
 function EzWoW_DungeonRouteGuide_Toggle() if ns.ToggleMap then ns.ToggleMap() end end
 function EzWoW_DungeonRouteGuide_MarkNext() ns.CompleteNextRouteStep() end
 function EzWoW_DungeonRouteGuide_Announce() ns.BroadcastCurrentStepToChat() end
+
+-----------------------------------------------------------------------------
+-- In a dungeon this addon knows, the game's map key (M by default) opens and closes the
+-- route map instead of the world map (2026-11-23, user). An override binding owned by this
+-- addon is set while inside and cleared outside; bindings cannot change in combat, so a
+-- change made then waits for the end of the fight. Other keys (Shift+M...) stay the game's.
+-----------------------------------------------------------------------------
+local mapKeyButton = CreateFrame("Button", "EzWoW_DungeonRouteGuideMapKey", UIParent)
+mapKeyButton:SetSize(1, 1)
+mapKeyButton:SetPoint("TOPLEFT", UIParent, "TOPLEFT", -10, 10)
+mapKeyButton:EnableMouse(false)
+mapKeyButton:SetScript("OnClick", function() if ns.ToggleMap then ns.ToggleMap() end end)
+local mapKeysSet = ""   -- keys bound to the button now ("M", "M,TAB"...); "" = none
+
+-- the keys wanted now: the world map's keys (M when it has none) inside a known dungeon
+function DungeonProgressTracker.wantedMapKeys()
+    if not ns.db or ns.db.mapKeyInDungeon == false then return "" end
+    local okList, list = pcall(ns.DungeonCandidates)
+    if not okList or type(list) ~= "table" or #list == 0 then return "" end
+    local keys = {}
+    if type(GetBindingKey) == "function" then
+        for _, key in ipairs({ GetBindingKey("TOGGLEWORLDMAP") }) do
+            if type(key) == "string" and key ~= "" then keys[#keys + 1] = key end
+        end
+    end
+    if #keys == 0 then keys[1] = "M" end
+    return table.concat(keys, ",")
+end
+
+function ns.UpdateDungeonMapKey()
+    local want = DungeonProgressTracker.wantedMapKeys()
+    if want == mapKeysSet then return end
+    if InCombatLockdown and InCombatLockdown() then return end   -- PLAYER_REGEN_ENABLED tries again
+    ClearOverrideBindings(mapKeyButton)
+    for key in want:gmatch("[^,]+") do
+        SetOverrideBindingClick(mapKeyButton, true, key, "EzWoW_DungeonRouteGuideMapKey")
+    end
+    mapKeysSet = want
+end
+
+local mapKeyEvents = CreateFrame("Frame")
+for _, event in ipairs({ "PLAYER_ENTERING_WORLD", "ZONE_CHANGED_NEW_AREA", "UPDATE_BINDINGS", "PLAYER_REGEN_ENABLED" }) do
+    pcall(mapKeyEvents.RegisterEvent, mapKeyEvents, event)
+end
+mapKeyEvents:SetScript("OnEvent", function(_, event)
+    pcall(ns.UpdateDungeonMapKey)
+    -- (the instance may be known only a moment after the loading screen)
+    if event == "PLAYER_ENTERING_WORLD" and C_Timer and C_Timer.After then
+        C_Timer.After(2, function() pcall(ns.UpdateDungeonMapKey) end)
+    end
+end)
 
 function DungeonProgressTracker.printDebugMessage()
     local name, itype, itemIDVal = ns.InstanceInfo()

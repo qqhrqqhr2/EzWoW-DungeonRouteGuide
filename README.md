@@ -81,6 +81,7 @@ WoW Forever (`Interface: 16001`) · `/ezdg`
 | ③ | 세계지도에 던전 입구 / 이름 / 권장 레벨 표시 | 세계지도 표식 | 입구·권장 레벨 켬, 이름 끔 |
 | ③ | 지도 버튼 좌하단 자동 정렬 | 세계지도 도킹 버튼 정렬 | 켬 |
 | ③ | 지도 표식 위치 수동 편집 모드 | 단계를 고른 뒤 지도를 좌클릭해 표식을 옮기고, 우클릭으로 원래 자리로 되돌립니다. | 끔 |
+| ③ | 던전에서 M 키로 이 지도 열기 | 던전 안에서 지도 키(기본 M)를 누르면 게임 지도 대신 던전 지도를 열고 닫습니다. 지도는 ESC로 닫히지 않습니다. | 켬 |
 | ④ | 창 투명도 · 던전 지도 크기 | 배경 30~100%, 지도 260~620px | 90% · 380px |
 | ⑤ | 도구 | 공략 창 열기, 입구 방향 화살표 안내 시작, 현재 던전 진행도 초기화, 편집한 표식 위치 내보내기 | - |
 | ⑥ | 창·아이콘 위치 초기화 · 후원하기 | 공략 창, 화면 아이콘, 다음 목표 바, 입구 화살표, 세계지도 버튼을 처음 위치로 되돌리고 숨긴 화면 아이콘을 다시 표시 | - |
@@ -198,6 +199,7 @@ A dungeon route guide. **35 dungeons and 56 area maps** use real minimap-tile ar
 | ③ | Show dungeon entrances / names / recommended levels on World Map | World Map pins | Entrances and levels on, names off |
 | ③ | Auto-align map button (bottom-left) | World Map dock alignment | On |
 | ③ | Marker position edit mode | Pick a step, left-click the map to move its marker, right-click to restore it | Off |
+| ③ | M key opens this map in dungeons | Inside a dungeon the map key (M by default) opens and closes the route map instead of the game map. ESC does not close the map. | On |
 | ④ | Window opacity · Dungeon map size | Background 30–100%, map 260–620 px | 90% · 380 px |
 | ⑤ | Tools | Open the guide, start the entrance arrow, reset current dungeon progress, export marker edits | - |
 | ⑥ | Reset window & icon positions · Support | Moves the guide, launcher icon, objective bar, entrance arrow and World Map button back to their defaults and shows a hidden launcher icon again | - |

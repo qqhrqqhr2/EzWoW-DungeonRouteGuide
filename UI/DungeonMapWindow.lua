@@ -1159,8 +1159,8 @@ function ns.ResolveFloorEncounterWidgets() return floorBtn, floorNext, floorList
 
 function DungeonRouteWindow.createPrimaryWidget()
     containerFrame = CreateFrame("Frame", "EzWoW_DungeonRouteGuideFrame", UIParent, "BackdropTemplate")
-    -- ESC closes the route map like other windows
-    if type(UISpecialFrames) == "table" and type(tinsert) == "function" then tinsert(UISpecialFrames, "EzWoW_DungeonRouteGuideFrame") end
+    -- ESC does not close the route map (2026-11-23, user: it closed with every ESC press during a run);
+    -- it is closed with its X button or the toggle key/command
     DungeonRouteWindow.applyPanelBackdrop(containerFrame)
     containerFrame:SetFrameStrata("MEDIUM")
     containerFrame:SetClampedToScreen(true)

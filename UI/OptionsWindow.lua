@@ -359,6 +359,12 @@ function SettingsDialog.buildConfigWindow()
     createStyledCheckbox(18, -224, 180, function() return SettingsDialog.cleanColonVal(L.OPT_EDIT) end,
         function() return state.edit end, function(v) ns.SetEditMode(v) end,
         function() return L.TIP_OPT_EDIT end)
+    createStyledCheckbox(232, -224, 180, function() return L.MAP_KEY_DUNGEON end,
+        function() return ns.db.mapKeyInDungeon ~= false end, function(v)
+            ns.db.mapKeyInDungeon = v
+            if ns.UpdateDungeonMapKey then ns.UpdateDungeonMapKey() end
+        end,
+        function() return L.TIP_MAP_KEY_DUNGEON end)
 
     local alphaLbl = windowFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     alphaLbl:SetPoint("TOPLEFT", 20, -262)
