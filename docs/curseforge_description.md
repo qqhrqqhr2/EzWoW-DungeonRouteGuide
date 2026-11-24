@@ -7,7 +7,7 @@ CurseForge summary (KO): 와우 포에버 던전 공략 길잡이: 실제 던전
 
 **English** · [한국어](#한국어)
 
-A dungeon route guide for WoW Forever. **18 dungeons and 29 area maps** are drawn from real minimap art, with bosses, rares, NPCs and quest spots marked on top. Inside a dungeon it finds the dungeon and area on its own, ticks steps off as bosses die and shows the next objective. It also lists dungeon quests with minimum levels and rewards, guides you to the entrance with an arrow and marks entrances on the World Map.
+A dungeon route guide for WoW Forever. Every dungeon map is drawn from real minimap art, with bosses, rares, NPCs and quest spots marked on top. Inside a dungeon it finds the dungeon and area on its own, ticks steps off as bosses die and shows the next objective. It also lists dungeon quests with minimum levels and rewards, guides you to the entrance with an arrow and marks entrances on the World Map.
 
 ![Dungeon route window](https://raw.githubusercontent.com/qqhrqqhr2/EzWoW-DungeonRouteGuide/master/docs/images/ui_en.png)
 
@@ -18,10 +18,10 @@ A dungeon route guide for WoW Forever. **18 dungeons and 29 area maps** are draw
 ## Features
 
 ### Dungeons
-Ragefire Chasm, The Hall of Thanes, Wailing Caverns, Ruins of Lordaeron, The Deadmines, Shadowfang Keep, Blackfathom Deeps, The Stockade, Excavation Site: Wetlands, City of Dalaran, Gnomeregan, Razorfen Kraul, Scarlet Monastery (Graveyard, Library, Armory, Cathedral), Razorfen Downs and Uldaman.
+Ragefire Chasm, The Hall of Thanes, Wailing Caverns, Ruins of Lordaeron, The Deadmines, Shadowfang Keep, Blackfathom Deeps, The Stockade, Excavation Site: Wetlands, City of Dalaran, Gnomeregan, Razorfen Kraul, Scarlet Monastery (Graveyard, Library, Armory, Cathedral), The Drowned City, Razorfen Downs, Krol'dok Stronghold, Uldaman, Zul'Farrak, Maraudon, Alcaz Prison, Sunken Temple, Blackrock Depths, Blackmaw Hold, Scholomance, Stratholme (Main Gate, Service Entrance), Dire Maul (East, West, North), Blackrock Spire (Lower, Upper) and The Shaper's Terrace.
 
 ### Route window
-- Opens by itself when you enter a dungeon; elsewhere use `/ezdg` or the launcher icon.
+- Opens by itself when you enter a dungeon; elsewhere use `/ezdg` or the launcher icon. Inside a dungeon the map key (M) opens and closes it; ESC does not close it.
 - Pick any dungeon from the title list (levels shown, the one you are in is marked). **Current** returns to the dungeon you are in.
 - Map markers: numbers give the boss order, shapes and colours the type (gold skull boss, silver skull rare, NPC, quest spot, entrance, passage to another floor). Rares, NPCs and tasks get an icon, a yellow **!** marks quest targets, ✓ marks what is done and the next objective glows.
 - Random spawns show their other possible spots when selected.
@@ -76,7 +76,7 @@ Languages: English, 한국어, Deutsch, Français, Español, Русский, 简
 
 ## 한국어
 
-와우 포에버용 던전 공략 길잡이입니다. **18개 던전, 29개 지역 지도**를 실제 미니맵 그림으로 그리고, 그 위에 우두머리·희귀 몹·NPC·퀘스트 장소를 표시합니다. 던전에 들어가면 지금 던전과 지역을 알아서 찾고, 우두머리를 잡으면 자동으로 체크하며 다음 목표를 알려 줍니다. 던전 퀘스트(최소 수락 레벨, 보상), 입구 방향 화살표, 세계지도 입구 표시도 함께 제공합니다.
+와우 포에버용 던전 공략 길잡이입니다. 모든 던전 지도를 실제 미니맵 그림으로 그리고, 그 위에 우두머리·희귀 몹·NPC·퀘스트 장소를 표시합니다. 던전에 들어가면 지금 던전과 지역을 알아서 찾고, 우두머리를 잡으면 자동으로 체크하며 다음 목표를 알려 줍니다. 던전 퀘스트(최소 수락 레벨, 보상), 입구 방향 화살표, 세계지도 입구 표시도 함께 제공합니다.
 
 ![던전 공략 창](https://raw.githubusercontent.com/qqhrqqhr2/EzWoW-DungeonRouteGuide/master/docs/images/ui_ko.png)
 
@@ -87,10 +87,10 @@ Languages: English, 한국어, Deutsch, Français, Español, Русский, 简
 ## 기능
 
 ### 지원 던전
-성난불길 협곡, 영주의 전당, 통곡의 동굴, 로데론의 폐허, 죽음의 폐광, 그림자송곳니 성채, 검은심연의 나락, 스톰윈드 지하감옥, 발굴 현장: 저습지, 달라란, 놈리건, 가시덩굴 우리, 붉은십자군 수도원(묘지·도서관·무기고·대성당), 가시덩굴 구릉, 울다만.
+성난불길 협곡, 영주의 전당, 통곡의 동굴, 로데론의 폐허, 죽음의 폐광, 그림자송곳니 성채, 검은심연의 나락, 스톰윈드 지하감옥, 발굴 현장: 저습지, 달라란, 놈리건, 가시덩굴 우리, 붉은십자군 수도원(묘지·도서관·무기고·대성당), 가라앉은 도시, 가시덩굴 구릉, 크롤도크 보루, 울다만, 줄파락, 마라우돈, 알카즈 감옥, 가라앉은 사원, 검은바위 나락, 검은아귀 요새, 스칼로맨스, 스트라솔름(정문·정비용 입구), 혈투의 전장(동쪽·서쪽·북쪽), 검은바위 첨탑(하층·상층), 구체자의 정원.
 
 ### 공략 창
-- 던전에 들어가면 자동으로 열립니다. 밖에서는 `/ezdg` 또는 화면 런처 아이콘으로 엽니다.
+- 던전에 들어가면 자동으로 열립니다. 밖에서는 `/ezdg` 또는 화면 런처 아이콘으로 엽니다. 던전 안에서는 지도 키(M)로 열고 닫으며, ESC로는 닫히지 않습니다.
 - 제목을 누르면 던전 목록(권장 레벨, 지금 있는 던전 표시)에서 아무 던전이나 고를 수 있습니다. **현재 던전**은 지금 있는 던전으로 돌아옵니다.
 - 지도 표식: 숫자는 우두머리 순서, 모양·색은 종류(금색 해골 우두머리·은색 해골 희귀 몹·NPC·퀘스트 장소·입구·다른 층으로 가는 통로). 희귀 몹·NPC·할 일은 아이콘, 노란 **!**는 퀘스트 대상, ✓는 완료, 다음 목표는 빛납니다.
 - 무작위로 나오는 몹은 선택하면 다른 출현 후보 지점도 보여 줍니다.

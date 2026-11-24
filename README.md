@@ -15,7 +15,7 @@ WoW Forever (`Interface: 16001`) · `/ezdg`
 
 ### 개요
 
-던전 공략 길잡이입니다. **35개 던전, 56개 지역 지도**에 게임 미니맵 타일로 만든 실제 지도를 넣고, 그 위에 **공략 순서 · 보스 · 희귀 몹 · 퀘스트 목표 위치**를 번호로 표시합니다. 던전에 들어가면 현재 던전과 층을 알아서 찾고, 보스를 잡으면 해당 단계를 자동으로 체크합니다. 던전 퀘스트 목록(최소 수락 레벨, 보상), 야외 입구 방향 화살표, 세계지도 던전 입구 표시도 함께 제공합니다.
+던전 공략 길잡이입니다. 지원하는 모든 던전에 게임 미니맵 타일로 만든 실제 지도를 넣고, 그 위에 **공략 순서 · 보스 · 희귀 몹 · 퀘스트 목표 위치**를 번호로 표시합니다. 던전에 들어가면 현재 던전과 층을 알아서 찾고, 보스를 잡으면 해당 단계를 자동으로 체크합니다. 던전 퀘스트 목록(최소 수락 레벨, 보상), 야외 입구 방향 화살표, 세계지도 던전 입구 표시도 함께 제공합니다.
 
 | 지원 던전 (권장 레벨) | |
 |---|---|
@@ -29,7 +29,7 @@ WoW Forever (`Interface: 16001`) · `/ezdg`
 | 스트라솔름 정비용 입구 (58-60) · 혈투의 전장 동쪽 (54-60) | 혈투의 전장 서쪽 (56-60) · 북쪽 (56-60) |
 | 검은바위 첨탑 하층 (55-60) · 상층 (59-60) | 구체자의 정원 (58-60) |
 
-- 가라앉은 도시 · 크롤도크 보루 · 알카즈 감옥 · 검은아귀 요새 · 구체자의 정원은 지도, 우두머리·희귀 몹 목록(자동 체크, 전리품, 공략 메모), 일반 몹 전리품, 던전 퀘스트(보상 포함)가 있습니다. 지도 위 우두머리 위치는 아직 표시하지 않습니다(목록에 "미확인").
+- 새 던전 5곳(가라앉은 도시 · 크롤도크 보루 · 알카즈 감옥 · 검은아귀 요새 · 구체자의 정원)도 다른 던전처럼 지도 위 우두머리 위치, 목록(자동 체크, 전리품, 공략 메모), 일반 몹 전리품, 던전 퀘스트(보상 포함)가 있습니다. 검은아귀 요새의 희귀 몹 땅굴그물 어미만 대략적인 위치입니다.
 
 ### 화면 미리보기
 
@@ -50,7 +50,7 @@ WoW Forever (`Interface: 16001`) · `/ezdg`
 | 번호 | 부분 | 설명 |
 |---|---|---|
 | ① | 다음 목표 바 (HUD) | 던전 안에서 **다음 목표와 진행도(처치한 우두머리/전체)**, 짧은 공략 메모를 보여 줍니다. **지도** 버튼은 공략 창을 열고, **파티 알림**은 현재 단계를 파티 채팅에 알립니다. |
-| ② | 던전 선택 | 제목(던전 이름)을 누르면 35개 던전 목록(권장 레벨, 지금 있는 던전 표시)이 열립니다. **현재 던전**은 지금 있는 던전 지도로 돌아오고, **목록**은 오른쪽 목록을 접고 펼치며, **설정**은 설정창을 엽니다. 지역(지도)이 여러 개인 던전은 지도 왼쪽 위에 **지역 선택** 버튼(남은 목표 수 표시)과 **다음 목표 → 지역** 바로가기가 나타납니다. |
+| ② | 던전 선택 | 제목(던전 이름)을 누르면 던전 목록(권장 레벨, 지금 있는 던전 표시)이 열립니다. **현재 던전**은 지금 있는 던전 지도로 돌아오고, **목록**은 오른쪽 목록을 접고 펼치며, **설정**은 설정창을 엽니다. 지역(지도)이 여러 개인 던전은 지도 왼쪽 위에 **지역 선택** 버튼(남은 목표 수 표시)과 **다음 목표 → 지역** 바로가기가 나타납니다. |
 | ③ | 지도 | 숫자 = 우두머리 순서, 모양·색 = 종류(금색 해골 우두머리 · 은색 해골 희귀 몹 · 파랑 NPC · 노랑 퀘스트 장소 · 초록 입구 · 다른 층으로 가는 통로). 희귀 몹·NPC·할 일은 번호 대신 아이콘, 노란 **!** = 퀘스트 대상, ✓ = 완료, 빛나는 표식 = 다음 목표. 무작위로 나오는 몹은 선택하면 다른 출현 후보 지점(작은 원)을 함께 보여 줍니다. **마우스 휠**로 확대, 확대 상태에서 **끌어서** 이동, **전체** 버튼으로 다시 맞춤. 표식을 누르면 상세 카드가 열리고, 파란 번호(지역 연결)를 누르면 연결된 지역 지도로 이동합니다. |
 | ④ | 경로 / 퀘스트 / 준비 탭 | **경로**: 단계 목록(좌클릭 선택, 우클릭 완료 표시 전환), 맨 아래 **일반 몹** 줄을 누르면 일반 몹 드랍 목록. **퀘스트**: 이 던전 퀘스트의 시작·목표·보상, **최소 수락 레벨**(레벨이 부족하면 빨간색), 진행 상태. 좌클릭하면 던전 안 목표 위치, 우클릭하면 EzWoW-MapFinder로 세계지도 시작 위치를 찾습니다. **준비**: 입장 열쇠, 진영 주의사항(예: 달라란 호드 적대 경보), 추천 준비물. |
 | ⑤ | 자동 체크 | 우두머리를 처치하면 그 단계가 ✓로 바뀌고 다음 목표가 **노란색**으로 강조됩니다. 목록 아래에 고른 단계의 공략 메모와 전리품 아이콘이 나옵니다. 새 인스턴스에 들어가면 진행이 자동으로 초기화됩니다. |
@@ -133,7 +133,7 @@ WoW Forever (`Interface: 16001`) · `/ezdg`
 
 ### Overview
 
-A dungeon route guide. **35 dungeons and 56 area maps** use real minimap-tile art, with the **route order, bosses, rares and quest spots** numbered on top. Inside a dungeon it detects the dungeon and floor, and ticks steps off automatically as bosses die. It also lists dungeon quests (minimum level, rewards), shows an outdoor arrow to the entrance and marks entrances on the World Map.
+A dungeon route guide. Every supported dungeon has a real minimap-tile map, with the **route order, bosses, rares and quest spots** numbered on top. Inside a dungeon it detects the dungeon and floor, and ticks steps off automatically as bosses die. It also lists dungeon quests (minimum level, rewards), shows an outdoor arrow to the entrance and marks entrances on the World Map.
 
 | Dungeons (levels) | |
 |---|---|
@@ -147,7 +147,7 @@ A dungeon route guide. **35 dungeons and 56 area maps** use real minimap-tile ar
 | Stratholme - Service Entrance (58-60) · Dire Maul - East (54-60) | Dire Maul - West (56-60) · North (56-60) |
 | Lower Blackrock Spire (55-60) · Upper (59-60) | The Shaper's Terrace (58-60) |
 
-- The Drowned City, Krol'dok Stronghold, Alcaz Prison, Blackmaw Hold and The Shaper's Terrace have their map, boss and rare list (auto check, loot, tips), trash loot and dungeon quests (with rewards); boss spots on the map are not shown yet ("unconfirmed" in the list).
+- The five new dungeons (The Drowned City, Krol'dok Stronghold, Alcaz Prison, Blackmaw Hold, The Shaper's Terrace) have boss spots on the map like the others, plus the boss and rare list (auto check, loot, tips), trash loot and dungeon quests (with rewards). Only the Blackmaw Hold rare Tunnelweb Matriarch has an approximate spot.
 
 ### Screenshots
 
@@ -168,7 +168,7 @@ A dungeon route guide. **35 dungeons and 56 area maps** use real minimap-tile ar
 | No. | Part | Description |
 |---|---|---|
 | ① | Next-objective bar (HUD) | Inside a dungeon: **next objective and progress (bosses killed / total)** with a short tip. **Map** opens the guide, **Tell party** posts the current step to party chat. |
-| ② | Pick a dungeon | Click the title for the list of 35 dungeons (with levels; the one you are in is marked). **Current** returns to the dungeon you are in, **List** toggles the side list, **Options** opens settings. Dungeons with several areas (maps) get an **area** button at the top-left of the map (with objectives left) and a **Next objective → area** shortcut. |
+| ② | Pick a dungeon | Click the title for the dungeon list (with levels; the one you are in is marked). **Current** returns to the dungeon you are in, **List** toggles the side list, **Options** opens settings. Dungeons with several areas (maps) get an **area** button at the top-left of the map (with objectives left) and a **Next objective → area** shortcut. |
 | ③ | Map | Number = boss order, shape and colour = type (gold skull boss · silver skull rare · blue NPC · yellow quest spot · green entrance · passage to another floor). Rares, NPCs and tasks show an icon instead of a number, yellow **!** = quest target, ✓ = done, glowing marker = next objective. Selecting a random spawn also shows its other possible spots (small rings). **Mouse wheel** zooms, **drag** to pan when zoomed, **Fit** resets. Click a marker for its detail card; click a blue link number to jump to the connected area. |
 | ④ | Route / Quests / Prep tabs | **Route**: step list (left-click select, right-click toggle done); the **Trash mobs** row at the bottom opens the trash-drop list. **Quests**: start, objective and rewards for each dungeon quest, **minimum level** (red when too low) and status. Left-click shows the in-dungeon objective, right-click finds the quest start on the World Map with EzWoW-MapFinder. **Prep**: keys, faction warnings (e.g. Horde hostility in Dalaran), suggested supplies. |
 | ⑤ | Auto check | Killing a boss ticks its step and highlights the next one in **yellow**. The selected step's tip and loot icons appear below the list. Progress resets automatically on a new instance. |

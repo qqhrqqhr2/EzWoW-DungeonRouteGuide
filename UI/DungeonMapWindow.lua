@@ -40,6 +40,10 @@ end
 local SKULL = "Interface\\TargetingFrame\\UI-RaidTargetingIcon_8"
 local SKULL_COLOR = { ["skull-gold"] = { 1, 0.78, 0.18 }, ["skull-silver"] = { 0.80, 0.84, 0.92 } }
 ns.SKULL_TEXTURE, ns.SKULL_COLOR = SKULL, SKULL_COLOR
+-- size of a step's icon on the map; the skulls a little smaller (2026-11-25, user: the skulls were too big on
+-- the maps, most of all on a big page like Blackrock Depths' one page)
+local MAP_MARK_SIZE, MAP_SKULL_SIZE = 20, 16
+DungeonRouteWindow.MAP_MARK_SIZE, DungeonRouteWindow.MAP_SKULL_SIZE = MAP_MARK_SIZE, MAP_SKULL_SIZE
 ns.MARK_ATLAS = MARK_ATLAS
 local atlasOk = {}
 function DungeonRouteWindow.setMarkAtlas(tex, name)
@@ -478,6 +482,19 @@ end
 -----------------------------------------------------------------------------
 -- Build Picker
 -----------------------------------------------------------------------------
+-- The list is as wide as the dungeon box above it (2026-11-25, user: make the list the box's width); the box
+-- follows the map width. Never under PICKER_MIN_W, so the names still fit when the window is very narrow.
+local PICKER_MIN_W = 200
+function DungeonRouteWindow.pickerWidth(boxWidth)
+    local w = tonumber(boxWidth) or 0
+    return math.max(PICKER_MIN_W, math.floor(w + 0.5))
+end
+function DungeonRouteWindow.fitPickerWidth()
+    if not (picker and dropdown) then return end
+    local w = DungeonRouteWindow.pickerWidth(dropdown:GetWidth())
+    picker:SetWidth(w)
+    for _, buttonWidget in ipairs(picker.buttons or {}) do buttonWidget:SetWidth(w - 12) end
+end
 function DungeonRouteWindow.buildPicker()
     picker = CreateFrame("Frame", nil, containerFrame, "BackdropTemplate")
     DungeonRouteWindow.applyPanelBackdrop(picker, 0.97)
@@ -503,6 +520,7 @@ function DungeonRouteWindow.buildPicker()
         picker.buttons[entryKey] = buttonWidget
     end
     picker:SetScript("OnShow", function()
+        DungeonRouteWindow.fitPickerWidth()
         for entryKey, d in ipairs(ns.Dungeons) do
             local buttonWidget = picker.buttons[entryKey]
             buttonWidget.text:SetText((d == unitState.current and "|cff55ff55> |r" or "") .. translationHelper(d.name))
@@ -946,6 +964,7 @@ function DungeonRouteWindow.layoutWindowRegions()
         local used = 16
         for _, btn in ipairs(DungeonRouteWindow.headerButtons) do used = used + (btn:GetWidth() or 0) end
         dropdown:SetWidth(math.max(120, math.min(CW, w - PAD - PAD - used)))
+        if picker and picker:IsShown() then DungeonRouteWindow.fitPickerWidth() end
     end
     legend:ClearAllPoints()
     legend:SetPoint("TOPLEFT", canvasFrame, "BOTTOMLEFT", 0, -3)
@@ -1692,8 +1711,11 @@ function DungeonRouteWindow.plotMarkers(d, page, nextIndex, sc)
             
             local bnVal, icVal = ns.ResolveBossEncounterOrderIndex(d, index), ns.ResolveStepCategoryIcon(step)
             local presentBadge = step.quest and not done and step.kind ~= "object" and step.kind ~= "task"
-            local useAtlas = DungeonRouteWindow.setMarkAtlas(matchRef.mark, DungeonRouteWindow.markAtlasFor(step))
+            local markAtlas = DungeonRouteWindow.markAtlasFor(step)
+            local useAtlas = DungeonRouteWindow.setMarkAtlas(matchRef.mark, markAtlas)
             if useAtlas then
+                local markSize = SKULL_COLOR[markAtlas] and MAP_SKULL_SIZE or MAP_MARK_SIZE
+                matchRef.mark:SetSize(markSize, markSize); matchRef.back:SetSize(markSize, markSize)
                 -- game map icon; the number sits at its corner, a quest on it shows the game's quest mark
                 matchRef.mark:SetDesaturated(done and true or false)
                 if done then matchRef.mark:SetVertexColor(0.6, 0.6, 0.6, 1) end
@@ -2260,7 +2282,10 @@ function ns.RefreshMap(mapOnly)
     currentBtn:SetAlpha(away and 1 or 0.45)
     if not mapOnly and ns.db.showList then
         local done, grandTotal = ns.ComputeDungeonProgressCounts(d)
-        progressText:SetText(("|TInterface\\TargetingFrame\\UI-TargetingFrame-Skull:12:12|t %d/%d"):format(done, grandTotal))
+        -- the same gold skull as the map marks and the route list (2026-11-25, user: this one was another skull)
+        local gold = SKULL_COLOR["skull-gold"]
+        progressText:SetText(("|T%s:12:12:0:0:64:64:0:64:0:64:%d:%d:%d|t %d/%d"):format(SKULL,
+            gold[1] * 255, gold[2] * 255, gold[3] * 255, done, grandTotal))
         local tab = ns.db.listTab
         if tab == "quest" then DungeonRouteWindow.plotQuestList(d) elseif tab == "notes" then DungeonRouteWindow.plotNotes(d) else DungeonRouteWindow.plotRouteList(d, nextIndex) end
         tabRoute:SetAlpha((tab ~= "quest" and tab ~= "notes") and 1 or 0.55)
