@@ -1101,7 +1101,7 @@ ns.Dungeons = {
     key = "lbrs", slug = "lower-blackrock-spire", levels = "55-60",
     name = { ko = "검은바위 첨탑 하층", en = "Lower Blackrock Spire", de = "Untere Schwarzfelsspitze", fr = "Bas du pic Rochenoire", es = "Cumbre de Roca Negra Inferior", ru = "Нижняя часть пика Черной горы", zhCN = "黑石塔下层", zhTW = "黑石塔下層" },
     instanceIDs = { 229 }, nameMatch = { "검은바위 첨탑 하층", "Lower Blackrock Spire", "Нижняя часть пика Черной горы", "黑石塔下层", "黑石塔下層" },
-    subzones = { "호드마르 도시", "그물걸이 통로", "할리콘의 둥지", "타즈알로", "Hordemar City", "Skitterweb Tunnels", "Halycon's Lair", "Tazz'Alaor" },
+    subzones = { "호드마르 도시", "그물걸이 통로", "할리콘의 둥지", "타즈알라올", "모크둠", "창고", "전투의 방", "Hordemar City", "Skitterweb Tunnels", "Halycon's Lair", "Tazz'Alaor", "Mok'Doom", "The Storehouse", "Chamber of Battle" },
     entrance = { map = 1428, x = 29.0, y = 38.0, zone = { ko = "검은바위 산 위쪽(불타는 평원 북서쪽에서 입장)", en = "Upper Blackrock Mountain (enter from northwest Burning Steppes)" } },
     steps = {
       { id = "s1", n = "1", kind = "npc", quest = true, npc = { 10299 }, name = { ko = "방패부대 첩보원", en = "Scarshield Infiltrator" }, quests = { 4742 }, tip = { ko = "입구 문 위 난간. 인장을 가진 사람에게 상층 열쇠 퀘스트를 줍니다. 보석 셋을 모아 다시 옵니다.", en = "On the ledge above the entrance; gives the upper-spire key quest. Bring the three gems back here." } },
