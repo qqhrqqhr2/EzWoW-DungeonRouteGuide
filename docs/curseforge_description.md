@@ -9,9 +9,9 @@ CurseForge summary (KO): 와우 포에버 던전 공략 길잡이: 실제 던전
 
 A dungeon route guide for WoW Forever. Every dungeon map is drawn from real minimap art, with bosses, rares, NPCs and quest spots marked on top. Inside a dungeon it finds the dungeon and area on its own, ticks steps off as bosses die and shows the next objective. It also lists dungeon quests with minimum levels and rewards, guides you to the entrance with an arrow and marks entrances on the World Map.
 
-![Dungeon route window](https://raw.githubusercontent.com/qqhrqqhr2/EzWoW-DungeonRouteGuide/master/docs/images/ui_en.png)
+![Dungeon route window](https://raw.githubusercontent.com/ezwow-addons/EzWoW-DungeonRouteGuide/master/docs/images/ui_en.png)
 
-![Settings window](https://raw.githubusercontent.com/qqhrqqhr2/EzWoW-DungeonRouteGuide/master/docs/images/settings_en.png)
+![Settings window](https://raw.githubusercontent.com/ezwow-addons/EzWoW-DungeonRouteGuide/master/docs/images/settings_en.png)
 
 *In-game screenshots with the addon set to English. The game client is Korean, so game text such as zone, item and spell names stays Korean. Character and player names and chat text are blurred.*
 
@@ -78,9 +78,9 @@ Languages: English, 한국어, Deutsch, Français, Español, Русский, 简
 
 와우 포에버용 던전 공략 길잡이입니다. 모든 던전 지도를 실제 미니맵 그림으로 그리고, 그 위에 우두머리·희귀 몹·NPC·퀘스트 장소를 표시합니다. 던전에 들어가면 지금 던전과 지역을 알아서 찾고, 우두머리를 잡으면 자동으로 체크하며 다음 목표를 알려 줍니다. 던전 퀘스트(최소 수락 레벨, 보상), 입구 방향 화살표, 세계지도 입구 표시도 함께 제공합니다.
 
-![던전 공략 창](https://raw.githubusercontent.com/qqhrqqhr2/EzWoW-DungeonRouteGuide/master/docs/images/ui_ko.png)
+![던전 공략 창](https://raw.githubusercontent.com/ezwow-addons/EzWoW-DungeonRouteGuide/master/docs/images/ui_ko.png)
 
-![설정창](https://raw.githubusercontent.com/qqhrqqhr2/EzWoW-DungeonRouteGuide/master/docs/images/settings_ko.png)
+![설정창](https://raw.githubusercontent.com/ezwow-addons/EzWoW-DungeonRouteGuide/master/docs/images/settings_ko.png)
 
 *실제 게임 화면입니다(WoW Forever, 한국어 클라이언트). 캐릭터 · 다른 플레이어 이름과 채팅 내용은 가렸습니다.*
 
