@@ -11,7 +11,13 @@ local unitState = ns.state
 
 local HEADER, PAD, LISTW = 28, 6, 240
 local LIST_CONTENT_W = LISTW - PAD - 24
-local LEGEND_H, FOOT_H = 16, 14
+local FOOT_H = 14
+-- nothing sits on the map (2026-11-27 user): the floor picker goes beside the dungeon picker in the header (or on
+-- a header row of its own when that has no room), the north badge and the fit button under the map next to the
+-- legend. One legend row is LEGEND_ROW high; a narrow map wraps it.
+local FLOOR_ROW, FLOOR_MIN, LEGEND_ROW = 24, 170, 18
+-- entrance / exit door and floor change marks on the map (2026-11-27 user: smaller)
+local DOOR_SIZE, LINK_SIZE = 16, 16
 local MAP_PATH = "Interface\\AddOns\\EzWoW-DungeonRouteGuide\\Maps\\"
 local MASK = "Interface\\CharacterFrame\\TempPortraitAlphaMask"
 local CHECK = "Interface\\RaidFrame\\ReadyCheck-Ready"
@@ -149,6 +155,17 @@ function DungeonRouteWindow.getSafeFrameWidth(f, def) return ns.CoerceSafeNumber
 function DungeonRouteWindow.getSafeFrameHeight(f, def) return ns.CoerceSafeNumber(ns.UnwrapSafeValue(f and f.GetHeight, f)) or def or 0 end
 function DungeonRouteWindow.getSafeStringWidth(labelRegion, def) return ns.CoerceSafeNumber(ns.UnwrapSafeValue(labelRegion and labelRegion.GetStringWidth, labelRegion)) or def or 0 end
 function DungeonRouteWindow.getSafeStringHeight(labelRegion, def) return ns.CoerceSafeNumber(ns.UnwrapSafeValue(labelRegion and labelRegion.GetStringHeight, labelRegion)) or def or 0 end
+-- the whole text's width even when the string is cut to its frame (a label anchored on both sides)
+function DungeonRouteWindow.fullTextWidth(labelRegion, def)
+    if labelRegion and type(labelRegion.GetUnboundedStringWidth) == "function" then
+        local v = ns.CoerceSafeNumber(ns.UnwrapSafeValue(labelRegion.GetUnboundedStringWidth, labelRegion))
+        if v and v > 0 then return v end
+    end
+    return DungeonRouteWindow.getSafeStringWidth(labelRegion, def)
+end
+function DungeonRouteWindow.titleText(d)
+    return ("%s |cffaaaaaa%s|r"):format(translationHelper(d.name), d.levels or "")
+end
 
 local fitBtns = {}
 -- Grows with the label up to maxW (long German / Russian texts); beyond that the text shrinks.
@@ -339,6 +356,18 @@ function DungeonRouteWindow.stepClick(d, index, button)
         if nodeEntry and coordPos and unitState.selected then nodeEntry.x, nodeEntry.y = coordPos[1], coordPos[2] end
         ns.RefreshMap()
     end
+end
+
+-- the entrance row in the list: the entrance's map, centred on the door, its icon switched back on
+function DungeonRouteWindow.showEntrance(d)
+    local start = d and DungeonRouteWindow.resolveDungeonFloorGeometry(d).start
+    if not (start and start.pos) then return end
+    unitState.selected, unitState.cardTrash = nil, nil
+    if start.page then unitState.page, unitState.pageManual = start.page, true end
+    local nodeEntry = start.page and navigation[d.key .. "/" .. start.page]
+    if nodeEntry then nodeEntry.x, nodeEntry.y = start.pos[1], start.pos[2] end
+    if not DungeonRouteWindow.markKindShown("entrance") then DungeonRouteWindow.toggleMarkKind("entrance") end
+    ns.RefreshMap()
 end
 
 function DungeonRouteWindow.resolvePageHasArea(p, area)
@@ -598,27 +627,28 @@ end
 
 -- Entrance / exit: the game's dungeon door icon on a dark disc, with a label under it
 local DOOR_ATLAS = { "Dungeon", "poi-door-down", "poi-door" }
+local LINK_ATLAS = { "poi-door-arrow-up", "poi-door-up", "poi-door" }
 function DungeonRouteWindow.createDoorMark(labelKey, color)
     local f = CreateFrame("Frame", nil, overlay)
-    f:SetSize(22, 22)
+    f:SetSize(DOOR_SIZE, DOOR_SIZE)
     f:SetFrameLevel(overlay:GetFrameLevel() + 3)
-    f.back = DungeonRouteWindow.applyCircularMask(f, "BORDER", 24)
+    f.back = DungeonRouteWindow.applyCircularMask(f, "BORDER", DOOR_SIZE + 2)
     f.back:SetVertexColor(0, 0, 0, 0.6)
-    f.ring = DungeonRouteWindow.applyCircularMask(f, "BACKGROUND", 28)
+    f.ring = DungeonRouteWindow.applyCircularMask(f, "BACKGROUND", DOOR_SIZE + 5)
     f.ring:SetVertexColor(color[1], color[2], color[3], 0.9)
     f.icon = f:CreateTexture(nil, "ARTWORK")
-    f.icon:SetSize(18, 18); f.icon:SetPoint("CENTER", 0, 0)
+    f.icon:SetSize(DOOR_SIZE - 3, DOOR_SIZE - 3); f.icon:SetPoint("CENTER", 0, 0)
     local ok = false
     for _, name in ipairs(DOOR_ATLAS) do
         if DungeonRouteWindow.setMarkAtlas(f.icon, name) then ok = true; break end
     end
     if not ok then
         f.icon:SetColorTexture(color[1], color[2], color[3], 1)
-        f.icon:SetSize(10, 10)
+        f.icon:SetSize(8, 8)
     end
     f.text = f:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     f.text:SetPoint("TOP", f, "BOTTOM", 0, -2)
-    do local face, size = f.text:GetFont(); if face then f.text:SetFont(face, size or 12, "OUTLINE") end end
+    do local face, size = f.text:GetFont(); if face then f.text:SetFont(face, (size or 12) - 1, "OUTLINE") end end
     ns.GetLocalizedEntryField(f.text, labelKey)
     f.text:SetTextColor(color[1], color[2], color[3])
     return f
@@ -667,27 +697,26 @@ function DungeonRouteWindow.resolveLink(entryKey)
     local leftPos = links[entryKey]
     if leftPos then return leftPos end
     leftPos = CreateFrame("Button", nil, overlay)
-    leftPos:SetSize(18, 18)
     leftPos:SetFrameLevel(overlay:GetFrameLevel() + 3)
     leftPos.leader = overlay:CreateLine(nil, "ARTWORK")
     leftPos.leader:SetThickness(1); leftPos.leader:SetColorTexture(0.45,0.8,1,0.65); leftPos.leader:Hide()
-    leftPos:SetSize(22, 22)
-    leftPos.bg = DungeonRouteWindow.applyCircularMask(leftPos, "BACKGROUND", 24)
+    leftPos:SetSize(LINK_SIZE, LINK_SIZE)
+    leftPos.bg = DungeonRouteWindow.applyCircularMask(leftPos, "BACKGROUND", LINK_SIZE + 2)
     leftPos.bg:SetVertexColor(0.02, 0.06, 0.12, 0.8)
     leftPos.tex = leftPos:CreateTexture(nil, "ARTWORK")
     -- floor change: the game's door icon (arrow icon as the fallback)
     local doorOk = false
-    for _, name in ipairs({ "poi-door-arrow-up", "poi-door-up", "poi-door" }) do
+    for _, name in ipairs(LINK_ATLAS) do
         if DungeonRouteWindow.setMarkAtlas(leftPos.tex, name) then doorOk = true; break end
     end
-    if doorOk then leftPos.tex:SetSize(18, 18); leftPos.tex:SetPoint("CENTER", 0, 0)
-    else leftPos.tex:SetSize(11, 11); leftPos.tex:SetPoint("BOTTOMRIGHT", 4, -2); leftPos.tex:SetTexture(LINK_ICON) end
+    if doorOk then leftPos.tex:SetSize(LINK_SIZE - 3, LINK_SIZE - 3); leftPos.tex:SetPoint("CENTER", 0, 0)
+    else leftPos.tex:SetSize(9, 9); leftPos.tex:SetPoint("BOTTOMRIGHT", 3, -2); leftPos.tex:SetTexture(LINK_ICON) end
     leftPos.doorIcon = doorOk
     leftPos.number=leftPos:CreateFontString(nil,"OVERLAY","GameFontNormalSmall")
     leftPos.number:SetPoint("CENTER");leftPos.number:SetTextColor(0.55,0.85,1)
     leftPos.name = leftPos:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     leftPos.name:SetPoint("TOP", leftPos, "BOTTOM", 0, -1)
-    do local face, size = leftPos.name:GetFont(); if face then leftPos.name:SetFont(face, size or 12, "OUTLINE") end end
+    do local face, size = leftPos.name:GetFont(); if face then leftPos.name:SetFont(face, (size or 12) - 1, "OUTLINE") end end
     leftPos.name:SetTextColor(0.55, 0.85, 1)
     leftPos.nameBg = leftPos:CreateTexture(nil, "BORDER")
     leftPos.nameBg:SetColorTexture(0, 0, 0, 0.6)
@@ -788,7 +817,13 @@ function DungeonRouteWindow.resolveRow(entryKey)
     if rowEntry.name.SetWordWrap then rowEntry.name:SetWordWrap(true) end
     rowEntry:RegisterForClicks("LeftButtonUp", "RightButtonUp")
     rowEntry:SetScript("OnEnter", function(self)
-        if self.group then
+        if self.entrance then
+            local c = CAT.entrance
+            GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+            GameTooltip:SetText(L.LEG_ENTRANCE, c[1], c[2], c[3])
+            GameTooltip:AddLine(L.ENTRANCE_ROW_TIP, 1, 1, 1, true)
+            GameTooltip:Show()
+        elseif self.group then
             local greenVal = unitState.viewed.trashGroups[self.group]
             GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
             GameTooltip:SetText(translationHelper(greenVal.name), 1, 0.82, 0)
@@ -800,8 +835,10 @@ function DungeonRouteWindow.resolveRow(entryKey)
     end)
     rowEntry:SetScript("OnLeave", GameTooltip_Hide)
     rowEntry:SetScript("OnClick", function(self, button)
-        if self.group then
-            
+        if self.entrance then
+            DungeonRouteWindow.showEntrance(unitState.viewed)
+        elseif self.group then
+
             unitState.selected = nil
             unitState.cardTrash = (unitState.cardTrash == self.group) and nil or self.group
             ns.RefreshMap()
@@ -950,58 +987,204 @@ function DungeonRouteWindow.persistPosition()
     if cardLayout and cardLayout:IsShown() then anchorCard() end
 end
 
+-- Header buttons. With the list shown they line up with the list's tabs under them (2026-11-27 user): "current"
+-- over "route", "path" over "quests", "list" over "prep", each pair one width, then settings; only X stays at the
+-- window's right end. When the columns do not fit (long words), the buttons line up from the right as before.
+-- Returns the x where the header's button group starts.
+function DungeonRouteWindow.layoutHeaderButtons(w, CW)
+    local hb = DungeonRouteWindow.headerButtons
+    if not hb then return w - PAD end
+    local close, menuBtn, listBtn, pathBtn, cur = hb[1], hb[2], hb[3], hb[4], hb[5]
+    local cols = { { cur, tabRoute }, { pathBtn, tabQuest }, { listBtn, tabNotes } }
+    for _, c in ipairs(cols) do
+        for _, btn in ipairs(c) do if btn then DungeonRouteWindow.fitButtonWidthToLabel(btn) end end
+    end
+    local listLeft = PAD + CW + PAD
+    local widths
+    if ns.db.showList and tabRoute and tabQuest and tabNotes then
+        local need, sum = {}, 0
+        for i, c in ipairs(cols) do
+            need[i] = math.max(DungeonRouteWindow.fullTextWidth(c[1]:GetFontString(), 30),
+                DungeonRouteWindow.fullTextWidth(c[2]:GetFontString(), 30))
+            sum = sum + need[i]
+        end
+        -- the three columns, their two gaps, a gap, settings, a gap, X
+        local budget = (w - PAD) - listLeft - (menuBtn:GetWidth() or 44) - (close:GetWidth() or 22) - 8
+        local pad = 14
+        while pad > 6 and sum + 3 * pad > budget do pad = pad - 1 end
+        if sum + 3 * pad <= budget then
+            widths = {}
+            for i = 1, 3 do widths[i] = math.floor(need[i] + pad + 0.5) end
+        end
+    end
+    cur:ClearAllPoints(); pathBtn:ClearAllPoints(); listBtn:ClearAllPoints(); menuBtn:ClearAllPoints()
+    if widths then
+        cur:SetPoint("TOPLEFT", containerFrame, "TOPLEFT", listLeft, -4)
+        pathBtn:SetPoint("LEFT", cur, "RIGHT", 2, 0)
+        listBtn:SetPoint("LEFT", pathBtn, "RIGHT", 2, 0)
+        menuBtn:SetPoint("LEFT", listBtn, "RIGHT", 2, 0)
+        for i, c in ipairs(cols) do c[1]:SetWidth(widths[i]); c[2]:SetWidth(widths[i]) end
+        return listLeft
+    end
+    menuBtn:SetPoint("RIGHT", close, "LEFT", -2, 0)
+    listBtn:SetPoint("RIGHT", menuBtn, "LEFT", -2, 0)
+    pathBtn:SetPoint("RIGHT", listBtn, "LEFT", -2, 0)
+    cur:SetPoint("RIGHT", pathBtn, "LEFT", -6, 0)
+    local used = 12
+    for _, btn in ipairs(hb) do used = used + (btn:GetWidth() or 0) end
+    return w - PAD - used
+end
+
 function DungeonRouteWindow.layoutWindowRegions()
     local StyleService = ns.db.mapSize
     local d = unitState.viewed
     local entryValue = DungeonRouteWindow.viewOf(d and DungeonRouteWindow.resolveCurrentPage(d))
     local CW = math.floor(StyleService * entryValue[3] / entryValue[4] + 0.5)
     local w = math.max(360, PAD + CW + PAD + (ns.db.showList and LISTW or 0))
-    local headerBar = HEADER + StyleService + LEGEND_H + FOOT_H + 8
-    containerFrame:SetSize(w, headerBar)
-    canvasFrame:SetSize(CW, StyleService)
-    -- the dungeon picker spans the map width, but never runs under the header buttons
+    -- the dungeon picker spans the map width, but never runs under the header buttons; a dungeon with several
+    -- areas puts the floor picker right beside it, or on a header row of its own when the header has no room
+    local floors = d and #(DungeonRouteWindow.resolveDungeonFloorGeometry(d).pages or {}) >= 2
+    local floorRow, floorRoom = false, 0
+    local headerLeft = DungeonRouteWindow.layoutHeaderButtons(w, CW)
     if dropdown and DungeonRouteWindow.headerButtons then
-        local used = 16
-        for _, btn in ipairs(DungeonRouteWindow.headerButtons) do used = used + (btn:GetWidth() or 0) end
-        dropdown:SetWidth(math.max(120, math.min(CW, w - PAD - PAD - used)))
+        local room = headerLeft - 4 - PAD
+        local ddW = math.max(120, math.min(CW, room))
+        if floors then
+            if titleStr then titleStr:SetText(DungeonRouteWindow.titleText(d)) end
+            local want = math.floor(math.max(120, math.min(220, DungeonRouteWindow.fullTextWidth(titleStr, 140) + 34)))
+            want = math.min(want, ddW)
+            if room - want - 4 >= FLOOR_MIN then ddW, floorRoom = want, room - want - 4
+            else floorRow, floorRoom = true, w - PAD - PAD end
+        end
+        dropdown:SetWidth(ddW)
         if picker and picker:IsShown() then DungeonRouteWindow.fitPickerWidth() end
     end
+    if floorBtn then
+        floorBtn:ClearAllPoints()
+        if floorRow then floorBtn:SetPoint("TOPLEFT", containerFrame, "TOPLEFT", PAD, -(HEADER - 2))
+        else floorBtn:SetPoint("LEFT", dropdown, "RIGHT", 4, 0) end
+        floorBtn.room = floorRoom
+    end
+    local top = HEADER + (floorRow and FLOOR_ROW or 0)
+    local legendH = DungeonRouteWindow.layoutLegend(CW)
+    containerFrame:SetSize(w, top + StyleService + 3 + legendH + FOOT_H + 6)
+    canvasFrame:ClearAllPoints()
+    canvasFrame:SetPoint("TOPLEFT", PAD, -top)
+    canvasFrame:SetSize(CW, StyleService)
     legend:ClearAllPoints()
     legend:SetPoint("TOPLEFT", canvasFrame, "BOTTOMLEFT", 0, -3)
     itemList:SetShown(ns.db.showList)
-    itemList:SetHeight(StyleService + LEGEND_H)
-    listScroll:SetHeight(StyleService + LEGEND_H - 26)
+    itemList:SetHeight(StyleService + 3 + legendH)
+    listScroll:SetHeight(StyleService + 3 + legendH - 26)
 end
 
+-----------------------------------------------------------------------------
+-- Legend = the map's icon switches: one check box per kind of icon (2026-11-27 user). The north badge and the
+-- fit button follow at the right end; on a narrow map the items wrap to another row. A selected step stays shown.
+-----------------------------------------------------------------------------
 local legendItems = {}
-function DungeonRouteWindow.layoutLegend()
-    local coordX = 0
-    for _, itVal in ipairs(legendItems) do
-        itVal.dot:ClearAllPoints(); itVal.dot:SetPoint("LEFT", coordX, 0)
-        itVal.fs:ClearAllPoints(); itVal.fs:SetPoint("LEFT", coordX + 12, 0)
-        itVal.fs:SetText(L["LEG_" .. itVal.key:upper()])
-        coordX = coordX + 16 + DungeonRouteWindow.getSafeStringWidth(itVal.fs, 40) + 10
+local LEGEND_KEYS = { "entrance", "boss", "rare", "npc", "quest", "link" }
+
+function DungeonRouteWindow.hiddenMarks()
+    local hidden = ns.db and ns.db.hiddenMarks
+    if type(hidden) ~= "table" then
+        hidden = {}
+        if ns.db then ns.db.hiddenMarks = hidden end
     end
+    return hidden
+end
+
+function DungeonRouteWindow.markKindShown(key) return not DungeonRouteWindow.hiddenMarks()[key] end
+
+function DungeonRouteWindow.syncLegend()
+    for _, it in ipairs(legendItems) do
+        local on = DungeonRouteWindow.markKindShown(it.key)
+        it.check:SetShown(on)
+        it.dot:SetAlpha(on and 1 or 0.35)
+        it.fs:SetAlpha(on and 1 or 0.45)
+    end
+end
+
+function DungeonRouteWindow.toggleMarkKind(key)
+    local hidden = DungeonRouteWindow.hiddenMarks()
+    hidden[key] = (not hidden[key]) or nil
+    DungeonRouteWindow.syncLegend()
+    ns.RefreshMap(true)
+end
+
+-- places the items (and the map tools) in rows as wide as the map; returns the legend's height
+function DungeonRouteWindow.layoutLegend(width)
+    if not legend then return LEGEND_ROW end
+    width = width or DungeonRouteWindow.getSafeFrameWidth(canvasFrame, 300)
+    local x, row = 0, 0
+    for _, it in ipairs(legendItems) do
+        it.fs:SetText(L["LEG_" .. it.key:upper()])
+        local w = 30 + math.ceil(DungeonRouteWindow.getSafeStringWidth(it.fs, 40)) + 2
+        if x > 0 and x + w > width then x, row = 0, row + 1 end
+        it:ClearAllPoints()
+        it:SetPoint("TOPLEFT", legend, "TOPLEFT", x, -row * LEGEND_ROW)
+        it:SetSize(w, LEGEND_ROW)
+        x = x + w + 8
+    end
+    local tools = {}
+    if zoomReset and zoomReset:IsShown() then tools[#tools + 1] = zoomReset end
+    if orientationBadge and orientationBadge:IsShown() then tools[#tools + 1] = orientationBadge end
+    local need = 0
+    for _, t in ipairs(tools) do need = need + (t:GetWidth() or 0) + 6 end
+    if need > 0 and x > 0 and x + need - 6 > width then row = row + 1 end
+    local right = width
+    for _, t in ipairs(tools) do
+        t:ClearAllPoints()
+        t:SetPoint("TOPRIGHT", legend, "TOPLEFT", right, -row * LEGEND_ROW - 1)
+        right = right - (t:GetWidth() or 0) - 6
+    end
+    legend:SetSize(math.max(1, width), (row + 1) * LEGEND_ROW)
+    return (row + 1) * LEGEND_ROW
 end
 
 function DungeonRouteWindow.buildLegend()
     legend = CreateFrame("Frame", nil, containerFrame)
-    legend:SetSize(400, LEGEND_H)
-    for _, lookupKey in ipairs({ "entrance", "boss", "rare", "npc", "quest" }) do
-        local dot = legend:CreateTexture(nil, "ARTWORK")
-        dot:SetSize(14, 14)
+    legend:SetSize(400, LEGEND_ROW)
+    for _, lookupKey in ipairs(LEGEND_KEYS) do
+        local it = CreateFrame("Button", nil, legend)
+        it.key = lookupKey
+        it.edge = it:CreateTexture(nil, "BORDER")
+        it.edge:SetSize(12, 12); it.edge:SetPoint("LEFT", 0, 0)
+        it.edge:SetColorTexture(0.42, 0.52, 0.60, 0.95)
+        it.box = it:CreateTexture(nil, "ARTWORK")
+        it.box:SetSize(10, 10); it.box:SetPoint("CENTER", it.edge, "CENTER", 0, 0)
+        it.box:SetColorTexture(0.06, 0.09, 0.11, 1)
+        it.check = it:CreateTexture(nil, "OVERLAY")
+        it.check:SetTexture("Interface\\Buttons\\UI-CheckBox-Check")
+        it.check:SetSize(16, 16); it.check:SetPoint("CENTER", it.edge, "CENTER", 1, 1)
+        local dot = it:CreateTexture(nil, "ARTWORK")
+        dot:SetSize(14, 14); dot:SetPoint("LEFT", 15, 0)
+        local names = (lookupKey == "entrance" and DOOR_ATLAS) or (lookupKey == "link" and LINK_ATLAS) or { MARK_ATLAS[lookupKey] }
         local okIcon = false
-        for _, name in ipairs(lookupKey == "entrance" and DOOR_ATLAS or { MARK_ATLAS[lookupKey] }) do
+        for _, name in ipairs(names) do
             if DungeonRouteWindow.setMarkAtlas(dot, name) then okIcon = true; break end
         end
-        if not okIcon then dot:Hide(); dot = nil end
-        if not dot then
-            dot = DungeonRouteWindow.applyCircularMask(legend, "ARTWORK", 9)
+        if not okIcon then
+            dot:Hide()
+            dot = DungeonRouteWindow.applyCircularMask(it, "ARTWORK", 9)
+            dot:ClearAllPoints(); dot:SetPoint("LEFT", 17, 0)
             dot:SetVertexColor(CAT[lookupKey][1], CAT[lookupKey][2], CAT[lookupKey][3], 1)
         end
-        local labelRegion = legend:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
-        legendItems[#legendItems + 1] = { key = lookupKey, dot = dot, fs = labelRegion }
+        it.dot = dot
+        it.fs = it:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+        it.fs:SetPoint("LEFT", 30, 0)
+        local hl = it:CreateTexture(nil, "HIGHLIGHT"); hl:SetAllPoints(); hl:SetColorTexture(1, 1, 1, 0.06)
+        it:SetScript("OnClick", function(self) DungeonRouteWindow.toggleMarkKind(self.key) end)
+        it:SetScript("OnEnter", function(self)
+            GameTooltip:SetOwner(self, "ANCHOR_TOP")
+            GameTooltip:SetText(L["LEG_" .. self.key:upper()], 1, 1, 1)
+            GameTooltip:AddLine(L.LEGEND_TOGGLE_TIP, 0.8, 0.8, 0.8, true)
+            GameTooltip:Show()
+        end)
+        it:SetScript("OnLeave", GameTooltip_Hide)
+        legendItems[#legendItems + 1] = it
     end
+    DungeonRouteWindow.syncLegend()
     DungeonRouteWindow.layoutLegend()
 end
 
@@ -1027,18 +1210,21 @@ end
 local plotFloors
 
 function buildFloorPicker()
-    floorBtn = CreateFrame("Button", nil, overlay, "BackdropTemplate")
-    floorBtn:SetFrameLevel(overlay:GetFrameLevel() + 15)
-    floorBtn:SetPoint("TOPLEFT", canvasFrame, "TOPLEFT", 4, -4)
+    -- in the header beside the dungeon picker, never on the map (layoutWindowRegions places it)
+    floorBtn = CreateFrame("Button", nil, containerFrame, "BackdropTemplate")
+    floorBtn:SetFrameLevel(containerFrame:GetFrameLevel() + 6)
+    floorBtn:SetPoint("LEFT", dropdown, "RIGHT", 4, 0)
     floorBtn:SetSize(160, 20)
     floorBtn:EnableMouse(true)
     floorBtn:RegisterForClicks("LeftButtonUp", "RightButtonUp")
-    DungeonRouteWindow.resolveDarkBackdrop(floorBtn, 0.88)
+    DungeonRouteWindow.resolveDarkBackdrop(floorBtn, 0.94)
     local arrow = floorBtn:CreateTexture(nil, "ARTWORK")
     arrow:SetTexture("Interface\\Buttons\\Arrow-Down-Up")
     arrow:SetSize(14, 14); arrow:SetPoint("RIGHT", -4, -2)
     floorBtn.text = floorBtn:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
     floorBtn.text:SetPoint("LEFT", 6, 0)
+    floorBtn.text:SetPoint("RIGHT", arrow, "LEFT", -2, 0)
+    floorBtn.text:SetJustifyH("LEFT")
     if floorBtn.text.SetWordWrap then floorBtn.text:SetWordWrap(false) end
     local hlVal = floorBtn:CreateTexture(nil, "HIGHLIGHT"); hlVal:SetAllPoints(); hlVal:SetColorTexture(1, 1, 1, 0.08)
     floorBtn:SetScript("OnClick", function()
@@ -1051,22 +1237,31 @@ function buildFloorPicker()
     end)
     floorBtn:SetScript("OnLeave", GameTooltip_Hide)
 
-    floorNext = CreateFrame("Button", nil, overlay, "BackdropTemplate")
-    floorNext:SetFrameLevel(overlay:GetFrameLevel() + 15)
-    floorNext:SetPoint("TOPLEFT", floorBtn, "BOTTOMLEFT", 0, -2)
-    floorNext:SetSize(160, 16)
+    floorNext = CreateFrame("Button", nil, containerFrame, "BackdropTemplate")
+    floorNext:SetFrameLevel(containerFrame:GetFrameLevel() + 6)
+    floorNext:SetPoint("LEFT", floorBtn, "RIGHT", 3, 0)
+    floorNext:SetSize(120, 20)
     floorNext:EnableMouse(true)
     floorNext:RegisterForClicks("LeftButtonUp", "RightButtonUp")
-    DungeonRouteWindow.resolveDarkBackdrop(floorNext, 0.85)
+    DungeonRouteWindow.resolveDarkBackdrop(floorNext, 0.94)
     if floorNext.SetBackdropBorderColor then floorNext:SetBackdropBorderColor(0.918, 0.514, 0.494, 0.85) end
     floorNext.text = floorNext:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
     floorNext.text:SetPoint("LEFT", 5, 0)
+    floorNext.text:SetPoint("RIGHT", -5, 0)
+    floorNext.text:SetJustifyH("LEFT")
     if floorNext.text.SetWordWrap then floorNext.text:SetWordWrap(false) end
     local nhl = floorNext:CreateTexture(nil, "HIGHLIGHT"); nhl:SetAllPoints(); nhl:SetColorTexture(0.918, 0.514, 0.494, 0.14)
     floorNext:SetScript("OnClick", function(self)
         DungeonRouteWindow.selectFloor(unitState.viewed, self.key)
         floorList:Hide(); ns.RefreshMap()
     end)
+    floorNext:SetScript("OnEnter", function(self)
+        GameTooltip:SetOwner(self, "ANCHOR_TOP")
+        GameTooltip:SetText(self.full or "", 1, 1, 1, 1, true)
+        GameTooltip:AddLine(L.LINK_CLICK, 0.5, 0.8, 1)
+        GameTooltip:Show()
+    end)
+    floorNext:SetScript("OnLeave", GameTooltip_Hide)
 
     floorList = CreateFrame("Frame", nil, containerFrame, "BackdropTemplate")
     DungeonRouteWindow.applyPanelBackdrop(floorList, 0.97)
@@ -1092,11 +1287,7 @@ function buildFloorPicker()
         floorRows[entryKey] = rowEntry
     end
     floorList:SetScript("OnShow", function()
-        floorNext:Hide()
         if unitState.viewed then plotFloors(unitState.viewed, DungeonRouteWindow.resolveCurrentPage(unitState.viewed)) end
-    end)
-    floorList:SetScript("OnHide", function()
-        if floorNext.hasNext then floorNext:Show() end
     end)
     floorList:Hide()
     floorBtn:Hide(); floorNext:Hide()
@@ -1131,22 +1322,49 @@ plotFloors = function(d, page)
         if p == page then entryIndex = entryKey end
         if p.key == nextPage then nextName = DungeonRouteWindow.resolvePageName(p, entryKey) end
     end
-    local cwVal = math.floor(ns.db.mapSize * view[3] / view[4] + 0.5)
+    -- the room the header leaves for the picker and the "next objective" button (layoutWindowRegions)
+    local room = floorBtn.room or 0
+    if room <= 0 then room = math.floor(ns.db.mapSize * view[3] / view[4] + 0.5) - 8 end
     floorBtn.count = #pages
-    floorBtn.text:SetText(("|cffea837e%s|r  %s"):format(L.AREA:format(entryIndex, #pages), DungeonRouteWindow.resolvePageName(page, entryIndex)))
-    local btnW = math.max(130, math.min(cwVal - 8, math.floor(DungeonRouteWindow.getSafeStringWidth(floorBtn.text, 110) + 30)))
+    local pageName = DungeonRouteWindow.resolvePageName(page, entryIndex)
+    local hasNext = (nextName and nextPage ~= page.key) and true or false
+    local textW = DungeonRouteWindow.fullTextWidth
+    -- full words first; the short forms ("2/3 name", "→ name") when the row is tight
+    floorBtn.text:SetText(("|cffea837e%s|r  %s"):format(L.AREA:format(entryIndex, #pages), pageName))
+    local btnWant = textW(floorBtn.text, 110) + 30
+    local nextWant = 0
+    if hasNext then
+        floorNext.full = L.NEXT_AREA:format(nextName)
+        floorNext.text:SetText(floorNext.full)
+        nextWant = textW(floorNext.text, 100) + 12
+    end
+    if btnWant + (hasNext and nextWant + 3 or 0) > room then
+        floorBtn.text:SetText(("|cffea837e%d/%d|r %s"):format(entryIndex, #pages, pageName))
+        btnWant = textW(floorBtn.text, 90) + 30
+        if hasNext then
+            floorNext.text:SetText("→ " .. nextName)
+            nextWant = textW(floorNext.text, 60) + 12
+        end
+    end
+    local btnW = math.min(btnWant, room)
+    if hasNext then
+        local nextW = math.min(nextWant, math.max(60, room - btnWant - 3))
+        btnW = math.min(btnWant, room - nextW - 3)
+        if btnW < 100 then
+            -- no room for both: the floor list still tags the next objective's area
+            hasNext, btnW = false, math.min(btnWant, room)
+        else
+            floorNext:SetWidth(math.floor(nextW))
+        end
+    end
+    btnW = math.floor(math.max(100, btnW))
     floorBtn:SetWidth(btnW)
-    floorBtn:SetFrameLevel(overlay:GetFrameLevel() + 15)
     floorBtn:Show()
-    if nextName and nextPage ~= page.key then
-        floorNext.hasNext = true
+    floorNext.hasNext = hasNext
+    if hasNext then
         floorNext.key = nextPage
-        floorNext.text:SetText(L.NEXT_AREA:format(nextName))
-        floorNext:SetWidth(math.max(110, math.min(cwVal - 8, math.floor(DungeonRouteWindow.getSafeStringWidth(floorNext.text, 100) + 12))))
-        floorNext:SetFrameLevel(overlay:GetFrameLevel() + 15)
-        floorNext:SetShown(not floorList:IsShown())
+        floorNext:Show()
     else
-        floorNext.hasNext = false
         floorNext:Hide()
     end
     -- a long floor name must not run under the "next / N left" tag at the row's right: widen the list to fit
@@ -1209,15 +1427,29 @@ function DungeonRouteWindow.createPrimaryWidget()
             picker:Hide(); ns.RefreshMap()
         end
     end)
-    currentBtn:SetPoint("RIGHT", listBtn, "LEFT", -6, 0)
+    -- the way from boss to boss drawn on the map (Data/RoutePaths.lua); on by default
+    local pathBtn = DungeonRouteWindow.createStyledButton(containerFrame, L.BTN_PATH, 34, function()
+        local d = unitState.viewed
+        if d and not (ns.RoutePaths and ns.RoutePaths[d.key]) then return L.TIP_PATH .. "\n|cffaaaaaa" .. L.NO_PATH .. "|r" end
+        return L.TIP_PATH
+    end, function()
+        ns.db.showPath = not (ns.db.showPath ~= false)
+        DungeonRouteWindow.syncPathButton()
+        ns.RefreshMap(true)
+    end)
+    pathBtn:SetPoint("RIGHT", listBtn, "LEFT", -2, 0)
+    DungeonRouteWindow.pathBtn = pathBtn
+    currentBtn:SetPoint("RIGHT", pathBtn, "LEFT", -6, 0)
     ns.GetLocalizedEntryField(menuBtn, "BTN_MENU"); ns.GetLocalizedEntryField(listBtn, "BTN_LIST"); ns.GetLocalizedEntryField(currentBtn, "BTN_CURRENT")
+    ns.GetLocalizedEntryField(pathBtn, "BTN_PATH")
     DungeonRouteWindow.shrinkFontStringToFit(menuBtn, 40, 72); DungeonRouteWindow.shrinkFontStringToFit(listBtn, 36, 64); DungeonRouteWindow.shrinkFontStringToFit(currentBtn, 52, 96)
+    DungeonRouteWindow.shrinkFontStringToFit(pathBtn, 30, 64)
     
     local titleBtn = CreateFrame("Button", nil, containerFrame, "BackdropTemplate")
     dropdown = titleBtn
     titleBtn:SetPoint("TOPLEFT", PAD, -4)
     titleBtn:SetSize(200, 20)          -- width follows the map (layoutWindowRegions)
-    DungeonRouteWindow.headerButtons = { close, menuBtn, listBtn, currentBtn }
+    DungeonRouteWindow.headerButtons = { close, menuBtn, listBtn, pathBtn, currentBtn }
     if titleBtn.SetBackdrop then
         titleBtn:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1 })
         titleBtn:SetBackdropColor(0.114, 0.157, 0.192, 0.94)
@@ -1252,11 +1484,13 @@ function DungeonRouteWindow.createPrimaryWidget()
     overlay:SetAllPoints()
     if overlay.SetClipsChildren then overlay:SetClipsChildren(true) end
     overlay:SetFrameLevel(canvasFrame:GetFrameLevel() + 2)
-    orientationBadge = CreateFrame("Button", nil, overlay)
-    orientationBadge:SetSize(120, 36)
-    orientationBadge:SetPoint("TOPRIGHT", -6, -27)
+    -- under the map at the legend's right end (layoutLegend places it)
+    orientationBadge = CreateFrame("Button", nil, containerFrame)
+    orientationBadge:SetSize(40, 16)
+    orientationBadge:SetPoint("TOPRIGHT", canvasFrame, "BOTTOMRIGHT", 0, -4)
     orientationBadge.text = orientationBadge:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-    orientationBadge.text:SetPoint("TOPRIGHT")
+    orientationBadge.text:SetPoint("RIGHT")
+    orientationBadge:Hide()
     orientationBadge:SetScript("OnEnter", function(self)
         GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
         GameTooltip:SetText(self.northUp and L.MAP_NORTH_TIP or L.MAP_GUIDE_TIP, 1, 1, 1, 1, true)
@@ -1291,13 +1525,29 @@ function DungeonRouteWindow.createPrimaryWidget()
         containerFrame:StopMovingOrSizing(); DungeonRouteWindow.persistPosition()
     end)
     canvasFrame:SetScript("OnMouseDown", function(self) self.dragged = false end)
-    canvasFrame:SetScript("OnMouseUp", function(self, button) if not self.dragged then ns.HandleRouteCanvasEditClick(button) end end)
+    canvasFrame:SetScript("OnMouseUp", function(self, button)
+        if self.dragged then return end
+        if unitState.edit then ns.HandleRouteCanvasEditClick(button) else DungeonRouteWindow.pathClick(button) end
+    end)
     canvasFrame:SetScript("OnHide", function(self) self:SetScript("OnUpdate", nil); self.pan=nil end)
-    zoomReset = DungeonRouteWindow.createStyledButton(overlay, L.MAP_FIT, 46, L.MAP_ZOOM_TIP, function()
+    -- the path lines answer the mouse: hovering names the step, a click makes its way the bright one
+    local pathHover = CreateFrame("Frame", nil, canvasFrame)
+    pathHover.elapsed = 0
+    pathHover:SetScript("OnUpdate", function(self, elapsed)
+        self.elapsed = self.elapsed + elapsed
+        if self.elapsed < 0.08 then return end
+        self.elapsed = 0
+        DungeonRouteWindow.pathHoverTick()
+    end)
+    pathHover:Hide()
+    canvasFrame:HookScript("OnEnter", function() pathHover:Show() end)
+    canvasFrame:HookScript("OnLeave", function() pathHover:Hide(); DungeonRouteWindow.pathHoverEnd() end)
+    -- under the map at the legend's right end (layoutLegend places it)
+    zoomReset = DungeonRouteWindow.createStyledButton(containerFrame, L.MAP_FIT, 46, L.MAP_ZOOM_TIP, function()
         if nav then nav.zoom=1; ns.RefreshMap(true) end
     end)
-    zoomReset:SetPoint("BOTTOMRIGHT", -4, 4)
-    zoomReset:SetFrameLevel(overlay:GetFrameLevel()+8)
+    zoomReset:SetHeight(16)
+    zoomReset:SetPoint("TOPRIGHT", canvasFrame, "BOTTOMRIGHT", 0, -4)
 
     entranceMark = DungeonRouteWindow.createDoorMark("LEG_ENTRANCE", CAT.entrance)
 
@@ -1659,17 +1909,21 @@ end
 function DungeonRouteWindow.plotMarkers(d, page, nextIndex, sc)
     local entryKey, kaVal = 0, 0
     local greenVal = DungeonRouteWindow.resolveDungeonFloorGeometry(d)
+    -- icon kinds switched off in the legend; the selected step stays shown
+    local hidden = DungeonRouteWindow.hiddenMarks()
+    local showDoor = not hidden.entrance and greenVal.start and greenVal.start.page == page.key and DungeonRouteWindow.inView(greenVal.start.pos)
     local occupied={}
     for _,lnVal in ipairs(greenVal.links or{})do
-        if lnVal.page==page.key and DungeonRouteWindow.inView(lnVal.pos)then occupied[#occupied+1]={(lnVal.pos[1]-view[1])*sc,(lnVal.pos[2]-view[2])*sc}end
+        if not hidden.link and lnVal.page==page.key and DungeonRouteWindow.inView(lnVal.pos)then occupied[#occupied+1]={(lnVal.pos[1]-view[1])*sc,(lnVal.pos[2]-view[2])*sc}end
     end
-    if greenVal.start and greenVal.start.page==page.key and DungeonRouteWindow.inView(greenVal.start.pos)then
+    if showDoor then
         occupied[#occupied+1]={(greenVal.start.pos[1]-view[1])*sc,(greenVal.start.pos[2]-view[2])*sc}
     end
     local reservedCount=#occupied
     for index, step in ipairs(d.steps) do
         local spage, spos, salt = DungeonRouteWindow.stepGeo(d, index)
-        if spos and spage == page.key and DungeonRouteWindow.inView(spos) and ns.IsRouteStepVisibleOnFloor(step) then
+        if spos and spage == page.key and DungeonRouteWindow.inView(spos) and ns.IsRouteStepVisibleOnFloor(step)
+            and (unitState.selected == index or not hidden[DungeonRouteWindow.resolveCategory(step)]) then
             local done = ns.IsRouteStepCompleted(d, index)
             local categoryKey = DungeonRouteWindow.resolveCategory(step)
             local themeColor = done and CAT.done or CAT[categoryKey]
@@ -1746,7 +2000,7 @@ function DungeonRouteWindow.plotMarkers(d, page, nextIndex, sc)
     for subIndex = entryKey + 1, #markers do markers[subIndex]:Hide(); markers[subIndex].leader:Hide() end
     for subIndex = kaVal + 1, #alts do alts[subIndex]:Hide() end
     
-    if greenVal.start and greenVal.start.page == page.key and DungeonRouteWindow.inView(greenVal.start.pos) then
+    if showDoor then
         DungeonRouteWindow.updateWidgetAnchorPosition(entranceMark, sc, greenVal.start.pos)
         entranceMark.text:ClearAllPoints()
         if (greenVal.start.pos[2] - view[2]) / view[4] > 0.92 then
@@ -1758,11 +2012,11 @@ function DungeonRouteWindow.plotMarkers(d, page, nextIndex, sc)
     else
         entranceMark:Hide()
     end
-    DungeonRouteWindow.plotPortals(greenVal, page, sc)
+    DungeonRouteWindow.plotPortals(not hidden.entrance and greenVal or nil, page, sc)
     local klVal = 0
     local linkOccupied={}
     for subIndex=reservedCount+1,#occupied do linkOccupied[#linkOccupied+1]=occupied[subIndex]end
-    if greenVal.start and greenVal.start.page==page.key and DungeonRouteWindow.inView(greenVal.start.pos)then linkOccupied[#linkOccupied+1]={(greenVal.start.pos[1]-view[1])*sc,(greenVal.start.pos[2]-view[2])*sc}end
+    if showDoor then linkOccupied[#linkOccupied+1]={(greenVal.start.pos[1]-view[1])*sc,(greenVal.start.pos[2]-view[2])*sc}end
 
     local labelRects, named = {}, {}
     local widgetHelper, headerFrameRef = DungeonRouteWindow.getSafeFrameWidth(canvasFrame, ns.db.mapSize), DungeonRouteWindow.getSafeFrameHeight(canvasFrame, ns.db.mapSize)
@@ -1776,7 +2030,7 @@ function DungeonRouteWindow.plotMarkers(d, page, nextIndex, sc)
         end
         return true
     end
-    for _, lnVal in ipairs(greenVal.links or {}) do
+    for _, lnVal in ipairs(hidden.link and {} or greenVal.links or {}) do
         if lnVal.page == page.key and DungeonRouteWindow.inView(lnVal.pos) then
             klVal = klVal + 1
             local leftPos = DungeonRouteWindow.resolveLink(klVal)
@@ -1981,12 +2235,243 @@ function DungeonRouteWindow.plotFlowLines(d, page, sc)
     for subIndex = entryKey + 1, #flowLines do flowLines[subIndex]:Hide() end
 end
 
+-----------------------------------------------------------------------------
+-- Path: the way from boss to boss as a line on the map (Data/RoutePaths.lua, ns.RoutePaths[key]).
+-- Legs in route order, each { to = step id, page = page key, pts = { u1, v1, u2, v2, ... } } in page px; a leg
+-- that changes floor is one entry per page. Legs to finished steps are dim, the leg to the next step is bright with
+-- direction marks, later legs are softer. Drawn under the step marks; the header button "Path" hides it.
+-----------------------------------------------------------------------------
+local pathLines = {}
+-- the drawn pieces in canvas px for the mouse: { x0, y0, x1, y1, step index }, pathHits.n in use
+local pathHits = { n = 0 }
+local PATH_HIT_PX = 7
+local pathHoverIndex
+local PATH_GOLD, PATH_DONE = { 1.0, 0.84, 0.30 }, { 0.55, 0.55, 0.55 }
+local CHEVRON_GAP, CHEVRON_LEN = 42, 6
+local CHEVRON_COS, CHEVRON_SIN = 0.766, 0.643      -- the arrow wings turn 40 degrees off the line
+
+function DungeonRouteWindow.pathLine(n)
+    local ln = pathLines[n]
+    if not ln then ln = overlay:CreateLine(nil, "BACKGROUND"); pathLines[n] = ln end
+    return ln
+end
+
+local function clipEdge(p, q, t0, t1)
+    if p == 0 then return q >= 0, t0, t1 end
+    local r = q / p
+    if p < 0 then
+        if r > t1 then return false end
+        if r > t0 then t0 = r end
+    else
+        if r < t0 then return false end
+        if r < t1 then t1 = r end
+    end
+    return true, t0, t1
+end
+
+-- a segment in page px cut to the shown part of the page (Liang-Barsky); nil when it is outside
+function DungeonRouteWindow.clipToView(x0, y0, x1, y1)
+    local dx, dy = x1 - x0, y1 - y0
+    local ok, t0, t1 = true, 0, 1
+    ok, t0, t1 = clipEdge(-dx, x0 - view[1], t0, t1); if not ok then return nil end
+    ok, t0, t1 = clipEdge(dx, view[1] + view[3] - x0, t0, t1); if not ok then return nil end
+    ok, t0, t1 = clipEdge(-dy, y0 - view[2], t0, t1); if not ok then return nil end
+    ok, t0, t1 = clipEdge(dy, view[2] + view[4] - y0, t0, t1); if not ok then return nil end
+    return x0 + t0 * dx, y0 + t0 * dy, x0 + t1 * dx, y0 + t1 * dy
+end
+
+function DungeonRouteWindow.pathLegs(d)
+    if not d or ns.db.showPath == false then return nil end
+    local legs = ns.RoutePaths and ns.RoutePaths[d.key]
+    if type(legs) ~= "table" or #legs == 0 then return nil end
+    return legs
+end
+
+-- the step the bright leg leads to: the step picked in the list or on the map (2026-11-27 user: clicking a step
+-- thickens its way), else the next step when a leg goes there, else the first unfinished leg's step.
+-- The second value is true for a picked step: its leg stays bright even when it is done.
+function DungeonRouteWindow.pathCurrentTo(d, legs, nextIndex, byId)
+    local picked = unitState.selected and d.steps[unitState.selected]
+    if picked then
+        for _, leg in ipairs(legs) do
+            if leg.to == picked.id then return leg.to, true end
+        end
+    end
+    local nextStep = nextIndex and d.steps[nextIndex]
+    if nextStep then
+        for _, leg in ipairs(legs) do
+            if leg.to == nextStep.id then return leg.to end
+        end
+    end
+    for _, leg in ipairs(legs) do
+        local i = byId[leg.to]
+        if i and not ns.IsRouteStepCompleted(d, i) and ns.IsRouteStepVisibleOnFloor(d.steps[i]) then return leg.to end
+    end
+    return nil
+end
+
+function DungeonRouteWindow.plotPath(d, page, sc, nextIndex)
+    local n, nh = 0, 0
+    local legs = page and not page.flow and DungeonRouteWindow.pathLegs(d)
+    if legs then
+        local byId = d.stepIndexById
+        if not byId then
+            byId = {}
+            for i, s in ipairs(d.steps) do byId[s.id] = i end
+            d.stepIndexById = byId
+        end
+        local currentTo, picked = DungeonRouteWindow.pathCurrentTo(d, legs, nextIndex, byId)
+        for _, leg in ipairs(legs) do
+            local i = byId[leg.to]
+            local stepRef = i and d.steps[i]
+            local pts = leg.pts
+            if stepRef and leg.page == page.key and type(pts) == "table" and #pts >= 4 and ns.IsRouteStepVisibleOnFloor(stepRef) then
+                local done = ns.IsRouteStepCompleted(d, i)
+                local current = leg.to == currentTo and (picked or not done)
+                if current then done = false end
+                local col = done and PATH_DONE or PATH_GOLD
+                -- finished legs barely show and later ones stay soft, so the way to the next step stands out
+                local alpha = done and 0.22 or (current and 0.95 or 0.4)
+                local width = current and 4 or 2
+                local since = 0      -- screen px along the leg since the last arrow
+                for k = 1, #pts - 3, 2 do
+                    local ax, ay, bx, by = DungeonRouteWindow.clipToView(pts[k], pts[k + 1], pts[k + 2], pts[k + 3])
+                    if ax then
+                        local sx0, sy0 = (ax - view[1]) * sc, -(ay - view[2]) * sc
+                        local sx1, sy1 = (bx - view[1]) * sc, -(by - view[2]) * sc
+                        nh = nh + 1
+                        local hit = pathHits[nh]
+                        if not hit then hit = {}; pathHits[nh] = hit end
+                        hit[1], hit[2], hit[3], hit[4], hit[5] = sx0, sy0, sx1, sy1, i
+                        if not done then
+                            n = n + 1
+                            local o = DungeonRouteWindow.pathLine(n)
+                            o:SetDrawLayer("BACKGROUND", 1)
+                            o:SetThickness(width + 2)
+                            o:SetColorTexture(0, 0, 0, alpha * 0.55)
+                            o:SetStartPoint("TOPLEFT", canvasFrame, sx0, sy0)
+                            o:SetEndPoint("TOPLEFT", canvasFrame, sx1, sy1)
+                            o:Show()
+                        end
+                        n = n + 1
+                        local ln = DungeonRouteWindow.pathLine(n)
+                        ln:SetDrawLayer("BACKGROUND", 2)
+                        ln:SetThickness(width)
+                        ln:SetColorTexture(col[1], col[2], col[3], alpha)
+                        ln:SetStartPoint("TOPLEFT", canvasFrame, sx0, sy0)
+                        ln:SetEndPoint("TOPLEFT", canvasFrame, sx1, sy1)
+                        ln:Show()
+                        if current then
+                            local ddx, ddy = sx1 - sx0, sy1 - sy0
+                            local len = math.sqrt(ddx * ddx + ddy * ddy)
+                            if len > 0 then
+                                local ux, uy = ddx / len, ddy / len
+                                local at = CHEVRON_GAP - since
+                                while at <= len do
+                                    local px, py = sx0 + ux * at, sy0 + uy * at
+                                    for side = -1, 1, 2 do
+                                        local s = CHEVRON_SIN * side
+                                        local wx, wy = -(ux * CHEVRON_COS - uy * s), -(ux * s + uy * CHEVRON_COS)
+                                        n = n + 1
+                                        local w = DungeonRouteWindow.pathLine(n)
+                                        w:SetDrawLayer("BACKGROUND", 3)
+                                        w:SetThickness(2)
+                                        w:SetColorTexture(1, 0.96, 0.75, 0.95)
+                                        w:SetStartPoint("TOPLEFT", canvasFrame, px, py)
+                                        w:SetEndPoint("TOPLEFT", canvasFrame, px + wx * CHEVRON_LEN, py + wy * CHEVRON_LEN)
+                                        w:Show()
+                                    end
+                                    at = at + CHEVRON_GAP
+                                end
+                                since = (since + len) % CHEVRON_GAP
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+    for i = n + 1, #pathLines do pathLines[i]:Hide() end
+    pathHits.n = nh
+end
+
+-- the step whose drawn way runs within PATH_HIT_PX of a canvas point (x right, y down negative); the nearest wins
+function DungeonRouteWindow.pathStepAt(x, y)
+    local best, bestD = nil, PATH_HIT_PX * PATH_HIT_PX
+    for k = 1, pathHits.n or 0 do
+        local h = pathHits[k]
+        local dx, dy = h[3] - h[1], h[4] - h[2]
+        local len2 = dx * dx + dy * dy
+        local t = len2 > 0 and ((x - h[1]) * dx + (y - h[2]) * dy) / len2 or 0
+        if t < 0 then t = 0 elseif t > 1 then t = 1 end
+        local ex, ey = h[1] + t * dx - x, h[2] + t * dy - y
+        local d2 = ex * ex + ey * ey
+        if d2 < bestD then best, bestD = h[5], d2 end
+    end
+    return best
+end
+
+function DungeonRouteWindow.pathStepAtCursor()
+    if not canvasFrame or (pathHits.n or 0) == 0 then return nil end
+    local cx, cy = GetCursorPosition()
+    local s = canvasFrame:GetEffectiveScale()
+    local left, top = canvasFrame:GetLeft(), canvasFrame:GetTop()
+    if not (cx and cy and s and s > 0 and left and top) then return nil end
+    return DungeonRouteWindow.pathStepAt(cx / s - left, cy / s - top)
+end
+
+-- a click on a way makes it the bright one, like picking its step in the list (2026-11-27 user)
+function DungeonRouteWindow.pathClick(button)
+    if button ~= "LeftButton" then return end
+    local d = unitState.viewed
+    local index = DungeonRouteWindow.pathStepAtCursor()
+    if not (d and index and d.steps and d.steps[index]) then return end
+    unitState.selected, unitState.cardTrash = index, nil
+    pathHoverIndex = nil
+    ns.RefreshMap()
+end
+
+function DungeonRouteWindow.pathHoverEnd()
+    pathHoverIndex = nil
+    if canvasFrame and GameTooltip:GetOwner() == canvasFrame then GameTooltip:Hide() end
+end
+
+function DungeonRouteWindow.pathHoverTick()
+    local d = unitState.viewed
+    local index = (not unitState.edit) and DungeonRouteWindow.pathStepAtCursor() or nil
+    if index and not (d and d.steps and d.steps[index]) then index = nil end
+    if index == pathHoverIndex then return end
+    pathHoverIndex = index
+    if index then
+        GameTooltip:SetOwner(canvasFrame, "ANCHOR_CURSOR")
+        GameTooltip:SetText(ns.ResolveRouteStepDisplayTitle(d, index) or "", 1, 0.84, 0.30)
+        GameTooltip:AddLine(L.PATH_CLICK, 0.8, 0.8, 0.8, true)
+        GameTooltip:Show()
+    elseif GameTooltip:GetOwner() == canvasFrame then
+        GameTooltip:Hide()
+    end
+end
+
+function DungeonRouteWindow.syncPathButton(d)
+    local btn = DungeonRouteWindow.pathBtn
+    if not btn then return end
+    d = d or unitState.viewed
+    local has = d and ns.RoutePaths and ns.RoutePaths[d.key] and true or false
+    local on = ns.db.showPath ~= false
+    btn:SetAlpha(has and (on and 1 or 0.55) or 0.35)
+    if btn.label then
+        if on then btn.label:SetTextColor(1, 0.84, 0.30, 1) else btn.label:SetTextColor(0.75, 0.75, 0.75, 1) end
+    end
+end
+
 function DungeonRouteWindow.dismissMapLayer()
     for _, resolvedValue in ipairs(markers) do resolvedValue:Hide(); resolvedValue.leader:Hide() end
     for _, resolvedValue in ipairs(alts) do resolvedValue:Hide() end
     for _, resolvedValue in ipairs(links) do resolvedValue:Hide();resolvedValue.leader:Hide() end
     for _, resolvedValue in ipairs(portalMarks) do resolvedValue:Hide() end
     for _, matchRef in ipairs(masks) do matchRef.outer:Hide(); matchRef.inner:Hide() end
+    for _, ln in ipairs(pathLines) do ln:Hide() end
+    pathHits.n = 0
     entranceMark:Hide()
 end
 
@@ -2074,13 +2559,49 @@ function DungeonRouteWindow.plotRouteList(d, nextIndex)
     DungeonRouteWindow.beginList(d, "route")
     DungeonRouteWindow.dismissTrashBtns()
     local groups = d.trashGroups or {}
-    local multiFloor = #(DungeonRouteWindow.resolveDungeonFloorGeometry(d).pages or {}) > 1
+    local geo = DungeonRouteWindow.resolveDungeonFloorGeometry(d)
+    local multiFloor = #(geo.pages or {}) > 1
     local coordY, entryKey = 0, 0
+    -- the entrance heads the list (2026-11-27 user); a click shows it on the map
+    local start = geo.start
+    if start and start.pos then
+        entryKey = entryKey + 1
+        local rowEntry = DungeonRouteWindow.resolveRow(entryKey)
+        rowEntry.index, rowEntry.group, rowEntry.entrance = nil, nil, true
+        rowEntry:SetAlpha(1)
+        rowEntry:ClearAllPoints()
+        rowEntry:SetPoint("TOPLEFT", 0, coordY)
+        rowEntry.check:Hide(); rowEntry.kicon:Hide()
+        rowEntry.num:SetText("")
+        local doorOk = false
+        for _, name in ipairs(DOOR_ATLAS) do
+            if DungeonRouteWindow.setMarkAtlas(rowEntry.mark, name) then doorOk = true; break end
+        end
+        local c = CAT.entrance
+        rowEntry.mark:SetDesaturated(false); rowEntry.mark:SetAlpha(1)
+        rowEntry.mark:SetShown(doorOk)
+        rowEntry.dot:SetVertexColor(c[1], c[2], c[3], 1); rowEntry.dot:SetShown(not doorOk)
+        rowEntry.name:SetTextColor(c[1], c[2], c[3])
+        local fIdx = multiFloor and DungeonRouteWindow.resolvePageIndex(d, start.page)
+        local tagText = ""
+        if fIdx then
+            tagText = ((start.page == unitState.shownPage) and "|cffea837e" or "|cff6e7f8d") .. (L.AREA_SHORT or "%d"):format(fIdx) .. "|r"
+        end
+        rowEntry.tag:SetWidth(0)
+        rowEntry.tag:SetText(tagText)
+        local tagWidth = tagText ~= "" and math.min(84, DungeonRouteWindow.getSafeStringWidth(rowEntry.tag, 36)) or 0
+        rowEntry.tag:SetWidth(tagWidth)
+        local rowH = math.max(17, DungeonRouteWindow.resolveTextHeight(rowEntry.name, L.LEG_ENTRANCE, LIST_CONTENT_W - 43 - tagWidth) + 4)
+        rowEntry:SetHeight(rowH)
+        coordY = coordY - rowH
+        rowEntry.bg:Hide()
+        rowEntry:Show()
+    end
     for index, step in ipairs(d.steps) do
         if ns.IsRouteStepVisibleOnFloor(step) then
             entryKey = entryKey + 1
             local rowEntry = DungeonRouteWindow.resolveRow(entryKey)
-            rowEntry.index = index
+            rowEntry.index, rowEntry.entrance = index, nil
             rowEntry:ClearAllPoints()
             rowEntry:SetPoint("TOPLEFT", 0, coordY)
             local done = ns.IsRouteStepCompleted(d, index)
@@ -2125,7 +2646,7 @@ function DungeonRouteWindow.plotRouteList(d, nextIndex)
     for gkVal, greenVal in ipairs(groups) do
         entryKey = entryKey + 1
         local rowEntry = DungeonRouteWindow.resolveRow(entryKey)
-        rowEntry.index, rowEntry.group = nil, gkVal
+        rowEntry.index, rowEntry.group, rowEntry.entrance = nil, gkVal, nil
         rowEntry:SetAlpha(1)
         rowEntry:ClearAllPoints()
         rowEntry:SetPoint("TOPLEFT", 0, coordY)
@@ -2255,6 +2776,18 @@ function DungeonRouteWindow.plotNotes(d)
     tipText:Show()
 end
 
+-- one line under the map; a partial minimap is named in the footer and in the badge's tooltip
+function DungeonRouteWindow.syncOrientationBadge(page)
+    local orientation = page and not page.unavailable and page.orientation
+    orientationBadge:SetShown(orientation and true or false)
+    if not orientation then return end
+    orientationBadge.northUp = orientation.mode == "north-up"
+    orientationBadge.partial = page.partial
+    orientationBadge.supplementalNative = page.supplementalNative
+    orientationBadge.text:SetText(orientationBadge.northUp and L.MAP_NORTH_UP or L.MAP_GUIDE_UP)
+    orientationBadge:SetWidth(math.ceil(DungeonRouteWindow.getSafeStringWidth(orientationBadge.text, 30)) + 4)
+end
+
 function ns.RefreshMap(mapOnly)
     if not containerFrame or not containerFrame:IsShown() then return end
     local d = unitState.viewed
@@ -2271,12 +2804,14 @@ function ns.RefreshMap(mapOnly)
     end
     view = DungeonRouteWindow.resolveNavigationView(d, page)
     unitState.shownPage = page and page.key
+    -- the map tools under the map first: the layout fits them into the legend rows
+    zoomReset:SetShown(nav ~= nil)
+    if nav then zoomReset:SetText(nav.zoom > 1 and ("%.1f×"):format(nav.zoom) or L.MAP_FIT) end
+    DungeonRouteWindow.syncOrientationBadge(page)
     local sig = tostring(d) .. tostring(page) .. tostring(ns.db.mapSize) .. tostring(ns.db.showList)
     if containerFrame.layoutSig ~= sig then containerFrame.layoutSig = sig; DungeonRouteWindow.layoutWindowRegions() end
     local sc = DungeonRouteWindow.calculateCanvasScale()
-    zoomReset:SetShown(nav ~= nil)
-    if nav then zoomReset:SetText(nav.zoom > 1 and ("%.1f×"):format(nav.zoom) or L.MAP_FIT) end
-    titleStr:SetText(("%s |cffaaaaaa%s|r"):format(translationHelper(d.name), d.levels or ""))
+    titleStr:SetText(DungeonRouteWindow.titleText(d))
     local away = unitState.current ~= nil and unitState.current ~= d
     currentBtn:SetEnabled(away)
     currentBtn:SetAlpha(away and 1 or 0.45)
@@ -2313,6 +2848,7 @@ function ns.RefreshMap(mapOnly)
         noMapText:SetShown(page.unavailable or false)
         if not page.unavailable then
             DungeonRouteWindow.plotMasks(page, sc)
+            DungeonRouteWindow.plotPath(d, page, sc, nextIndex)
             DungeonRouteWindow.plotMarkers(d, page, nextIndex, sc)
             DungeonRouteWindow.plotFlowLines(d, page, sc)
         end
@@ -2324,19 +2860,10 @@ function ns.RefreshMap(mapOnly)
         DungeonRouteWindow.plotFlowLines(d, nil, sc)
     end
     DungeonRouteWindow.plotBannerTitle(d, page, sc)
+    DungeonRouteWindow.syncPathButton(d)
     plotFloors(d, page)
     if mapOnly then return end
-    
-    local orientation = page and not page.unavailable and page.orientation
-    orientationBadge:SetShown(orientation and true or false)
-    if orientation then
-        orientationBadge.northUp = orientation.mode == "north-up"
-        orientationBadge.partial = page.partial
-        orientationBadge.supplementalNative = page.supplementalNative
-        local directionText = orientationBadge.northUp and L.MAP_NORTH_UP or L.MAP_GUIDE_UP
-        if page.partial then directionText = directionText .. "\n|cffffb347" .. L.PARTIAL_MINIMAP .. "|r" end
-        orientationBadge.text:SetText(directionText)
-    end
+
     local parts = {}
     if unitState.edit then parts[#parts + 1] = "|cffff5555EDIT|r" end
     if unitState.current ~= d then parts[#parts + 1] = L.BROWSE_ONLY end

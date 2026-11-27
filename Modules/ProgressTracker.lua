@@ -24,7 +24,7 @@ ns.DONATE_URL = "https://buymeacoffee.com/qqhrqqhr2"
 
 local DEFAULTS = {
     alpha = 0.9, combatFade = true, combatAlpha = 0.35,
-    mapSize = 380, showList = true, listTab = "route",
+    mapSize = 380, showList = true, listTab = "route", showPath = true, hiddenMarks = {},
     locked = false, autoOpen = true, hud = true, rareAlert = true, showIcon = true, lang = "auto",
     worldMapPins = true,
     worldMapLabels = false, worldMapLevels = true, worldMapAutoAlign = true, mapKeyInDungeon = true,

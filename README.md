@@ -59,6 +59,8 @@ WoW Forever (`Interface: 16001`) · `/ezdg`
 
 #### 그 밖의 기능
 
+- **길 안내 선**: 길 자료가 있는 던전에서는 지도에 우두머리를 차례로 찾아가는 길을 선으로 그립니다. 다음 우두머리로 가는 길은 밝게 화살표로, 지난 길은 흐리게 보여 줍니다. 지도 위 **길** 버튼으로 켜고 끕니다. 지도에서 길을 누르면 그 길이 굵게 표시됩니다.
+- **표시 켜고 끄기**: 지도 아래 범례의 체크 상자로 입구·우두머리·희귀·NPC·퀘스트·층 이동 표시를 종류별로 켜고 끕니다. 층(지역) 선택은 위쪽 던전 이름 옆에 있습니다.
 - **입구 방향 화살표**: 야외에서 선택한 던전 입구까지 방향과 남은 거리를 화살표로 안내합니다(`/ezdg go`, 끄기 `/ezdg go stop`, 런처 아이콘 우클릭).
 - **추적 화살표 창**: 지도에 추적 핀이 있으면 핀 쪽을 가리키는 화살표 창이 뜹니다(X: 핀 지우기). 화살표 창은 게임 설정 > 애드온 > **EzWoW - Data Sharing**(`/ezshare`)에서 "화면의 추적 화살표 창"을 끄면 숨길 수 있습니다(지도의 핀은 그대로, 모든 EzWoW 애드온에 같이 적용).
 - **세계지도 던전 입구**: 대륙·지역 지도에 던전 입구 표식을 표시하고(이름·권장 레벨 표시는 설정에서 선택), 가까이 붙은 입구(수도원 4구역 등)는 하나로 묶습니다. 묶인 표식을 누르면 던전을 고르는 메뉴가 나옵니다. 세계지도 왼쪽 아래 **3번째 도킹 버튼**을 누르면 던전 검색 막대가 펼쳐지고, 이름을 입력해 **Enter**를 누르면 입구가 있는 지역 지도로 이동합니다(전투 중에도 동작).
@@ -177,6 +179,8 @@ A dungeon route guide. Every supported dungeon has a real minimap-tile map, with
 
 #### More features
 
+- **Path lines**: in dungeons with path data the map draws the way from boss to boss; the way to the next boss is bright with arrows, finished parts are faint. The **Path** button on the map turns it on or off. Click a way on the map to make it thick.
+- **Mark switches**: the check boxes in the legend under the map show or hide each kind of mark (entrance, boss, rare, NPC, quest, floor change). The area picker sits next to the dungeon name at the top.
 - With **EzWoW - Data** installed its shared data is used too; without it everything still works.
 - The floors where bosses and rares were looted are gathered with other EzWoW users (record sharing) to make boss floors and lists more accurate. The sub-zone several users saw shows as “Killed in” in the step tooltip and the tip below the list, and entering it switches the map to that boss's floor.
 - **Entrance arrow**: outdoors, an arrow shows the direction and distance to the chosen dungeon entrance (`/ezdg go`, stop with `/ezdg go stop`, or right-click the launcher icon).

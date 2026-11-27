@@ -25,6 +25,8 @@ Ragefire Chasm, The Hall of Thanes, Wailing Caverns, Ruins of Lordaeron, The Dea
 - Pick any dungeon from the title list (levels shown, the one you are in is marked). **Current** returns to the dungeon you are in.
 - Map markers: numbers give the boss order, shapes and colours the type (gold skull boss, silver skull rare, NPC, quest spot, entrance, passage to another floor). Rares, NPCs and tasks get an icon, a yellow **!** marks quest targets, ✓ marks what is done and the next objective glows.
 - Random spawns show their other possible spots when selected.
+- **Path lines**: in dungeons with path data the map draws the way from boss to boss; the way to the next boss is bright with arrows. The **Path** button on the map turns it on or off. Click a way on the map to make it thick.
+- **Mark switches**: the check boxes in the legend under the map show or hide each kind of mark (entrance, boss, rare, NPC, quest, floor change).
 - Mouse wheel to zoom, drag to pan, **Fit** to reset. Multi-area dungeons get an area button with objectives left and a **Next objective → area** shortcut; blue link numbers jump to the connected area.
 
 ### Route, Quests and Prep tabs
@@ -94,6 +96,8 @@ Languages: English, 한국어, Deutsch, Français, Español, Русский, 简
 - 제목을 누르면 던전 목록(권장 레벨, 지금 있는 던전 표시)에서 아무 던전이나 고를 수 있습니다. **현재 던전**은 지금 있는 던전으로 돌아옵니다.
 - 지도 표식: 숫자는 우두머리 순서, 모양·색은 종류(금색 해골 우두머리·은색 해골 희귀 몹·NPC·퀘스트 장소·입구·다른 층으로 가는 통로). 희귀 몹·NPC·할 일은 아이콘, 노란 **!**는 퀘스트 대상, ✓는 완료, 다음 목표는 빛납니다.
 - 무작위로 나오는 몹은 선택하면 다른 출현 후보 지점도 보여 줍니다.
+- **길 안내 선**: 길 자료가 있는 던전에서는 지도에 우두머리를 차례로 찾아가는 길을 선으로 그립니다. 다음 우두머리로 가는 길은 밝게 화살표로 보여 주고, 지도 위 **길** 버튼으로 켜고 끕니다. 지도에서 길을 누르면 그 길이 굵게 표시됩니다.
+- **표시 켜고 끄기**: 지도 아래 범례의 체크 상자로 입구·우두머리·희귀·NPC·퀘스트·층 이동 표시를 종류별로 켜고 끕니다.
 - 마우스 휠로 확대, 끌어서 이동, **전체**로 다시 맞춤. 지역이 여러 개인 던전은 남은 목표 수가 붙은 지역 선택 버튼과 **다음 목표 → 지역** 바로가기가 나오고, 파란 번호를 누르면 연결된 지역으로 이동합니다.
 
 ### 경로 · 퀘스트 · 준비 탭
