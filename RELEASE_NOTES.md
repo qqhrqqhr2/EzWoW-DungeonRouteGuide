@@ -1,11 +1,13 @@
-# v2.0.35
+# v2.0.36
 
 ### 한국어
-- 여러 층으로 된 던전 지도를 게임 미니맵처럼 그 자리에서 보이는 층만 보여 주도록 다시 나눴습니다: 검은바위 첨탑 하층·상층, 스칼로맨스, 혈투의 전장 서쪽·북쪽·동쪽, 놈리건, 붉은십자군 수도원 묘지, 달라란.
-- 빠져 있던 방과 통로를 그려 넣었습니다(스칼로맨스, 놈리건 땜장이 왕실, 검은심연의 나락 달의 제단 통로).
-- 흉포한 기즈룰과 대족장 렌드 블랙핸드의 위치를 고쳤습니다.
+- 층이 있는 던전 지도를 게임 미니맵과 같은 모양으로 다시 그렸습니다: 검은아귀 요새, 가라앉은 사원, 그림자송곳니 성채, 스트라솔름, 혈투의 전장(동·서·북), 달라란, 울다만, 놈리건 입구, 붉은십자군 수도원 묘지 지하 묘실, 죽음의 폐광 철갑 만.
+- 입구 표시를 던전에 들어오면 실제로 서는 자리로 옮겼습니다(검은아귀 요새, 스칼로맨스, 가라앉은 사원, 가시덩굴 우리, 검은심연 나락, 검은바위 나락, 붉은십자군 수도원 등).
+- 다른 사용자가 공유한 상점 물건·트레이너 기술·퀘스트를 주고받는 NPC·퀘스트 보상·오브젝트 이름을 한 사람만 보내도 바로 씁니다.
+- 두 사람의 확인이 필요한 드롭 기록은 더 오래 기다립니다.
 
 ### English
-- Multi-level dungeon maps are split again so each page shows only the levels the in-game minimap shows there: Lower and Upper Blackrock Spire, Scholomance, Dire Maul West/North/East, Gnomeregan, Scarlet Monastery Graveyard and Dalaran.
-- Added missing rooms and tunnels (Scholomance, Gnomeregan's Tinkers' Court, the Blackfathom Deeps tunnel to the Moonshrine).
-- Fixed the spots of Gizrul the Slavener and Warchief Rend Blackhand.
+- Redrew the multi-level dungeon maps to look like the in-game minimap: Blackmaw Hold, Sunken Temple, Shadowfang Keep, Stratholme, Dire Maul (East, West, North), Dalaran, Uldaman, the Gnomeregan entrance, the Scarlet Monastery Graveyard crypt and the Deadmines' Ironclad Cove.
+- Entrance marks now sit where players actually arrive (Blackmaw Hold, Scholomance, Sunken Temple, Razorfen Kraul, Blackfathom Deeps, Blackrock Depths, Scarlet Monastery and more).
+- Shared shop goods, trainer spells, quest givers and turn-ins, quest rewards and object names are now used as soon as one player sends them.
+- Shared drops, which still need a second player, now wait longer for one.
